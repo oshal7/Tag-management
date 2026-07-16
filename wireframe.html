@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass — Lo-fi Wireframe</title>
+<style>
+/* ============================================================
+   Compass — lo-fi wireframe
+   Deliberately low fidelity: grayscale structure, dashed
+   placeholders, monospace annotations. The ONLY color carries
+   meaning — the four confidence bands. Nothing else is styled
+   to look "finished".
+   ============================================================ */
+
+:root{
+  /* cool-biased grayscale neutrals — chosen, not defaulted */
+  --paper:#f3f3f1;
+  --panel:#fbfbfa;
+  --ink:#2b2b2b;
+  --ink-soft:#5f5f5c;
+  --ink-faint:#8a8a86;
+  --line:#c9c9c6;
+  --line-strong:#a9a9a4;
+  --fill:#e9e9e6;      /* placeholder block fill */
+  --fill-2:#dedeDA;
+
+  /* semantic confidence bands — the one place color is allowed */
+  --auto:#2f7d4f;      --auto-bg:#e3f1e8;   --auto-line:#7fb495;
+  --inferred:#9a6a12;  --inferred-bg:#f6ecd6; --inferred-line:#d9b26a;
+  --review:#b23b3b;    --review-bg:#f6dede;  --review-line:#d98f8f;
+  --overhead:#4a6b8a;  --overhead-bg:#e2e9f0; --overhead-line:#8aa4bd;
+
+  --radius:3px;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#1c1d1f; --panel:#242628; --ink:#e7e7e4; --ink-soft:#b1b1ad;
+    --ink-faint:#84847f; --line:#3c3e41; --line-strong:#54565a;
+    --fill:#2c2e30; --fill-2:#34363a;
+    --auto:#6cc98c; --auto-bg:#1f3327; --auto-line:#3f6b50;
+    --inferred:#d8ab5c; --inferred-bg:#332a17; --inferred-line:#6b5628;
+    --review:#e08585; --review-bg:#3a2020; --review-line:#6f3b3b;
+    --overhead:#8fb0d0; --overhead-bg:#1f2a35; --overhead-line:#3f556b;
+  }
+}
+:root[data-theme="light"]{
+  --paper:#f3f3f1; --panel:#fbfbfa; --ink:#2b2b2b; --ink-soft:#5f5f5c;
+  --ink-faint:#8a8a86; --line:#c9c9c6; --line-strong:#a9a9a4;
+  --fill:#e9e9e6; --fill-2:#dededa;
+  --auto:#2f7d4f; --auto-bg:#e3f1e8; --auto-line:#7fb495;
+  --inferred:#9a6a12; --inferred-bg:#f6ecd6; --inferred-line:#d9b26a;
+  --review:#b23b3b; --review-bg:#f6dede; --review-line:#d98f8f;
+  --overhead:#4a6b8a; --overhead-bg:#e2e9f0; --overhead-line:#8aa4bd;
+}
+:root[data-theme="dark"]{
+  --paper:#1c1d1f; --panel:#242628; --ink:#e7e7e4; --ink-soft:#b1b1ad;
+  --ink-faint:#84847f; --line:#3c3e41; --line-strong:#54565a;
+  --fill:#2c2e30; --fill-2:#34363a;
+  --auto:#6cc98c; --auto-bg:#1f3327; --auto-line:#3f6b50;
+  --inferred:#d8ab5c; --inferred-bg:#332a17; --inferred-line:#6b5628;
+  --review:#e08585; --review-bg:#3a2020; --review-line:#6f3b3b;
+  --overhead:#8fb0d0; --overhead-bg:#1f2a35; --overhead-line:#3f556b;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:14px; line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:var(--mono)}
+a{color:inherit}
+
+/* ---------- app shell ---------- */
+.app{display:grid; grid-template-columns:232px 1fr; min-height:100vh}
+@media (max-width:820px){ .app{grid-template-columns:1fr} .sidebar{display:none} }
+
+.sidebar{
+  background:var(--panel); border-right:1px solid var(--line);
+  padding:16px 12px; position:sticky; top:0; height:100vh; overflow-y:auto;
+}
+.brand{display:flex; align-items:center; gap:9px; padding:4px 8px 14px}
+.brand .glyph{
+  width:26px; height:26px; border:1.5px solid var(--ink); border-radius:50%;
+  display:grid; place-items:center; font-size:14px;
+}
+.brand b{font-size:16px; letter-spacing:.02em}
+.brand small{display:block; color:var(--ink-faint); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase}
+
+.navsec{font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-faint); padding:14px 8px 5px}
+.nav a{
+  display:flex; align-items:center; gap:9px; padding:7px 8px; border-radius:var(--radius);
+  color:var(--ink-soft); text-decoration:none; font-size:13px; cursor:pointer; border:1px solid transparent;
+}
+.nav a .n{font-family:var(--mono); font-size:10px; color:var(--ink-faint); width:16px; text-align:right}
+.nav a:hover{background:var(--fill)}
+.nav a.active{background:var(--fill-2); color:var(--ink); border-color:var(--line); font-weight:600}
+
+/* ---------- top ribbon ---------- */
+.main{display:flex; flex-direction:column; min-width:0}
+.ribbon{
+  position:sticky; top:0; z-index:5; background:var(--panel);
+  border-bottom:1px solid var(--line); padding:10px 22px;
+  display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+}
+.ribbon .meter{flex:1; min-width:260px}
+.meter .lbl{display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-soft); margin-bottom:4px}
+.meter .lbl b{color:var(--ink); font-variant-numeric:tabular-nums}
+.bar{height:14px; border:1px solid var(--line-strong); border-radius:2px; display:flex; overflow:hidden; background:var(--fill)}
+.bar span{display:block; height:100%}
+.seg-auto{background:var(--auto-line)} .seg-inferred{background:var(--inferred-line)}
+.seg-review{background:var(--review-line)} .seg-overhead{background:var(--overhead-line)}
+.ribbon .modepill{
+  font-size:11px; font-family:var(--mono); color:var(--ink-soft);
+  border:1px dashed var(--line-strong); border-radius:20px; padding:4px 11px;
+}
+.ribbon .who{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink-soft)}
+.ribbon .who .av{width:24px;height:24px;border-radius:50%;background:var(--fill-2);border:1px solid var(--line)}
+.themebtn{font:inherit; font-size:12px; background:var(--panel); color:var(--ink-soft);
+  border:1px solid var(--line); border-radius:var(--radius); padding:5px 9px; cursor:pointer}
+.themebtn:hover{background:var(--fill)}
+
+/* ---------- canvas / screens ---------- */
+.canvas{padding:22px; max-width:1180px; width:100%}
+.screen{display:none; animation:fade .18s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:.4}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){ .screen.active{animation:none} }
+
+.crumbs{font-family:var(--mono); font-size:11px; color:var(--ink-faint); margin-bottom:6px}
+.h1{font-size:21px; margin:0 0 2px; letter-spacing:.01em; text-wrap:balance}
+.sub{color:var(--ink-soft); font-size:13px; margin:0 0 18px; max-width:70ch}
+
+/* wireframe annotation flag */
+.anno{font-family:var(--mono); font-size:10.5px; color:var(--ink-faint);
+  border-left:2px solid var(--line-strong); padding:2px 0 2px 8px; margin:10px 0}
+
+/* panels & primitives */
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px}
+.panel + .panel{margin-top:14px}
+.ph-title{font-size:12px; font-family:var(--mono); letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-faint); margin:0 0 12px; display:flex; justify-content:space-between; align-items:center}
+.grid{display:grid; gap:14px}
+.g2{grid-template-columns:1fr 1fr} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:900px){ .g2,.g3,.g4{grid-template-columns:1fr} }
+
+.box{background:var(--fill); border:1px dashed var(--line-strong); border-radius:var(--radius);
+  display:grid; place-items:center; color:var(--ink-faint); font-family:var(--mono); font-size:11px; text-align:center; padding:12px}
+.skel{height:10px; background:var(--fill); border-radius:6px; margin:7px 0}
+.skel.s60{width:60%} .skel.s40{width:40%} .skel.s80{width:80%}
+
+/* band chip */
+.band{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600;
+  padding:2px 8px; border-radius:20px; border:1px solid; white-space:nowrap; font-family:var(--sans)}
+.band .dot{width:7px;height:7px;border-radius:50%}
+.b-auto{color:var(--auto); background:var(--auto-bg); border-color:var(--auto-line)} .b-auto .dot{background:var(--auto)}
+.b-inferred{color:var(--inferred); background:var(--inferred-bg); border-color:var(--inferred-line)} .b-inferred .dot{background:var(--inferred)}
+.b-review{color:var(--review); background:var(--review-bg); border-color:var(--review-line)} .b-review .dot{background:var(--review)}
+.b-overhead{color:var(--overhead); background:var(--overhead-bg); border-color:var(--overhead-line)} .b-overhead .dot{background:var(--overhead)}
+
+.tag{display:inline-block; font-family:var(--mono); font-size:10.5px; color:var(--ink-soft);
+  border:1px solid var(--line); border-radius:2px; padding:1px 6px; background:var(--panel)}
+.strat{font-family:var(--mono); font-size:11px; color:var(--overhead); font-weight:600}
+
+/* buttons */
+.btn{font:inherit; font-size:12.5px; border:1px solid var(--line-strong); background:var(--panel);
+  color:var(--ink); border-radius:var(--radius); padding:6px 12px; cursor:pointer}
+.btn:hover{background:var(--fill)}
+.btn.primary{background:var(--ink); color:var(--paper); border-color:var(--ink)}
+.btn.ghost{border-style:dashed}
+.btn.sm{padding:3px 9px; font-size:11.5px}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap}
+
+/* tables */
+.tblwrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius)}
+table{border-collapse:collapse; width:100%; font-size:12.5px; min-width:640px}
+th,td{text-align:left; padding:8px 11px; border-bottom:1px solid var(--line)}
+th{font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-faint); background:var(--panel); position:sticky; top:0}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--fill)}
+td.num{text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono)}
+.rowlink{color:var(--ink); text-decoration:underline; text-decoration-color:var(--line-strong);
+  text-underline-offset:2px; cursor:pointer}
+.groupbar td{background:var(--fill-2); font-weight:600; font-size:12px}
+.indent{padding-left:26px}
+
+/* stat tiles */
+.tile{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:13px 15px}
+.tile .k{font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint)}
+.tile .v{font-size:23px; font-weight:600; margin-top:3px; font-variant-numeric:tabular-nums}
+.tile .d{font-size:11.5px; color:var(--ink-soft); margin-top:2px}
+.up{color:var(--review)} .down{color:var(--auto)}
+
+/* filter chips */
+.filters{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px}
+.fchip{font-size:11.5px; border:1px solid var(--line); background:var(--panel); border-radius:20px;
+  padding:4px 11px; color:var(--ink-soft); display:inline-flex; gap:6px; align-items:center}
+.fchip::after{content:"▾"; font-size:9px; color:var(--ink-faint)}
+.search{flex:1; min-width:160px; border:1px solid var(--line); border-radius:var(--radius);
+  padding:6px 10px; font:inherit; font-size:12.5px; background:var(--panel); color:var(--ink)}
+
+/* treemap */
+.treemap{display:grid; grid-template-columns:2.4fr 1.5fr 1fr; grid-template-rows:1.4fr 1fr; gap:6px; height:340px}
+.tm{border:1px solid var(--line-strong); border-radius:2px; padding:10px; display:flex; flex-direction:column;
+  justify-content:space-between; overflow:hidden}
+.tm .t-name{font-weight:600; font-size:13px}
+.tm .t-sub{font-family:var(--mono); font-size:10.5px; opacity:.8}
+.tm .t-amt{font-size:16px; font-weight:700; font-variant-numeric:tabular-nums}
+.tm.auto{background:var(--auto-bg); border-color:var(--auto-line); color:var(--auto)}
+.tm.inferred{background:var(--inferred-bg); border-color:var(--inferred-line); color:var(--inferred)}
+.tm.review{background:var(--review-bg); border-color:var(--review-line); color:var(--review)}
+.tm.overhead{background:var(--overhead-bg); border-color:var(--overhead-line); color:var(--overhead)}
+.tm .nest{display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-top:8px}
+.tm .nest span{border:1px dashed currentColor; border-radius:2px; font-size:9.5px; font-family:var(--mono);
+  padding:4px; opacity:.85}
+
+/* graph */
+.graph{position:relative; height:360px; border:1px dashed var(--line-strong); border-radius:var(--radius);
+  background:var(--fill); overflow:hidden}
+.node{position:absolute; transform:translate(-50%,-50%); border:1.5px solid; background:var(--panel);
+  border-radius:6px; padding:6px 9px; font-size:11px; font-family:var(--mono); white-space:nowrap; z-index:2}
+.node.p-pay{border-color:var(--auto); color:var(--auto)}
+.node.p-chk{border-color:var(--overhead); color:var(--overhead)}
+.node.p-shared{border-color:var(--review); color:var(--review); border-style:dashed}
+.node.focus{box-shadow:0 0 0 3px var(--fill-2); font-weight:700}
+
+/* provenance flow */
+.flow{display:grid; grid-template-columns:1fr auto 1fr; gap:14px; align-items:center}
+@media (max-width:760px){ .flow{grid-template-columns:1fr} }
+.sigcard{border:1px solid var(--line); border-radius:var(--radius); padding:9px 11px; margin-bottom:8px; background:var(--panel)}
+.sigcard .top{display:flex; justify-content:space-between; align-items:center; gap:8px}
+.sigcard .ev{font-size:11px; color:var(--ink-soft); margin-top:4px; font-family:var(--mono)}
+.arrow{font-size:22px; color:var(--ink-faint); text-align:center}
+.resolver{border:1.5px solid var(--ink); border-radius:var(--radius); padding:14px; text-align:center; background:var(--panel)}
+.conf{font-family:var(--mono); font-size:11px; color:var(--ink-soft)}
+
+/* evidence trail rows */
+.ev-row{display:grid; grid-template-columns:56px 130px 74px 1fr 28px; gap:10px; align-items:center;
+  padding:9px 4px; border-bottom:1px solid var(--line); font-size:12px}
+.ev-row:last-child{border-bottom:none}
+.ev-row .won{color:var(--auto); font-weight:700}
+.mini-bar{height:7px; background:var(--fill); border:1px solid var(--line); border-radius:4px; overflow:hidden}
+.mini-bar i{display:block; height:100%; background:var(--ink-faint)}
+
+/* chat / prompt */
+.chat{border:1px solid var(--line); border-radius:var(--radius); padding:12px; background:var(--panel)}
+.bubble{border-radius:8px; padding:9px 12px; margin:8px 0; max-width:88%; font-size:13px}
+.bubble.u{background:var(--fill-2); margin-left:auto}
+.bubble.c{background:var(--overhead-bg); border:1px solid var(--overhead-line)}
+.promptbar{display:flex; gap:8px; margin-top:10px}
+.promptbar input{flex:1; border:1px solid var(--line-strong); border-radius:var(--radius); padding:8px 11px; font:inherit; background:var(--panel); color:var(--ink)}
+
+/* builder rows */
+.cond{display:grid; grid-template-columns:120px 110px 1fr 30px; gap:8px; align-items:center; margin-bottom:8px}
+.cond select,.cond input{border:1px solid var(--line); border-radius:var(--radius); padding:6px 8px; font:inherit; font-size:12px; background:var(--panel); color:var(--ink)}
+.andor{display:inline-block; font-family:var(--mono); font-size:11px; color:var(--overhead); border:1px solid var(--overhead-line);
+  background:var(--overhead-bg); border-radius:2px; padding:2px 8px; margin:4px 0}
+
+/* sub-tabs */
+.tabs{display:flex; gap:2px; border-bottom:1px solid var(--line); margin-bottom:16px; flex-wrap:wrap}
+.tab{font:inherit; font-size:12.5px; background:none; border:1px solid transparent; border-bottom:none;
+  padding:8px 14px; cursor:pointer; color:var(--ink-soft); border-radius:var(--radius) var(--radius) 0 0; margin-bottom:-1px}
+.tab .tn{font-family:var(--mono); font-size:10px; color:var(--ink-faint)}
+.tab:hover{background:var(--fill)}
+.tab.active{background:var(--panel); border-color:var(--line); color:var(--ink); font-weight:600}
+.subview{display:none} .subview.active{display:block}
+
+/* legend */
+.legend{display:flex; gap:14px; flex-wrap:wrap; font-size:11.5px; color:var(--ink-soft); align-items:center}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.legend i{width:10px;height:10px;border-radius:2px; border:1px solid}
+.lg-auto{background:var(--auto-bg); border-color:var(--auto-line)}
+.lg-inferred{background:var(--inferred-bg); border-color:var(--inferred-line)}
+.lg-review{background:var(--review-bg); border-color:var(--review-line)}
+.lg-overhead{background:var(--overhead-bg); border-color:var(--overhead-line)}
+
+/* misc */
+.rowflex{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.spread{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap}
+.hr{height:1px; background:var(--line); margin:14px 0; border:0}
+.spark{height:44px; display:flex; align-items:flex-end; gap:3px}
+.spark i{flex:1; background:var(--fill-2); border-top:2px solid var(--line-strong)}
+.donut{width:150px;height:150px;border-radius:50%;
+  background:conic-gradient(var(--auto-line) 0 84%, var(--inferred-line) 84% 90%, var(--review-line) 90% 94%, var(--overhead-line) 94% 100%);
+  display:grid; place-items:center; margin:0 auto}
+.donut .hole{width:88px;height:88px;border-radius:50%; background:var(--panel); display:grid; place-items:center; text-align:center}
+.warn{color:var(--review); font-weight:600}
+.ok{color:var(--auto); font-weight:600}
+.footnote{font-family:var(--mono); font-size:10.5px; color:var(--ink-faint); margin-top:8px}
+ul.clean{margin:6px 0; padding-left:18px} ul.clean li{margin:4px 0; font-size:12.5px; color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="glyph">◎</div>
+      <div><b>Compass</b><small>non-prod attribution</small></div>
+    </div>
+    <div class="navsec">Overview</div>
+    <nav class="nav" id="nav">
+      <a data-screen="overview" class="active"><span class="n">01</span> Product Cost Overview</a>
+      <a data-screen="coverage"><span class="n">02</span> Coverage &amp; Confidence</a>
+      <a data-screen="visualization"><span class="n">03</span> Product → Resource</a>
+      <a data-screen="drilldown"><span class="n">04</span> Product Drill-down</a>
+      <a data-screen="resource"><span class="n">05</span> Resource Details</a>
+      <div class="navsec">Workflow</div>
+      <a data-screen="review"><span class="n">06</span> Review Queue</a>
+      <a data-screen="rules"><span class="n">07</span> Rules &amp; Authoring</a>
+      <div class="navsec">Accounting</div>
+      <a data-screen="shared"><span class="n">08</span> Shared / Overhead</a>
+      <a data-screen="waste"><span class="n">09</span> Waste &amp; Orphans</a>
+      <div class="navsec">Platform</div>
+      <a data-screen="signal"><span class="n">10</span> Signal Health</a>
+    </nav>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <div class="main">
+    <div class="ribbon">
+      <div class="meter">
+        <div class="lbl"><span>Non-prod spend attributed</span>
+          <span><b>94%</b> auto · <b>4%</b> review · <b>2%</b> overhead</span></div>
+        <div class="bar">
+          <span class="seg-auto" style="width:84%"></span>
+          <span class="seg-inferred" style="width:10%"></span>
+          <span class="seg-review" style="width:4%"></span>
+          <span class="seg-overhead" style="width:2%"></span>
+        </div>
+      </div>
+      <div class="modepill">● Showback mode</div>
+      <div class="who"><span>FinOps · A. Rivera</span><span class="av"></span></div>
+      <button class="themebtn" id="themebtn" type="button">◐ Theme</button>
+    </div>
+
+    <div class="canvas">
+
+      <!-- ============ 01 OVERVIEW ============ -->
+      <section class="screen active" id="s-overview">
+        <div class="crumbs">Compass / Overview</div>
+        <h1 class="h1">Product Cost Overview</h1>
+        <p class="sub">Total non-prod (Dev/Test/QA) spend broken down by product line. Showback framing — “here’s what your product used,” not a bill. Every figure is drillable to its evidence.</p>
+
+        <div class="grid g4" style="margin-bottom:14px">
+          <div class="tile"><div class="k">Non-prod spend · MTD</div><div class="v">$284,910</div><div class="d up">▲ 6.2% vs last period</div></div>
+          <div class="tile"><div class="k">Attributed</div><div class="v">94%</div><div class="d down">▲ 3 pts — trending to 100%</div></div>
+          <div class="tile"><div class="k">In review</div><div class="v">4%</div><div class="d down">▼ $11.4k · 18 resources</div></div>
+          <div class="tile"><div class="k">Shared overhead</div><div class="v">2%</div><div class="d">$5.7k · visible bucket</div></div>
+        </div>
+
+        <div class="panel">
+          <div class="ph-title">Spend by product line
+            <span class="legend">
+              <span><i class="lg-auto"></i>auto</span><span><i class="lg-inferred"></i>inferred</span>
+              <span><i class="lg-review"></i>review</span><span><i class="lg-overhead"></i>overhead</span>
+            </span>
+          </div>
+          <div class="tblwrap">
+            <table>
+              <thead><tr><th>Product line</th><th>Spend (MTD)</th><th>Share</th><th>PoP</th><th>Confidence</th><th>Trend</th></tr></thead>
+              <tbody>
+                <tr><td><span class="rowlink" data-goto="drilldown">Payments</span></td><td class="num">$92,400</td><td class="num">32%</td><td class="num up">▲ 8%</td><td><span class="band b-auto"><span class="dot"></span>Auto 0.95</span></td><td><div class="spark"><i style="height:40%"></i><i style="height:55%"></i><i style="height:48%"></i><i style="height:70%"></i><i style="height:82%"></i></div></td></tr>
+                <tr><td><span class="rowlink" data-goto="drilldown">Checkout</span></td><td class="num">$61,850</td><td class="num">22%</td><td class="num up">▲ 4%</td><td><span class="band b-auto"><span class="dot"></span>Auto 0.91</span></td><td><div class="spark"><i style="height:60%"></i><i style="height:52%"></i><i style="height:58%"></i><i style="height:63%"></i><i style="height:66%"></i></div></td></tr>
+                <tr><td><span class="rowlink" data-goto="drilldown">Search</span></td><td class="num">$47,200</td><td class="num">17%</td><td class="num down">▼ 2%</td><td><span class="band b-inferred"><span class="dot"></span>Inferred 0.78</span></td><td><div class="spark"><i style="height:70%"></i><i style="height:66%"></i><i style="height:60%"></i><i style="height:58%"></i><i style="height:55%"></i></div></td></tr>
+                <tr><td><span class="rowlink" data-goto="drilldown">Fulfillment</span></td><td class="num">$38,600</td><td class="num">14%</td><td class="num up">▲ 11%</td><td><span class="band b-inferred"><span class="dot"></span>Inferred 0.72</span></td><td><div class="spark"><i style="height:30%"></i><i style="height:44%"></i><i style="height:52%"></i><i style="height:68%"></i><i style="height:88%"></i></div></td></tr>
+                <tr><td><span class="rowlink" data-goto="drilldown">Identity</span></td><td class="num">$28,760</td><td class="num">10%</td><td class="num">— 0%</td><td><span class="band b-auto"><span class="dot"></span>Auto 0.88</span></td><td><div class="spark"><i style="height:50%"></i><i style="height:50%"></i><i style="height:52%"></i><i style="height:49%"></i><i style="height:51%"></i></div></td></tr>
+                <tr><td><span class="rowlink" data-goto="review">Needs review</span></td><td class="num">$11,400</td><td class="num">4%</td><td class="num">—</td><td><span class="band b-review"><span class="dot"></span>18 resources</span></td><td><div class="spark"><i style="height:40%"></i><i style="height:34%"></i><i style="height:30%"></i><i style="height:26%"></i><i style="height:22%"></i></div></td></tr>
+                <tr><td><span class="rowlink" data-goto="shared">Shared overhead</span></td><td class="num">$5,740</td><td class="num">2%</td><td class="num">—</td><td><span class="band b-overhead"><span class="dot"></span>Allocated</span></td><td><div class="spark"><i style="height:48%"></i><i style="height:50%"></i><i style="height:47%"></i><i style="height:49%"></i><i style="height:48%"></i></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="footnote">Every product name links into its drill-down · confidence badge links to the provenance view.</div>
+        </div>
+      </section>
+
+      <!-- ============ 02 COVERAGE ============ -->
+      <section class="screen" id="s-coverage">
+        <div class="crumbs">Compass / Coverage</div>
+        <h1 class="h1">Coverage &amp; Confidence</h1>
+        <p class="sub">The whole estate split by confidence band. The FinOps progress bar and finance’s trust gauge in one place — click any segment to filter the estate to those resources.</p>
+
+        <div class="grid g2">
+          <div class="panel">
+            <div class="ph-title">Estate by band · $284,910 · 2,418 resources</div>
+            <div class="donut"><div class="hole"><div><b style="font-size:20px">94%</b><br><span class="conf">attributed</span></div></div></div>
+            <div class="legend" style="justify-content:center; margin-top:14px">
+              <span><i class="lg-auto"></i>Auto-assigned · 84%</span>
+              <span><i class="lg-inferred"></i>Inferred · 10%</span>
+              <span><i class="lg-review"></i>Needs review · 4%</span>
+              <span><i class="lg-overhead"></i>Shared overhead · 2%</span>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="ph-title">Stacked view — click a segment to filter</div>
+            <div style="display:flex; flex-direction:column; gap:12px; margin-top:6px">
+              <div>
+                <div class="spread"><span class="band b-auto"><span class="dot"></span>Auto ≥ 0.85</span><b class="mono">$239,324 · 1,984 res</b></div>
+                <div class="bar" style="margin-top:5px"><span class="seg-auto" style="width:84%"></span></div>
+              </div>
+              <div>
+                <div class="spread"><span class="band b-inferred"><span class="dot"></span>Inferred 0.6–0.85</span><b class="mono">$28,491 · 372 res</b></div>
+                <div class="bar" style="margin-top:5px"><span class="seg-inferred" style="width:10%"></span></div>
+              </div>
+              <div>
+                <div class="spread"><span class="band b-review"><span class="dot"></span>Needs review &lt; 0.6</span><b class="mono">$11,396 · 18 res</b></div>
+                <div class="bar" style="margin-top:5px"><span class="seg-review" style="width:4%"></span></div>
+              </div>
+              <div>
+                <div class="spread"><span class="band b-overhead"><span class="dot"></span>Shared overhead</span><b class="mono">$5,698 · 44 res</b></div>
+                <div class="bar" style="margin-top:5px"><span class="seg-overhead" style="width:2%"></span></div>
+              </div>
+            </div>
+            <hr class="hr">
+            <div class="anno">Clicking a segment → filters the Product Resource Explorer to that band.</div>
+            <div class="btnrow"><button class="btn sm" data-goto="visualization">Open explorer →</button><button class="btn sm ghost">Export coverage report</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 03 VISUALIZATION ============ -->
+      <section class="screen" id="s-visualization">
+        <div class="crumbs">Compass / Product → Resource</div>
+        <h1 class="h1">Product → Resource Visualization</h1>
+        <p class="sub">Four complementary views of how resources link to products. The treemap answers <em>where’s the money</em>, the explorer is where people work, the graph answers <em>how are these connected</em>, and provenance answers <em>why does this belong here</em>.</p>
+
+        <div class="tabs" id="vtabs">
+          <button class="tab active" data-sub="treemap"><span class="tn">a</span> Cost Treemap</button>
+          <button class="tab" data-sub="explorer"><span class="tn">b</span> Resource Explorer</button>
+          <button class="tab" data-sub="graph"><span class="tn">c</span> Relationship Graph</button>
+          <button class="tab" data-sub="prov"><span class="tn">d</span> Attribution Provenance</button>
+        </div>
+
+        <!-- (a) treemap -->
+        <div class="subview active" id="v-treemap">
+          <div class="panel">
+            <div class="ph-title">Spend-sized · colored by confidence band + product hue
+              <span class="legend"><span><i class="lg-auto"></i>high</span><span><i class="lg-inferred"></i>inferred</span><span><i class="lg-review"></i>review</span></span></div>
+            <div class="treemap">
+              <div class="tm auto"><div><div class="t-name">Payments</div><div class="t-sub">3 accounts · 214 res</div></div>
+                <div><div class="t-amt">$92.4k</div><div class="nest"><span>ec2 · $31k</span><span>rds · $22k</span><span>eks · $18k</span><span>s3 · $9k</span></div></div></div>
+              <div class="tm auto"><div><div class="t-name">Checkout</div><div class="t-sub">2 acct · 168 res</div></div><div class="t-amt">$61.8k</div></div>
+              <div class="tm inferred"><div><div class="t-name">Search</div><div class="t-sub">inferred</div></div><div class="t-amt">$47.2k</div></div>
+              <div class="tm inferred"><div><div class="t-name">Fulfillment</div></div><div class="t-amt">$38.6k</div></div>
+              <div class="tm auto"><div><div class="t-name">Identity</div></div><div class="t-amt">$28.7k</div></div>
+              <div class="tm review"><div><div class="t-name">Review</div></div><div class="t-amt">$11.4k</div></div>
+            </div>
+            <div class="footnote">Level 1 = product · drill into a rectangle → accounts/services · leaf → Resource Details. Faded fill = inferred, outlined = in review.</div>
+          </div>
+        </div>
+
+        <!-- (b) explorer -->
+        <div class="subview" id="v-explorer">
+          <div class="panel">
+            <div class="filters">
+              <input class="search" placeholder="Search name / ARN…">
+              <span class="fchip">Product</span><span class="fchip">Account</span><span class="fchip">Service</span>
+              <span class="fchip">Confidence band</span><span class="fchip">Strategy</span><span class="fchip">Has real tag</span>
+            </div>
+            <div class="spread" style="margin-bottom:10px">
+              <div class="rowflex"><input type="checkbox"> <span class="mono" style="font-size:11px; color:var(--ink-faint)">3 selected</span>
+                <button class="btn sm">Assign to product ▾</button><button class="btn sm">Apply as rule</button><button class="btn sm">Add to review</button></div>
+              <span class="mono" style="font-size:11px; color:var(--ink-faint)">Grouped: Product → Account → Service → Resource</span>
+            </div>
+            <div class="tblwrap">
+              <table>
+                <thead><tr><th>Resource</th><th>Type</th><th>Cost/mo</th><th>Band</th><th>Strategy</th><th>Tag</th><th>State</th></tr></thead>
+                <tbody>
+                  <tr class="groupbar"><td colspan="7">▾ Payments · acct 4471 · EC2</td></tr>
+                  <tr><td class="indent"><span class="rowlink" data-goto="resource">payments-api-qa-3</span></td><td>ec2:i</td><td class="num">$1,240</td><td><span class="band b-auto"><span class="dot"></span>0.95</span></td><td class="strat">S1</td><td><span class="tag">real</span></td><td>live</td></tr>
+                  <tr><td class="indent"><span class="rowlink" data-goto="resource">payments-worker-dev</span></td><td>ec2:i</td><td class="num">$860</td><td><span class="band b-auto"><span class="dot"></span>0.90</span></td><td class="strat">S4</td><td><span class="tag">real</span></td><td>live</td></tr>
+                  <tr class="groupbar"><td colspan="7">▾ Payments · acct 4471 · RDS</td></tr>
+                  <tr><td class="indent"><span class="rowlink" data-goto="resource">checkout-qa-rds</span></td><td>rds</td><td class="num">$2,910</td><td><span class="band b-auto"><span class="dot"></span>0.92</span></td><td class="strat">S10</td><td><span class="tag">real</span></td><td>live</td></tr>
+                  <tr class="groupbar"><td colspan="7">▾ Search · acct 6620 · S3</td></tr>
+                  <tr><td class="indent"><span class="rowlink" data-goto="resource">search-index-cache</span></td><td>s3</td><td class="num">$430</td><td><span class="band b-inferred"><span class="dot"></span>0.74</span></td><td class="strat">S13</td><td><span class="tag">virtual</span></td><td>live</td></tr>
+                  <tr class="groupbar"><td colspan="7">▾ Unresolved</td></tr>
+                  <tr><td class="indent"><span class="rowlink" data-goto="review">i-0a1f9c3d (unnamed)</span></td><td>ec2:i</td><td class="num">$1,180</td><td><span class="band b-review"><span class="dot"></span>0.41</span></td><td class="strat">S8·S11</td><td><span class="tag">untagged</span></td><td>live</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="footnote">The workhorse — where FinOps and eng leads process the estate day to day. Bulk-select → assign / apply-as-rule / add to review.</div>
+          </div>
+        </div>
+
+        <!-- (c) graph -->
+        <div class="subview" id="v-graph">
+          <div class="panel">
+            <div class="ph-title">Neighborhood graph · focus: <span class="mono">shared-alb-nonprod</span> · 1-hop
+              <span class="legend"><span><i style="border-color:var(--auto-line);background:var(--auto-bg)"></i>Payments</span><span><i style="border-color:var(--overhead-line);background:var(--overhead-bg)"></i>Checkout</span><span><i style="border-color:var(--review-line);background:var(--review-bg)"></i>shared</span></span></div>
+            <div class="graph">
+              <svg width="100%" height="100%" style="position:absolute;inset:0;z-index:1" aria-hidden="true">
+                <g stroke="var(--line-strong)" stroke-width="1.5" fill="none">
+                  <line x1="50%" y1="50%" x2="22%" y2="24%"></line>
+                  <line x1="50%" y1="50%" x2="20%" y2="70%"></line>
+                  <line x1="50%" y1="50%" x2="80%" y2="26%"></line>
+                  <line x1="50%" y1="50%" x2="82%" y2="72%"></line>
+                </g>
+                <g stroke="var(--review)" stroke-width="2" stroke-dasharray="5 4" fill="none">
+                  <line x1="50%" y1="50%" x2="80%" y2="26%"></line>
+                  <line x1="50%" y1="50%" x2="82%" y2="72%"></line>
+                </g>
+              </svg>
+              <div class="node p-shared focus" style="left:50%; top:50%">◆ shared-alb-nonprod</div>
+              <div class="node p-pay" style="left:22%; top:24%">payments-tg → ecs</div>
+              <div class="node p-pay" style="left:20%; top:70%">payments-api-qa-3</div>
+              <div class="node p-chk" style="left:80%; top:26%">checkout-tg → ecs</div>
+              <div class="node p-chk" style="left:82%; top:72%">checkout-svc-qa</div>
+            </div>
+            <div class="anno">Dashed red edges = cross-product links → this shared ALB is an S14 allocation candidate. Follow an edge to see why a resource inherited its product (S6/S10).</div>
+            <div class="btnrow"><button class="btn sm">Expand 2-hop</button><button class="btn sm ghost">Scope to Payments</button><button class="btn sm" data-goto="resource">Open focus node →</button></div>
+          </div>
+        </div>
+
+        <!-- (d) provenance -->
+        <div class="subview" id="v-prov">
+          <div class="panel">
+            <div class="ph-title">Signal flow · resource <span class="mono">payments-api-qa-3</span></div>
+            <div class="flow">
+              <div>
+                <div class="sigcard"><div class="top"><span><span class="strat">S1</span> · Account boundary</span><span class="band b-auto"><span class="dot"></span>0.95</span></div><div class="ev">acct 4471 dedicated → Payments</div></div>
+                <div class="sigcard"><div class="top"><span><span class="strat">S4</span> · Creator identity</span><span class="band b-auto"><span class="dot"></span>0.85</span></div><div class="ev">SSO jdoe → group eng-payments</div></div>
+                <div class="sigcard"><div class="top"><span><span class="strat">S12</span> · Existing tag</span><span class="band b-inferred"><span class="dot"></span>0.80</span></div><div class="ev">team=pmts → alias → Payments</div></div>
+              </div>
+              <div class="arrow">→</div>
+              <div class="resolver">
+                <div class="mono" style="font-size:11px; color:var(--ink-faint)">RESOLVER</div>
+                <div style="margin:8px 0"><span class="band b-auto"><span class="dot"></span>Auto-assign</span></div>
+                <b style="font-size:19px">Payments</b>
+                <div class="conf" style="margin-top:6px">3 signals agree → 0.96 combined</div>
+                <div class="footnote">Agreement boosts confidence</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 04 DRILLDOWN ============ -->
+      <section class="screen" id="s-drilldown">
+        <div class="crumbs">Compass / Overview / <b>Payments</b></div>
+        <h1 class="h1">Payments — Product Drill-down</h1>
+        <p class="sub">One product’s accounts, VPCs, resources, top cost drivers and trend. Where an engineering manager verifies their bill and finds waste.</p>
+
+        <div class="grid g4" style="margin-bottom:14px">
+          <div class="tile"><div class="k">Spend MTD</div><div class="v">$92,400</div><div class="d up">▲ 8% PoP</div></div>
+          <div class="tile"><div class="k">Confidence</div><div class="v">0.95</div><div class="d"><span class="band b-auto"><span class="dot"></span>Auto</span></div></div>
+          <div class="tile"><div class="k">Resources</div><div class="v">214</div><div class="d">3 accounts · 4 VPCs</div></div>
+          <div class="tile"><div class="k">Potential waste</div><div class="v">$3,120</div><div class="d up">6 idle resources</div></div>
+        </div>
+
+        <div class="grid g2">
+          <div class="panel">
+            <div class="ph-title">Top cost drivers</div>
+            <div class="tblwrap"><table>
+              <thead><tr><th>Resource</th><th>Service</th><th>Cost/mo</th><th>Band</th></tr></thead>
+              <tbody>
+                <tr><td><span class="rowlink" data-goto="resource">payments-eks-qa</span></td><td>eks</td><td class="num">$18,200</td><td><span class="band b-auto"><span class="dot"></span>0.95</span></td></tr>
+                <tr><td><span class="rowlink" data-goto="resource">payments-primary-rds</span></td><td>rds</td><td class="num">$12,900</td><td><span class="band b-auto"><span class="dot"></span>0.95</span></td></tr>
+                <tr><td><span class="rowlink" data-goto="resource">payments-api-qa-3</span></td><td>ec2</td><td class="num">$1,240</td><td><span class="band b-auto"><span class="dot"></span>0.95</span></td></tr>
+                <tr><td><span class="rowlink" data-goto="resource">payments-idle-rds-2</span></td><td>rds</td><td class="num">$980</td><td><span class="band b-inferred"><span class="dot"></span>0.72</span></td></tr>
+              </tbody>
+            </table></div>
+          </div>
+          <div class="panel">
+            <div class="ph-title">Spend trend · 6 periods</div>
+            <div class="spark" style="height:120px">
+              <i style="height:40%"></i><i style="height:52%"></i><i style="height:48%"></i><i style="height:66%"></i><i style="height:78%"></i><i style="height:92%"></i>
+            </div>
+            <hr class="hr">
+            <div class="ph-title">Launch scoped views</div>
+            <div class="btnrow">
+              <button class="btn sm" data-goto="visualization">Treemap</button>
+              <button class="btn sm" data-goto="visualization">Explorer</button>
+              <button class="btn sm" data-goto="visualization">Graph</button>
+              <button class="btn sm" data-goto="visualization">Provenance</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 05 RESOURCE DETAILS ============ -->
+      <section class="screen" id="s-resource">
+        <div class="crumbs">Compass / … / <b>payments-api-qa-3</b></div>
+        <div class="spread">
+          <h1 class="h1">payments-api-qa-3</h1>
+          <div class="btnrow">
+            <button class="btn sm">Dispute / reassign</button>
+            <button class="btn sm">Pin to product</button>
+            <button class="btn sm primary" data-goto="rules">Apply as rule</button>
+          </div>
+        </div>
+        <p class="sub mono" style="font-size:12px">arn:aws:ec2:us-east-1:4471:instance/i-0a1f9c3d · EC2 · region us-east-1 · acct 4471 · <b style="color:var(--auto)">● live</b> · run-rate $1,240/mo</p>
+
+        <div class="grid g2">
+          <div>
+            <div class="panel">
+              <div class="ph-title">Attribution</div>
+              <div class="rowflex"><span class="band b-auto"><span class="dot"></span>Auto-assign · 0.96</span><b style="font-size:16px">Payments</b></div>
+              <p style="margin:10px 0 0; font-size:13px">Assigned to <b>Payments</b> — high confidence — via <span class="strat">S1</span>: account 4471 is dedicated to Payments, corroborated by creator identity and an existing tag alias.</p>
+            </div>
+            <div class="panel">
+              <div class="ph-title">Evidence trail — every signal that fired</div>
+              <div class="ev-row"><span class="strat won">S1</span><span>Payments</span><span class="mono">0.95</span><span class="mono" style="color:var(--ink-soft)">acct 4471 dedicated to Payments</span><span class="won">✓</span></div>
+              <div class="ev-row"><span class="strat">S4</span><span>Payments</span><span class="mono">0.85</span><span class="mono" style="color:var(--ink-soft)">SSO jdoe → eng-payments</span><span></span></div>
+              <div class="ev-row"><span class="strat">S12</span><span>Payments</span><span class="mono">0.80</span><span class="mono" style="color:var(--ink-soft)">team=pmts → alias table</span><span></span></div>
+              <div class="ev-row"><span class="strat">S11</span><span>Payments</span><span class="mono">0.60</span><span class="mono" style="color:var(--ink-soft)">name token “payments-*”</span><span></span></div>
+              <div class="ev-row" style="opacity:.6"><span class="strat">S8</span><span>—</span><span class="mono">0.40</span><span class="mono" style="color:var(--ink-soft)">deploy corr. (tie-breaker only)</span><span></span></div>
+              <div class="footnote">4 signals agree → resolver combined to 0.96. This is the trust-builder finance audits against.</div>
+            </div>
+            <div class="panel">
+              <div class="ph-title">Relationships</div>
+              <ul class="clean">
+                <li><b>Parent</b> · payments-asg-qa <span class="band b-auto" style="font-size:10px"><span class="dot"></span>Payments</span></li>
+                <li><b>References in</b> · shared-alb-nonprod → target group <span class="band b-review" style="font-size:10px"><span class="dot"></span>shared</span></li>
+                <li><b>Attached</b> · vol-0f21 (EBS, 100GB) <span class="band b-auto" style="font-size:10px"><span class="dot"></span>Payments</span></li>
+              </ul>
+              <div class="btnrow"><button class="btn sm" data-goto="visualization">View in graph →</button></div>
+            </div>
+          </div>
+          <div>
+            <div class="panel">
+              <div class="ph-title">Cost · trailing 6 periods</div>
+              <div class="spark" style="height:90px"><i style="height:50%"></i><i style="height:58%"></i><i style="height:54%"></i><i style="height:70%"></i><i style="height:80%"></i><i style="height:86%"></i></div>
+              <div class="rowflex" style="margin-top:10px; font-size:12px">
+                <span class="tag">compute $980</span><span class="tag">storage $190</span><span class="tag">transfer $70</span>
+              </div>
+              <div class="footnote">Pulled from CUR line items joined on the virtual tag.</div>
+            </div>
+            <div class="panel">
+              <div class="ph-title">Tags — real vs virtual</div>
+              <div class="tblwrap"><table>
+                <thead><tr><th>Key</th><th>Value</th><th>Source</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">product</td><td class="mono">Payments</td><td><span class="tag">real (AWS)</span></td></tr>
+                  <tr><td class="mono">managed-by</td><td class="mono">compass</td><td><span class="tag">real (AWS)</span></td></tr>
+                  <tr><td class="mono">team</td><td class="mono">pmts</td><td><span class="tag">pre-existing</span></td></tr>
+                  <tr><td class="mono">compass:product</td><td class="mono">Payments</td><td><span class="tag">virtual</span></td></tr>
+                </tbody>
+              </table></div>
+              <div class="btnrow"><button class="btn sm ghost">Revert compass tag</button></div>
+            </div>
+            <div class="panel">
+              <div class="ph-title">History / audit</div>
+              <ul class="clean">
+                <li><span class="mono">Jul 12</span> — real tag <span class="mono">product=Payments</span> written by rule <span class="mono">R-118</span></li>
+                <li><span class="mono">Jul 03</span> — auto-assigned Payments (0.96)</li>
+                <li><span class="mono">Jun 28</span> — first seen · created by <span class="mono">jdoe</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 06 REVIEW QUEUE ============ -->
+      <section class="screen" id="s-review">
+        <div class="crumbs">Compass / Review</div>
+        <div class="spread">
+          <h1 class="h1">Review Queue</h1>
+          <div class="rowflex"><span class="band b-review"><span class="dot"></span>18 open · $11.4k</span><span class="mono down" style="font-size:11px">▼ trending down</span></div>
+        </div>
+        <p class="sub">Cost-prioritized ambiguous or conflicting resources. Resolve in minutes; every decision offers <b>“apply as rule”</b> so similar resources auto-resolve next time.</p>
+
+        <div class="panel">
+          <div class="spread" style="margin-bottom:6px">
+            <div class="ph-title" style="margin:0">Resource · cost · candidate products (with evidence)</div>
+            <div class="mono" style="font-size:11px; color:var(--ink-faint)">sorted by $ impact</div>
+          </div>
+
+          <div style="border:1px solid var(--line); border-radius:var(--radius); padding:13px; margin-top:8px">
+            <div class="spread">
+              <div><b class="mono">i-0a1f9c3d</b> <span class="tag">ec2:instance</span> <span class="tag">untagged</span> · $1,180/mo</div>
+              <span class="band b-review"><span class="dot"></span>conflict · 0.41</span>
+            </div>
+            <div class="grid g2" style="margin-top:10px">
+              <div class="sigcard"><div class="top"><b>Search</b><span class="band b-inferred" style="font-size:10px"><span class="dot"></span>S11 0.55</span></div><div class="ev">name token “srch-idx”</div></div>
+              <div class="sigcard"><div class="top"><b>Fulfillment</b><span class="band b-inferred" style="font-size:10px"><span class="dot"></span>S8 0.50</span></div><div class="ev">deploy correlation window</div></div>
+            </div>
+            <div class="btnrow" style="margin-top:12px">
+              <button class="btn sm primary">Assign Search</button>
+              <button class="btn sm">Assign Fulfillment</button>
+              <button class="btn sm">Other product ▾</button>
+              <label class="mono" style="font-size:11px; margin-left:auto; display:flex; gap:6px; align-items:center"><input type="checkbox" checked> apply as rule</label>
+            </div>
+          </div>
+
+          <div style="border:1px solid var(--line); border-radius:var(--radius); padding:13px; margin-top:10px">
+            <div class="spread">
+              <div><b class="mono">shared-nat-gw-qa</b> <span class="tag">nat-gateway</span> · $2,340/mo</div>
+              <span class="band b-review"><span class="dot"></span>multi-owner · 0.38</span>
+            </div>
+            <p style="margin:8px 0 0; font-size:12.5px; color:var(--ink-soft)">Serves 3 products’ compute in dev-vpc. No single owner → candidate for <span class="strat">S14</span> metric-proportional split.</p>
+            <div class="btnrow" style="margin-top:12px">
+              <button class="btn sm primary" data-goto="shared">Route to allocation →</button>
+              <button class="btn sm">Assign one owner</button>
+            </div>
+          </div>
+          <div class="footnote">Health metric: queue size and dollar value trending down over time.</div>
+        </div>
+      </section>
+
+      <!-- ============ 07 RULES ============ -->
+      <section class="screen" id="s-rules">
+        <div class="crumbs">Compass / Rules</div>
+        <h1 class="h1">Rules Management &amp; Authoring</h1>
+        <p class="sub">Author rules two ways — plain-language prompt or manual builder — both emitting the same versioned rule object, both gated by the same mandatory preview. User-authored rules carry confidence 1.0.</p>
+
+        <div class="panel">
+          <div class="ph-title">Rules list</div>
+          <div class="tblwrap"><table>
+            <thead><tr><th>Rule</th><th>Source</th><th>Product</th><th>Matches</th><th>Priority</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="rowlink">Checkout — created-by eng-checkout</td><td><span class="tag">prompt</span></td><td>Checkout</td><td class="num">312</td><td class="num">100</td><td><span class="ok">● enabled</span></td></tr>
+              <tr><td class="rowlink">Payments — acct 4471</td><td><span class="tag">manual</span></td><td>Payments</td><td class="num">214</td><td class="num">90</td><td><span class="ok">● enabled</span></td></tr>
+              <tr><td class="rowlink">Search — name srch-*</td><td><span class="tag">override</span></td><td>Search</td><td class="num">88</td><td class="num">70</td><td><span class="mono" style="color:var(--inferred)">◐ simulate</span></td></tr>
+              <tr><td class="rowlink">idp eng-fulfil → Fulfillment</td><td><span class="tag">api</span></td><td>Fulfillment</td><td class="num">61</td><td class="num">80</td><td><span class="ok">● enabled</span></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+
+        <div class="grid g2">
+          <div class="panel">
+            <div class="ph-title">Path A · Prompt to rule</div>
+            <div class="chat">
+              <div class="bubble u">Tag everything the checkout team spins up as the Checkout product.</div>
+              <div class="bubble c"><b>Two things to confirm:</b><br>1. By “checkout team,” do you mean IdP group <span class="mono">eng-checkout</span> (24 members)?<br>2. “Spins up” — resources <b>created by</b> those users, or also resources that <b>run under</b> a checkout role?</div>
+              <div class="bubble u">eng-checkout, created-by only.</div>
+            </div>
+            <div class="promptbar"><input placeholder="Describe the rule in plain language…"><button class="btn primary sm">Send</button></div>
+          </div>
+
+          <div class="panel">
+            <div class="ph-title">Path B · Manual builder <span class="andor">AND</span></div>
+            <div class="cond"><select><option>creator_idp_group</option></select><select><option>is</option></select><input value="eng-checkout"><button class="btn sm ghost">✕</button></div>
+            <div class="cond"><select><option>scope</option></select><select><option>is</option></select><input value="non-prod-only"><button class="btn sm ghost">✕</button></div>
+            <button class="btn sm ghost">+ Add condition</button>
+            <hr class="hr">
+            <div class="rowflex"><span class="mono" style="font-size:11px; color:var(--ink-faint)">ACTION →</span> assign <b>Checkout</b> · <label class="mono" style="font-size:11px; display:flex; gap:5px; align-items:center"><input type="checkbox" checked> write real tag <span class="mono">product=Checkout</span></label></div>
+          </div>
+        </div>
+
+        <div class="panel" style="border-color:var(--overhead-line)">
+          <div class="ph-title" style="color:var(--overhead)">Live preview / dry-run — mandatory before save
+            <label class="mono" style="font-size:11px; display:flex; gap:6px; align-items:center; text-transform:none; letter-spacing:0"><input type="checkbox"> Simulate (report-only)</label></div>
+          <div class="grid g4">
+            <div class="tile"><div class="k">Matches</div><div class="v">312</div><div class="d">resources</div></div>
+            <div class="tile"><div class="k">Impact</div><div class="v">$8,400</div><div class="d">per month</div></div>
+            <div class="tile"><div class="k">Tags written</div><div class="v">280</div><div class="d">32 → virtual only</div></div>
+            <div class="tile"><div class="k">Conflicts</div><div class="v ok">0</div><div class="d">vs existing rules</div></div>
+          </div>
+          <div class="rowflex" style="margin-top:12px"><span class="mono" style="font-size:11px; color:var(--ink-faint)">SAMPLE:</span> <span class="tag">i-0a1…</span><span class="tag">checkout-qa-rds</span><span class="tag">ecs/checkout-svc</span></div>
+          <div class="anno">Blast-radius under threshold — no extra confirmation required. Sweeping rules trigger a second confirm.</div>
+          <div class="btnrow"><button class="btn primary">Save rule</button><button class="btn ghost">Save &amp; simulate</button><button class="btn">Cancel</button></div>
+        </div>
+      </section>
+
+      <!-- ============ 08 SHARED ============ -->
+      <section class="screen" id="s-shared">
+        <div class="crumbs">Compass / Shared &amp; Overhead</div>
+        <h1 class="h1">Shared / Overhead</h1>
+        <p class="sub">Spend no single product owns — split by allocation rule so 100% of spend is accounted for. Finance can see and adjust the logic rather than distrust a black box (<span class="strat">S14</span>).</p>
+
+        <div class="grid g3" style="margin-bottom:14px">
+          <div class="tile"><div class="k">Shared cost pool</div><div class="v">$18,240</div><div class="d">before allocation</div></div>
+          <div class="tile"><div class="k">Allocated out</div><div class="v down">$12,542</div><div class="d">to 5 products</div></div>
+          <div class="tile"><div class="k">Residual overhead</div><div class="v">$5,698</div><div class="d"><span class="band b-overhead"><span class="dot"></span>visible bucket</span></div></div>
+        </div>
+
+        <div class="panel">
+          <div class="ph-title">Splitters</div>
+          <div class="tblwrap"><table>
+            <thead><tr><th>Shared resource</th><th>Cost</th><th>Splitter</th><th>Basis</th><th>Result</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">shared-eks-nonprod</td><td class="num">$7,200</td><td><span class="tag">metric</span></td><td>namespace / pod consumption</td><td class="mono">5 products</td></tr>
+              <tr><td class="mono">shared-alb-nonprod</td><td class="num">$2,100</td><td><span class="tag">metric</span></td><td>request count / target group</td><td class="mono">Payments · Checkout</td></tr>
+              <tr><td class="mono">nat + data transfer</td><td class="num">$3,242</td><td><span class="tag">cost</span></td><td>proportional to attributed compute</td><td class="mono">all in dev-vpc</td></tr>
+              <tr><td class="mono">Config · GuardDuty · support</td><td class="num">$5,698</td><td><span class="tag">percent</span></td><td>— unallocatable —</td><td><span class="band b-overhead" style="font-size:10px"><span class="dot"></span>overhead</span></td></tr>
+            </tbody>
+          </table></div>
+          <div class="btnrow"><button class="btn sm">Adjust allocation logic</button><button class="btn sm ghost">Export split report</button></div>
+        </div>
+      </section>
+
+      <!-- ============ 09 WASTE ============ -->
+      <section class="screen" id="s-waste">
+        <div class="crumbs">Compass / Waste &amp; Orphans</div>
+        <h1 class="h1">Waste &amp; Orphans</h1>
+        <p class="sub">Idle and unattributed resources surfaced as a byproduct of attribution — a cleanup and cost-saving list. (Recommending instance changes is out of scope; surfacing them isn’t.)</p>
+
+        <div class="grid g4" style="margin-bottom:14px">
+          <div class="tile"><div class="k">Reclaimable / mo</div><div class="v down">$9,410</div><div class="d">47 resources</div></div>
+          <div class="tile"><div class="k">Unattached EBS</div><div class="v">22</div><div class="d">$2,180</div></div>
+          <div class="tile"><div class="k">Old snapshots</div><div class="v">14</div><div class="d">$640</div></div>
+          <div class="tile"><div class="k">Long-running dev</div><div class="v">6</div><div class="d">$4,900</div></div>
+        </div>
+
+        <div class="panel">
+          <div class="tblwrap"><table>
+            <thead><tr><th>Resource</th><th>Type</th><th>Idle</th><th>Cost/mo</th><th>Product</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="mono">payments-idle-rds-2</td><td>rds</td><td>31 days</td><td class="num">$980</td><td><span class="band b-inferred" style="font-size:10px"><span class="dot"></span>Payments</span></td><td><button class="btn sm ghost">Flag</button></td></tr>
+              <tr><td class="mono">vol-0f21e… (detached)</td><td>ebs</td><td>19 days</td><td class="num">$120</td><td><span class="tag">unattributed</span></td><td><button class="btn sm ghost">Flag</button></td></tr>
+              <tr><td class="mono">eip-3d9a (unassoc.)</td><td>eip</td><td>44 days</td><td class="num">$32</td><td><span class="tag">unattributed</span></td><td><button class="btn sm ghost">Flag</button></td></tr>
+              <tr><td class="mono">search-loadtest-box</td><td>ec2</td><td>27 days</td><td class="num">$1,410</td><td><span class="band b-auto" style="font-size:10px"><span class="dot"></span>Search</span></td><td><button class="btn sm ghost">Flag</button></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- ============ 10 SIGNAL HEALTH ============ -->
+      <section class="screen" id="s-signal">
+        <div class="crumbs">Compass / Signal Health</div>
+        <h1 class="h1">Signal Health</h1>
+        <p class="sub">Diagnostics on the <em>inputs</em> that drive accuracy. Tells platform exactly which fix most improves attribution — the highest-leverage being <span class="strat">S7</span> <span class="mono">SourceIdentity</span>.</p>
+
+        <div class="panel">
+          <div class="ph-title">Signal coverage</div>
+          <div style="display:flex; flex-direction:column; gap:14px">
+            <div>
+              <div class="spread"><span><span class="strat">S7</span> · Pipeline <span class="mono">SourceIdentity</span> present on deploys</span><b class="mono ok">88%</b></div>
+              <div class="mini-bar" style="margin-top:5px"><i style="width:88%; background:var(--auto-line)"></i></div>
+            </div>
+            <div>
+              <div class="spread"><span><span class="strat">S4</span> · IdP-group → team mapping coverage</span><b class="mono">12 of 15 teams</b></div>
+              <div class="mini-bar" style="margin-top:5px"><i style="width:80%; background:var(--inferred-line)"></i></div>
+              <div class="footnote">Missing: eng-analytics, eng-mobile, eng-data — resources from these fall to review.</div>
+            </div>
+            <div>
+              <div class="spread"><span><span class="strat">S13</span> · CloudTrail data events for S3 <span class="warn">— OFF</span></span><b class="mono warn">degraded</b></div>
+              <div class="mini-bar" style="margin-top:5px"><i style="width:22%; background:var(--review-line)"></i></div>
+              <div class="footnote">S3 attribution degraded — enable data events (cost-gated) to recover global-service accuracy.</div>
+            </div>
+            <div>
+              <div class="spread"><span><span class="strat">S9</span> · IaC / Terraform <span class="mono">default_tags</span> coverage</span><b class="mono ok">96%</b></div>
+              <div class="mini-bar" style="margin-top:5px"><i style="width:96%; background:var(--auto-line)"></i></div>
+            </div>
+          </div>
+          <div class="btnrow" style="margin-top:14px"><button class="btn sm">View setup guide</button><button class="btn sm ghost">Re-run diagnostics</button></div>
+        </div>
+      </section>
+
+    </div><!-- /canvas -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+(function(){
+  // screen navigation
+  var nav=document.getElementById('nav');
+  function show(screen){
+    document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+    var el=document.getElementById('s-'+screen); if(el) el.classList.add('active');
+    document.querySelectorAll('#nav a').forEach(function(a){
+      a.classList.toggle('active', a.getAttribute('data-screen')===screen);
+    });
+    var m=document.querySelector('.main'); if(m) m.scrollTop=0; window.scrollTo(0,0);
+  }
+  nav.addEventListener('click',function(e){
+    var a=e.target.closest('a[data-screen]'); if(!a) return;
+    e.preventDefault(); show(a.getAttribute('data-screen'));
+  });
+  // in-page "goto" links (rowlinks, buttons)
+  document.body.addEventListener('click',function(e){
+    var g=e.target.closest('[data-goto]'); if(!g) return;
+    e.preventDefault(); show(g.getAttribute('data-goto'));
+  });
+  // sub-tabs on the visualization screen
+  var vtabs=document.getElementById('vtabs');
+  if(vtabs){
+    vtabs.addEventListener('click',function(e){
+      var t=e.target.closest('.tab'); if(!t) return;
+      vtabs.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+      t.classList.add('active');
+      var sub=t.getAttribute('data-sub');
+      document.querySelectorAll('#s-visualization .subview').forEach(function(v){v.classList.remove('active')});
+      var pane=document.getElementById('v-'+sub); if(pane) pane.classList.add('active');
+    });
+  }
+  // theme toggle: cycles auto → light → dark
+  var order=['auto','light','dark'], idx=0, root=document.documentElement;
+  document.getElementById('themebtn').addEventListener('click',function(){
+    idx=(idx+1)%order.length; var m=order[idx];
+    if(m==='auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme',m);
+    this.textContent = m==='auto' ? '◐ Theme' : (m==='light' ? '☀ Light' : '☾ Dark');
+  });
+})();
+</script>
+</body>
+</html>
