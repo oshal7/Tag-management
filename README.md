@@ -25,8 +25,10 @@ external assets or network calls).
 
 ## What's in it
 
-All 10 screens from the PRD's information architecture, navigable from the left
-sidebar:
+16 screens across the analytics surface and the set-up journey, navigable from
+the left sidebar.
+
+**Analytics (the reporting surface):**
 
 1. **Product Cost Overview** — headline spend per product, coverage meter, trend
 2. **Coverage & Confidence** — the estate split across confidence bands
@@ -39,6 +41,18 @@ sidebar:
 8. **Shared / Overhead** — how unowned spend is split (S14) + the residual bucket
 9. **Waste & Orphans** — idle/unattributed resources
 10. **Signal Health** — diagnostics on the inputs that drive accuracy
+
+**Set-up flow (discover → review → map):**
+
+11. **Connect & Scope** — connect data sources; mark accounts prod vs non-prod
+12. **Discovered Products** — the system proposes candidate products from the
+    rules/strategies; rename, edit/delete rules, delete or create a product
+13. **Product Rules** — per-product rules; tweak/delete, add via AI or builder
+14. **Run Mapping** — animated loader linking resources to products
+15. **Mapping Complete** — per-product cost, resource counts, unique/changed
+16. **Product Workspace** — a product page with cost insights + three views:
+    resource-type cards, a flat resource list, and a relationships view where
+    moving a resource suggests its linked neighbors come with it
 
 ## Design intent
 

@@ -294,6 +294,50 @@ td.num{text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mo
 .ok{color:var(--auto); font-weight:600}
 .footnote{font-family:var(--mono); font-size:10.5px; color:var(--ink-faint); margin-top:8px}
 ul.clean{margin:6px 0; padding-left:18px} ul.clean li{margin:4px 0; font-size:12.5px; color:var(--ink-soft)}
+
+/* ---------- setup flow + product workspace ---------- */
+.pgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(232px,1fr)); gap:12px}
+.pcard{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:13px; display:flex; flex-direction:column; gap:9px}
+.pc-head{display:flex; align-items:center; justify-content:space-between; gap:8px}
+.pc-name{font-weight:600; font-size:14px; display:flex; align-items:center; gap:6px}
+.pc-name .edit{color:var(--ink-faint); cursor:pointer; font-size:12px}
+.pc-meta{display:flex; flex-wrap:wrap; gap:4px 12px; font-size:11.5px; color:var(--ink-soft); font-variant-numeric:tabular-nums}
+.pc-meta b{color:var(--ink)}
+.pc-rules{font-family:var(--mono); font-size:11px; color:var(--overhead); background:var(--overhead-bg); border:1px solid var(--overhead-line); border-radius:2px; padding:4px 7px}
+.pc-foot{display:flex; gap:6px; margin-top:auto; flex-wrap:wrap}
+.pcard.newcard{border-style:dashed; align-items:center; justify-content:center; color:var(--ink-faint); cursor:pointer; min-height:158px; font-family:var(--mono); font-size:12px; text-align:center}
+.pcard.newcard:hover{background:var(--fill)}
+.env{font-size:10px; font-family:var(--mono); border-radius:20px; padding:2px 8px; border:1px solid; white-space:nowrap}
+.env.nonprod{color:var(--overhead); background:var(--overhead-bg); border-color:var(--overhead-line)}
+.env.prod{color:var(--ink-faint); background:var(--fill); border-color:var(--line-strong)}
+.switch{display:inline-flex; border:1px solid var(--line-strong); border-radius:20px; overflow:hidden; font-size:10.5px; font-family:var(--mono)}
+.switch span{padding:2px 9px; cursor:pointer; color:var(--ink-faint)}
+.switch span.on{background:var(--ink); color:var(--paper)}
+
+.loadwrap{max-width:660px; margin:26px auto; text-align:center}
+.bigbar{height:22px; border:1px solid var(--line-strong); border-radius:20px; overflow:hidden; background:var(--fill); margin:16px 0 6px}
+.bigbar i{display:block; height:100%; background:var(--auto-line); width:0; transition:width .2s linear}
+.spin{width:34px;height:34px;border:3px solid var(--line); border-top-color:var(--ink); border-radius:50%; margin:0 auto 8px; animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){ .spin{animation:none} .bigbar i,.miniprod .track i{transition:none} }
+.miniprod{display:flex; align-items:center; gap:10px; margin:7px 0; font-size:12px}
+.miniprod .nm{width:130px; text-align:right; color:var(--ink-soft)}
+.miniprod .track{flex:1; height:8px; background:var(--fill); border:1px solid var(--line); border-radius:5px; overflow:hidden}
+.miniprod .track i{display:block; height:100%; width:0; background:var(--overhead-line); transition:width .22s linear}
+.miniprod .ct{width:64px; font-family:var(--mono); font-size:11px; color:var(--ink-faint); text-align:right}
+
+.rtgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(152px,1fr)); gap:10px}
+.rtcard{border:1px solid var(--line); border-radius:var(--radius); padding:11px; background:var(--panel); cursor:pointer}
+.rtcard:hover{background:var(--fill)}
+.rt-top{display:flex; justify-content:space-between; align-items:baseline}
+.rt-type{font-family:var(--mono); font-size:11px; color:var(--ink-soft)}
+.rt-count{font-size:21px; font-weight:700; font-variant-numeric:tabular-nums}
+.rt-sample{font-family:var(--mono); font-size:10px; color:var(--ink-faint); margin-top:6px; line-height:1.55}
+
+.movepanel{border:1px dashed var(--overhead-line); background:var(--overhead-bg); border-radius:var(--radius); padding:12px; margin-top:10px; display:none}
+.movepanel.open{display:block}
+.linkitem{display:flex; align-items:center; gap:8px; font-size:12px; padding:5px 0; border-bottom:1px solid var(--overhead-line)}
+.linkitem:last-child{border-bottom:none}
 </style>
 </head>
 <body>
@@ -320,6 +364,14 @@ ul.clean{margin:6px 0; padding-left:18px} ul.clean li{margin:4px 0; font-size:12
       <a data-screen="waste"><span class="n">09</span> Waste &amp; Orphans</a>
       <div class="navsec">Platform</div>
       <a data-screen="signal"><span class="n">10</span> Signal Health</a>
+      <div class="navsec">Set-up flow</div>
+      <a data-screen="connect"><span class="n">11</span> Connect &amp; Scope</a>
+      <a data-screen="discover"><span class="n">12</span> Discovered Products</a>
+      <a data-screen="prules"><span class="n">13</span> Product Rules</a>
+      <a data-screen="mapping"><span class="n">14</span> Run Mapping</a>
+      <a data-screen="complete"><span class="n">15</span> Mapping Complete</a>
+      <div class="navsec">Product workspace</div>
+      <a data-screen="workspace"><span class="n">16</span> Product Workspace</a>
     </nav>
   </aside>
 
@@ -844,6 +896,301 @@ ul.clean{margin:6px 0; padding-left:18px} ul.clean li{margin:4px 0; font-size:12
         </div>
       </section>
 
+      <!-- ============ 11 CONNECT & SCOPE ============ -->
+      <section class="screen" id="s-connect">
+        <div class="crumbs">Compass / Set-up · step 1 of 3</div>
+        <h1 class="h1">Connect &amp; Scope</h1>
+        <p class="sub">Point Compass at the estate and tell it which accounts are prod vs non-prod. Compass reads the resources but only attributes and tags what you scope as non-prod.</p>
+
+        <div class="grid g2">
+          <div class="panel">
+            <div class="ph-title">Data sources</div>
+            <ul class="clean" style="list-style:none; padding:0">
+              <li class="spread"><span>AWS Organizations · accounts &amp; OUs</span><span class="ok">● connected</span></li>
+              <li class="spread"><span>CUR 2.0 · cost source of truth</span><span class="ok">● connected</span></li>
+              <li class="spread"><span>CloudTrail org-trail · creation events</span><span class="ok">● connected</span></li>
+              <li class="spread"><span>AWS Config · inventory + relationships</span><span class="ok">● connected</span></li>
+              <li class="spread"><span>IdP / SSO groups · identity resolution</span><span class="warn">◐ 12 of 15 teams</span></li>
+            </ul>
+            <div class="footnote">Signal gaps lower accuracy but never block — see Signal Health.</div>
+          </div>
+          <div class="panel">
+            <div class="ph-title">Environment segregation — prod vs non-prod</div>
+            <div class="tblwrap"><table>
+              <thead><tr><th>Account / OU</th><th>Environment</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">ou-dev-4471 · Payments-Dev</td><td><span class="switch"><span>prod</span><span class="on">non-prod</span></span></td></tr>
+                <tr><td class="mono">ou-qa-6620 · Search-QA</td><td><span class="switch"><span>prod</span><span class="on">non-prod</span></span></td></tr>
+                <tr><td class="mono">acct-1180 · Shared-Sandbox</td><td><span class="switch"><span>prod</span><span class="on">non-prod</span></span></td></tr>
+                <tr><td class="mono">acct-9001 · Payments-Prod</td><td><span class="switch"><span class="on">prod</span><span>non-prod</span></span></td></tr>
+              </tbody>
+            </table></div>
+            <div class="btnrow" style="margin-top:12px"><button class="btn primary" data-goto="discover">Analyze estate →</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 12 DISCOVERED PRODUCTS ============ -->
+      <section class="screen" id="s-discover">
+        <div class="crumbs">Compass / Set-up · step 2 of 3</div>
+        <div class="spread">
+          <h1 class="h1">Discovered Products</h1>
+          <div class="rowflex"><span class="mono" style="font-size:11.5px; color:var(--ink-faint)">read 12,480 resources · drew 8 candidates</span></div>
+        </div>
+        <p class="sub">From your rules and the S1–S14 strategies, Compass grouped the estate into candidate product lines. Rename them, open their rules to tweak or delete, drop a product, or create your own — before any mapping runs. Each product is distinct; overlaps are flagged to resolve.</p>
+
+        <div class="anno">⚠ 2 resources match both <b>Search</b> and <b>Fulfillment</b> — resolve at author time or route to review.</div>
+
+        <div class="pgrid">
+          <div class="pcard">
+            <div class="pc-head"><div class="pc-name">Payments <span class="edit" title="rename">✎</span></div><span class="env nonprod">non-prod</span></div>
+            <div class="pc-meta"><span><b>9</b> services</span><span><b>34</b> types</span><span><b>3,214</b> res</span><span><b>$92.4k</b>/mo</span></div>
+            <div class="pc-rules">3 rules · S1 acct-4471 · S4 eng-payments · S12 team=pmts</div>
+            <div class="pc-foot"><button class="btn sm" data-goto="prules">Edit rules</button><button class="btn sm ghost">Delete</button></div>
+          </div>
+          <div class="pcard">
+            <div class="pc-head"><div class="pc-name">Checkout <span class="edit">✎</span></div><span class="env nonprod">non-prod</span></div>
+            <div class="pc-meta"><span><b>8</b> services</span><span><b>31</b> types</span><span><b>2,180</b> res</span><span><b>$61.8k</b>/mo</span></div>
+            <div class="pc-rules">2 rules · S4 eng-checkout · S10 alb-refs</div>
+            <div class="pc-foot"><button class="btn sm" data-goto="prules">Edit rules</button><button class="btn sm ghost">Delete</button></div>
+          </div>
+          <div class="pcard">
+            <div class="pc-head"><div class="pc-name">Search <span class="edit">✎</span></div><span class="env nonprod">non-prod</span></div>
+            <div class="pc-meta"><span><b>7</b> services</span><span><b>29</b> types</span><span><b>1,940</b> res</span><span><b>$47.2k</b>/mo</span></div>
+            <div class="pc-rules">2 rules · S11 name srch-* · S13 access-pattern</div>
+            <div class="pc-foot"><button class="btn sm" data-goto="prules">Edit rules</button><button class="btn sm ghost">Delete</button></div>
+          </div>
+          <div class="pcard">
+            <div class="pc-head"><div class="pc-name">Fulfillment <span class="edit">✎</span></div><span class="env nonprod">non-prod</span></div>
+            <div class="pc-meta"><span><b>8</b> services</span><span><b>33</b> types</span><span><b>1,610</b> res</span><span><b>$38.6k</b>/mo</span></div>
+            <div class="pc-rules">1 rule · S4 eng-fulfil</div>
+            <div class="pc-foot"><button class="btn sm" data-goto="prules">Edit rules</button><button class="btn sm ghost">Delete</button></div>
+          </div>
+          <div class="pcard">
+            <div class="pc-head"><div class="pc-name">Identity <span class="edit">✎</span></div><span class="env nonprod">non-prod</span></div>
+            <div class="pc-meta"><span><b>6</b> services</span><span><b>24</b> types</span><span><b>1,120</b> res</span><span><b>$28.7k</b>/mo</span></div>
+            <div class="pc-rules">2 rules · S1 ou-identity · S5 runtime-role</div>
+            <div class="pc-foot"><button class="btn sm" data-goto="prules">Edit rules</button><button class="btn sm ghost">Delete</button></div>
+          </div>
+          <div class="pcard">
+            <div class="pc-head"><div class="pc-name">Notifications <span class="edit">✎</span></div><span class="env nonprod">non-prod</span></div>
+            <div class="pc-meta"><span><b>5</b> services</span><span><b>19</b> types</span><span><b>820</b> res</span><span><b>$14.2k</b>/mo</span></div>
+            <div class="pc-rules">1 rule · S7 repo notify-svc</div>
+            <div class="pc-foot"><button class="btn sm" data-goto="prules">Edit rules</button><button class="btn sm ghost">Delete</button></div>
+          </div>
+          <div class="pcard">
+            <div class="pc-head"><div class="pc-name">Analytics <span class="edit">✎</span></div><span class="env nonprod">non-prod</span></div>
+            <div class="pc-meta"><span><b>7</b> services</span><span><b>27</b> types</span><span><b>940</b> res</span><span><b>$18.9k</b>/mo</span></div>
+            <div class="pc-rules">0 rules · <span class="warn">no signal — needs a rule</span></div>
+            <div class="pc-foot"><button class="btn sm" data-goto="prules">Add rules</button><button class="btn sm ghost">Delete</button></div>
+          </div>
+          <div class="pcard">
+            <div class="pc-head"><div class="pc-name">Platform-Shared <span class="edit">✎</span></div><span class="env prod">shared</span></div>
+            <div class="pc-meta"><span><b>4</b> services</span><span><b>12</b> types</span><span><b>560</b> res</span><span><b>$18.2k</b>/mo</span></div>
+            <div class="pc-rules">S14 · split across products (no single owner)</div>
+            <div class="pc-foot"><button class="btn sm" data-goto="shared">Allocation</button><button class="btn sm ghost">Delete</button></div>
+          </div>
+          <div class="pcard newcard">＋<br>Create a product<br><span style="color:var(--ink-faint)">then add rules (AI or manual)</span></div>
+        </div>
+
+        <div class="spread" style="margin-top:16px">
+          <span class="mono" style="font-size:11.5px; color:var(--ink-faint)">8 products · 12,480 resources will be mapped</span>
+          <button class="btn primary" data-goto="mapping">Run mapping →</button>
+        </div>
+      </section>
+
+      <!-- ============ 13 PRODUCT RULES ============ -->
+      <section class="screen" id="s-prules">
+        <div class="crumbs">Compass / Set-up / <b>Payments</b> · rules</div>
+        <div class="spread">
+          <h1 class="h1">Payments — Rules</h1>
+          <button class="btn sm" data-goto="discover">← Back to products</button>
+        </div>
+        <p class="sub">The rules that decide which resources fit into this product. Tweak a condition, disable, or delete a rule — or add a new one from the AI prompt or the manual builder. Changes update the match count live before you re-run mapping.</p>
+
+        <div class="panel">
+          <div class="ph-title">Rules on Payments</div>
+          <div class="tblwrap"><table>
+            <thead><tr><th>Rule</th><th>Source</th><th>Condition</th><th>Matches</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="rowlink">Account boundary</td><td><span class="tag">strategy</span></td><td class="mono">account is 4471</td><td class="num">2,910</td><td><div class="btnrow"><button class="btn sm ghost">Tweak</button><button class="btn sm ghost">Delete</button></div></td></tr>
+              <tr><td class="rowlink">Creator group</td><td><span class="tag">strategy</span></td><td class="mono">idp_group is eng-payments</td><td class="num">248</td><td><div class="btnrow"><button class="btn sm ghost">Tweak</button><button class="btn sm ghost">Delete</button></div></td></tr>
+              <tr><td class="rowlink">Tag alias</td><td><span class="tag">manual</span></td><td class="mono">tag:team in [pmts, payments]</td><td class="num">56</td><td><div class="btnrow"><button class="btn sm ghost">Tweak</button><button class="btn sm ghost">Delete</button></div></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+
+        <div class="grid g2">
+          <div class="panel">
+            <div class="ph-title">Add rule · AI prompt</div>
+            <div class="chat"><div class="bubble u">Also include anything running under the payments-task-role.</div>
+              <div class="bubble c">Add condition <span class="mono">runtime_role is payments-task-role</span> (S5)? That matches <b>+42</b> resources. Preview before save?</div></div>
+            <div class="promptbar"><input placeholder="Describe a rule to add…"><button class="btn primary sm">Send</button></div>
+          </div>
+          <div class="panel">
+            <div class="ph-title">Add rule · manual builder</div>
+            <div class="cond"><select><option>runtime_role</option></select><select><option>is</option></select><input value="payments-task-role"><button class="btn sm ghost">✕</button></div>
+            <button class="btn sm ghost">+ Add condition</button>
+            <hr class="hr">
+            <div class="rowflex"><span class="mono" style="font-size:11px; color:var(--ink-faint)">PREVIEW →</span> <b>+42</b> resources · $6.1k/mo</div>
+            <div class="btnrow" style="margin-top:10px"><button class="btn primary sm">Save rule</button><button class="btn sm ghost">Simulate</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 14 RUN MAPPING (LOADER) ============ -->
+      <section class="screen" id="s-mapping">
+        <div class="crumbs">Compass / Set-up · step 3 of 3</div>
+        <div class="loadwrap">
+          <div class="spin" id="map-spin"></div>
+          <h1 class="h1" style="text-align:center">Mapping resources to products…</h1>
+          <p class="sub" style="margin:0 auto 4px; text-align:center">Running every applicable strategy per resource and combining by confidence score.</p>
+          <div class="bigbar"><i id="map-fill"></i></div>
+          <div class="spread"><span class="mono" id="map-count" style="font-size:12px; color:var(--ink-soft)">0 / 12,480 resources linked</span><b class="mono" id="map-pct">0%</b></div>
+        </div>
+
+        <div class="panel" style="max-width:660px; margin:0 auto">
+          <div class="ph-title">Linking by product</div>
+          <div class="miniprod"><span class="nm">Payments</span><span class="track"><i data-mapbar="100"></i></span><span class="ct">3,214</span></div>
+          <div class="miniprod"><span class="nm">Checkout</span><span class="track"><i data-mapbar="100"></i></span><span class="ct">2,180</span></div>
+          <div class="miniprod"><span class="nm">Search</span><span class="track"><i data-mapbar="100"></i></span><span class="ct">1,940</span></div>
+          <div class="miniprod"><span class="nm">Fulfillment</span><span class="track"><i data-mapbar="100"></i></span><span class="ct">1,610</span></div>
+          <div class="miniprod"><span class="nm">Others (4)</span><span class="track"><i data-mapbar="100"></i></span><span class="ct">3,536</span></div>
+          <div id="map-done" style="display:none; text-align:center; margin-top:14px">
+            <span class="ok">✓ Mapping complete</span>
+            <div class="btnrow" style="justify-content:center; margin-top:10px"><button class="btn primary" data-goto="complete">View results →</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 15 MAPPING COMPLETE ============ -->
+      <section class="screen" id="s-complete">
+        <div class="crumbs">Compass / Set-up · done</div>
+        <div class="spread">
+          <h1 class="h1">Mapping Complete</h1>
+          <span class="ok">✓ 12,480 resources · 8 products</span>
+        </div>
+        <p class="sub">Every resource is now linked to a product, allocated by rule, or parked as shared overhead. Here’s what changed since the last run — open a product to work inside it.</p>
+
+        <div class="grid g4" style="margin-bottom:14px">
+          <div class="tile"><div class="k">Total non-prod cost</div><div class="v">$284,910</div><div class="d up">▲ 6.2%</div></div>
+          <div class="tile"><div class="k">Resources mapped</div><div class="v">12,480</div><div class="d down">▲ 512 new</div></div>
+          <div class="tile"><div class="k">Unique this run</div><div class="v">512</div><div class="d">first-seen resources</div></div>
+          <div class="tile"><div class="k">Moved products</div><div class="v">86</div><div class="d">re-attributed since last run</div></div>
+        </div>
+
+        <div class="panel">
+          <div class="ph-title">Products</div>
+          <div class="tblwrap"><table>
+            <thead><tr><th>Product</th><th>Cost/mo</th><th>Resources</th><th>Unique (new)</th><th>Δ change</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><span class="rowlink" data-goto="workspace">Payments</span></td><td class="num">$92,400</td><td class="num">3,214</td><td class="num">+128</td><td class="num up">▲ 8%</td><td><button class="btn sm" data-goto="workspace">Open →</button></td></tr>
+              <tr><td><span class="rowlink" data-goto="workspace">Checkout</span></td><td class="num">$61,850</td><td class="num">2,180</td><td class="num">+64</td><td class="num up">▲ 4%</td><td><button class="btn sm" data-goto="workspace">Open →</button></td></tr>
+              <tr><td><span class="rowlink" data-goto="workspace">Search</span></td><td class="num">$47,200</td><td class="num">1,940</td><td class="num">+41</td><td class="num down">▼ 2%</td><td><button class="btn sm" data-goto="workspace">Open →</button></td></tr>
+              <tr><td><span class="rowlink" data-goto="workspace">Fulfillment</span></td><td class="num">$38,600</td><td class="num">1,610</td><td class="num">+96</td><td class="num up">▲ 11%</td><td><button class="btn sm" data-goto="workspace">Open →</button></td></tr>
+              <tr><td><span class="rowlink" data-goto="shared">Platform-Shared</span></td><td class="num">$18,200</td><td class="num">560</td><td class="num">+12</td><td class="num">—</td><td><button class="btn sm" data-goto="shared">Split →</button></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- ============ 16 PRODUCT WORKSPACE ============ -->
+      <section class="screen" id="s-workspace">
+        <div class="crumbs">Compass / Products / <b>Payments</b></div>
+        <div class="spread">
+          <h1 class="h1">Payments <span class="env nonprod" style="vertical-align:middle">non-prod</span></h1>
+          <div class="rowflex"><button class="btn sm">Rename</button><button class="btn sm" data-goto="prules">Edit rules</button></div>
+        </div>
+        <p class="sub mono" style="font-size:12px">$92,400/mo · 9 services · 34 resource types · 3,214 resources · confidence 0.95</p>
+
+        <div class="grid g4" style="margin-bottom:16px">
+          <div class="tile"><div class="k">Cost MTD</div><div class="v">$92,400</div><div class="d up">▲ 8% PoP</div></div>
+          <div class="tile"><div class="k">Resource types</div><div class="v">34</div><div class="d">across 9 services</div></div>
+          <div class="tile"><div class="k">Resources</div><div class="v">3,214</div><div class="d">+128 new this run</div></div>
+          <div class="tile"><div class="k">Top driver</div><div class="v" style="font-size:17px">EKS</div><div class="d">$18.2k · 6 clusters</div></div>
+        </div>
+
+        <div class="tabs" id="wtabs">
+          <button class="tab active" data-wsub="types"><span class="tn">a</span> Resource types</button>
+          <button class="tab" data-wsub="flat"><span class="tn">b</span> All resources</button>
+          <button class="tab" data-wsub="rel"><span class="tn">c</span> Relationships &amp; move</button>
+        </div>
+
+        <!-- (a) resource types -->
+        <div class="subview active" id="w-types">
+          <div class="panel">
+            <div class="ph-title">Resource types in Payments — click a card to filter the list</div>
+            <div class="rtgrid">
+              <div class="rtcard" data-wgoto="flat"><div class="rt-top"><span class="rt-count">640</span><span class="rt-type">lambda</span></div><div class="rt-sample">payments-authz<br>payments-webhook…</div></div>
+              <div class="rtcard" data-wgoto="flat"><div class="rt-top"><span class="rt-count">412</span><span class="rt-type">ec2:instance</span></div><div class="rt-sample">payments-api-qa-3<br>payments-worker…</div></div>
+              <div class="rtcard" data-wgoto="flat"><div class="rt-top"><span class="rt-count">900</span><span class="rt-type">ebs:volume</span></div><div class="rt-sample">vol-0f21e…<br>vol-1a83c…</div></div>
+              <div class="rtcard" data-wgoto="flat"><div class="rt-top"><span class="rt-count">120</span><span class="rt-type">s3:bucket</span></div><div class="rt-sample">payments-exports<br>payments-logs…</div></div>
+              <div class="rtcard" data-wgoto="flat"><div class="rt-top"><span class="rt-count">44</span><span class="rt-type">dynamodb</span></div><div class="rt-sample">pmts-ledger-qa<br>pmts-idempotency…</div></div>
+              <div class="rtcard" data-wgoto="flat"><div class="rt-top"><span class="rt-count">38</span><span class="rt-type">rds</span></div><div class="rt-sample">payments-primary-rds<br>payments-idle-rds-2…</div></div>
+              <div class="rtcard" data-wgoto="flat"><div class="rt-top"><span class="rt-count">22</span><span class="rt-type">elb</span></div><div class="rt-sample">payments-alb-qa<br>payments-nlb…</div></div>
+              <div class="rtcard" data-wgoto="flat"><div class="rt-top"><span class="rt-count">12</span><span class="rt-type">elasticache</span></div><div class="rt-sample">pmts-sessions<br>pmts-ratelimit…</div></div>
+              <div class="rtcard" data-wgoto="flat"><div class="rt-top"><span class="rt-count">6</span><span class="rt-type">eks:cluster</span></div><div class="rt-sample">payments-eks-qa<br>payments-eks-dev…</div></div>
+            </div>
+            <div class="footnote">34 types total · showing top 9 by count. Each card = one resource type with its running count and a sample.</div>
+          </div>
+        </div>
+
+        <!-- (b) flat list -->
+        <div class="subview" id="w-flat">
+          <div class="panel">
+            <div class="filters">
+              <input class="search" placeholder="Search 3,214 resources…">
+              <span class="fchip">Type</span><span class="fchip">Service</span><span class="fchip">State</span>
+            </div>
+            <div class="tblwrap"><table>
+              <thead><tr><th>Resource</th><th>Type</th><th>Cost/mo</th><th>Confidence</th><th>State</th><th>Move</th></tr></thead>
+              <tbody>
+                <tr><td><span class="rowlink" data-goto="resource">payments-api-qa-3</span></td><td>ec2:instance</td><td class="num">$1,240</td><td><span class="band b-auto"><span class="dot"></span>0.95</span></td><td>live</td><td><button class="btn sm ghost" data-wsub-go="rel">Move ▾</button></td></tr>
+                <tr><td><span class="rowlink" data-goto="resource">payments-primary-rds</span></td><td>rds</td><td class="num">$12,900</td><td><span class="band b-auto"><span class="dot"></span>0.95</span></td><td>live</td><td><button class="btn sm ghost" data-wsub-go="rel">Move ▾</button></td></tr>
+                <tr><td><span class="rowlink" data-goto="resource">payments-eks-qa</span></td><td>eks:cluster</td><td class="num">$18,200</td><td><span class="band b-auto"><span class="dot"></span>0.95</span></td><td>live</td><td><button class="btn sm ghost" data-wsub-go="rel">Move ▾</button></td></tr>
+                <tr><td><span class="rowlink" data-goto="resource">payments-idle-rds-2</span></td><td>rds</td><td class="num">$980</td><td><span class="band b-inferred"><span class="dot"></span>0.72</span></td><td>idle 31d</td><td><button class="btn sm ghost" data-wsub-go="rel">Move ▾</button></td></tr>
+                <tr><td><span class="rowlink" data-goto="resource">payments-authz-fn</span></td><td>lambda</td><td class="num">$210</td><td><span class="band b-auto"><span class="dot"></span>0.90</span></td><td>live</td><td><button class="btn sm ghost" data-wsub-go="rel">Move ▾</button></td></tr>
+              </tbody>
+            </table></div>
+            <div class="footnote">Flat list of every resource in the product. Use “Move” to re-attribute a resource to another product.</div>
+          </div>
+        </div>
+
+        <!-- (c) relationships & move -->
+        <div class="subview" id="w-rel">
+          <div class="panel">
+            <div class="ph-title">Relationships — moving a resource suggests its linked neighbors</div>
+            <div class="graph" style="height:260px">
+              <svg width="100%" height="100%" style="position:absolute;inset:0;z-index:1" aria-hidden="true">
+                <g stroke="var(--line-strong)" stroke-width="1.5" fill="none">
+                  <line x1="50%" y1="50%" x2="24%" y2="28%"></line>
+                  <line x1="50%" y1="50%" x2="26%" y2="74%"></line>
+                  <line x1="50%" y1="50%" x2="78%" y2="34%"></line>
+                </g>
+              </svg>
+              <div class="node p-pay focus" style="left:50%; top:50%">payments-eks-qa</div>
+              <div class="node p-pay" style="left:24%; top:28%">eks-node-grp (12)</div>
+              <div class="node p-pay" style="left:26%; top:74%">payments-alb-qa</div>
+              <div class="node p-pay" style="left:78%; top:34%">vol-0f21e (EBS)</div>
+            </div>
+            <div class="btnrow"><button class="btn sm primary" id="movebtn">Move “payments-eks-qa” to another product ▾</button></div>
+
+            <div class="movepanel" id="movepanel">
+              <div class="spread"><b>Move to:</b> <span class="switch"><span class="on">Checkout</span><span>Search</span><span>Identity</span></span></div>
+              <hr class="hr">
+              <div class="mono" style="font-size:11.5px; color:var(--overhead)">3 resources are linked to <b>payments-eks-qa</b> — move them together?</div>
+              <div style="margin-top:8px">
+                <div class="linkitem"><input type="checkbox" checked> <span class="mono">eks-node-grp (12 nodes)</span> <span class="tag" style="margin-left:auto">parent → child</span></div>
+                <div class="linkitem"><input type="checkbox" checked> <span class="mono">vol-0f21e (EBS ×12)</span> <span class="tag" style="margin-left:auto">attached</span></div>
+                <div class="linkitem"><input type="checkbox"> <span class="mono">payments-alb-qa</span> <span class="tag" style="margin-left:auto">references</span></div>
+              </div>
+              <div class="btnrow" style="margin-top:12px"><button class="btn primary sm">Move 3 resources</button><button class="btn sm">Move only this one</button><button class="btn sm ghost" id="movecancel">Cancel</button></div>
+              <div class="footnote">Moving links keeps the dependency tree intact so cost doesn’t split across products by accident.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div><!-- /canvas -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -859,6 +1206,7 @@ ul.clean{margin:6px 0; padding-left:18px} ul.clean li{margin:4px 0; font-size:12
       a.classList.toggle('active', a.getAttribute('data-screen')===screen);
     });
     var m=document.querySelector('.main'); if(m) m.scrollTop=0; window.scrollTo(0,0);
+    if(screen==='mapping') startMapping();
   }
   nav.addEventListener('click',function(e){
     var a=e.target.closest('a[data-screen]'); if(!a) return;
@@ -881,6 +1229,51 @@ ul.clean{margin:6px 0; padding-left:18px} ul.clean li{margin:4px 0; font-size:12
       var pane=document.getElementById('v-'+sub); if(pane) pane.classList.add('active');
     });
   }
+  // mapping loader animation
+  function startMapping(){
+    var fill=document.getElementById('map-fill'), pct=document.getElementById('map-pct'),
+        cnt=document.getElementById('map-count'), done=document.getElementById('map-done'),
+        spin=document.getElementById('map-spin');
+    if(!fill) return;
+    var total=12480, p=0;
+    fill.style.width='0%'; if(done) done.style.display='none'; if(spin) spin.style.visibility='visible';
+    document.querySelectorAll('[data-mapbar]').forEach(function(b){b.style.width='0%'});
+    if(window.__mapTimer) clearInterval(window.__mapTimer);
+    var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    function paint(v){
+      fill.style.width=v+'%'; if(pct) pct.textContent=Math.round(v)+'%';
+      if(cnt) cnt.textContent=Math.round(v/100*total).toLocaleString()+' / 12,480 resources linked';
+      document.querySelectorAll('[data-mapbar]').forEach(function(b){b.style.width=v+'%'});
+    }
+    function finish(){ paint(100); if(spin) spin.style.visibility='hidden'; if(done) done.style.display='block'; }
+    if(reduce){ finish(); return; }
+    window.__mapTimer=setInterval(function(){
+      p+=Math.random()*8+3;
+      if(p>=100){ clearInterval(window.__mapTimer); finish(); return; }
+      paint(p);
+    },200);
+  }
+
+  // product workspace sub-tabs
+  var wtabs=document.getElementById('wtabs');
+  function showWsub(sub){
+    if(!wtabs) return;
+    wtabs.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('active', x.getAttribute('data-wsub')===sub)});
+    document.querySelectorAll('#s-workspace .subview').forEach(function(v){v.classList.remove('active')});
+    var pane=document.getElementById('w-'+sub); if(pane) pane.classList.add('active');
+  }
+  if(wtabs){ wtabs.addEventListener('click',function(e){ var t=e.target.closest('.tab'); if(t) showWsub(t.getAttribute('data-wsub')); }); }
+  // cross-tab jumps: resource-type card → flat list; "Move" → relationships
+  document.body.addEventListener('click',function(e){
+    var c=e.target.closest('[data-wgoto]'); if(c){ showWsub(c.getAttribute('data-wgoto')); return; }
+    var mv=e.target.closest('[data-wsub-go]'); if(mv){ showWsub(mv.getAttribute('data-wsub-go'));
+      var mp=document.getElementById('movepanel'); if(mp) mp.classList.add('open'); }
+  });
+  // move panel toggle
+  var movebtn=document.getElementById('movebtn'), movepanel=document.getElementById('movepanel'), movecancel=document.getElementById('movecancel');
+  if(movebtn){ movebtn.addEventListener('click',function(){ movepanel.classList.toggle('open'); }); }
+  if(movecancel){ movecancel.addEventListener('click',function(){ movepanel.classList.remove('open'); }); }
+
   // theme toggle: cycles auto → light → dark
   var order=['auto','light','dark'], idx=0, root=document.documentElement;
   document.getElementById('themebtn').addEventListener('click',function(){
