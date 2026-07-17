@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass — Prototypes</title>
+<style>
+:root{
+  --paper:#f3f3f1; --panel:#fbfbfa; --ink:#2b2b2b; --ink-soft:#5f5f5c; --ink-faint:#8a8a86;
+  --line:#c9c9c6; --line-strong:#a9a9a4; --fill:#e9e9e6;
+  --accent:#4a6b8a; --accent-bg:#e2e9f0; --accent-line:#8aa4bd;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{--paper:#1c1d1f; --panel:#242628; --ink:#e7e7e4; --ink-soft:#b1b1ad; --ink-faint:#84847f;
+    --line:#3c3e41; --line-strong:#54565a; --fill:#2c2e30; --accent:#8fb0d0; --accent-bg:#1f2a35; --accent-line:#3f556b;}
+}
+*{box-sizing:border-box} html,body{margin:0}
+body{background:var(--paper); color:var(--ink); font-family:var(--sans); line-height:1.5;
+  -webkit-font-smoothing:antialiased; padding:0}
+.wrap{max-width:820px; margin:0 auto; padding:56px 24px 80px}
+.brand{display:flex; align-items:center; gap:11px; margin-bottom:34px}
+.glyph{width:34px; height:34px; border:1.5px solid var(--ink); border-radius:50%; display:grid; place-items:center; font-size:18px}
+.brand b{font-size:19px; letter-spacing:.01em} .brand small{display:block; color:var(--ink-faint);
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase}
+h1{font-size:30px; margin:0 0 8px; letter-spacing:-.01em; text-wrap:balance}
+.lede{font-size:15px; color:var(--ink-soft); max-width:64ch; margin:0 0 26px}
+.card{border:1px solid var(--line); background:var(--panel); border-radius:6px; padding:22px; margin-bottom:20px}
+.card .top{display:flex; justify-content:space-between; align-items:flex-start; gap:14px; flex-wrap:wrap}
+.card h2{font-size:18px; margin:0 0 4px} .card .meta{font-family:var(--mono); font-size:11px; color:var(--ink-faint)}
+.btn{display:inline-block; background:var(--ink); color:var(--paper); text-decoration:none; font-size:14px;
+  font-weight:600; padding:10px 18px; border-radius:5px; white-space:nowrap}
+.btn:hover{opacity:.9}
+.groups{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px 22px; margin-top:20px}
+.grp h3{font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--accent); margin:0 0 7px}
+.grp ol{margin:0; padding-left:20px} .grp li{font-size:13px; color:var(--ink-soft); margin:3px 0}
+.note{font-size:13px; color:var(--ink-soft); border-left:2px solid var(--accent-line); padding:4px 0 4px 12px; margin:6px 0}
+code{font-family:var(--mono); font-size:12px; background:var(--fill); padding:1px 6px; border-radius:3px}
+.foot{font-family:var(--mono); font-size:11px; color:var(--ink-faint); margin-top:36px; border-top:1px solid var(--line); padding-top:16px}
+a.inline{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="glyph">◎</div>
+    <div><b>Compass</b><small>non-prod cost attribution · prototypes</small></div>
+  </div>
+
+  <h1>Compass — clickable prototypes</h1>
+  <p class="lede">Lo-fi wireframes for Compass, a tool that maps untagged non-production AWS resources to the product line that owns them (cost attribution, showback &amp; self-serve tagging). Deliberately low-fidelity — grayscale structure with the four confidence bands carried in color.</p>
+
+  <div class="card">
+    <div class="top">
+      <div>
+        <h2>Compass wireframe</h2>
+        <div class="meta">23 screens · single self-contained page · click the left nav to explore</div>
+      </div>
+      <a class="btn" href="./wireframe.html">Open the prototype →</a>
+    </div>
+
+    <div class="groups">
+      <div class="grp"><h3>Analytics</h3><ol>
+        <li>Product Cost Overview</li><li>Coverage &amp; Confidence</li><li>Product → Resource</li>
+        <li>Product Drill-down</li><li>Resource Details</li><li>Review Queue</li><li>Rules &amp; Authoring</li>
+        <li>Shared / Overhead</li><li>Waste &amp; Orphans</li><li>Signal Health</li></ol></div>
+      <div class="grp"><h3>Set-up flow</h3><ol start="11">
+        <li>Connect &amp; Scope</li><li>Discovered Products</li><li>Product Rules</li>
+        <li>Run Mapping</li><li>Mapping Complete</li></ol>
+        <h3 style="margin-top:14px">Workspace</h3><ol start="16">
+        <li>Product Workspace</li><li>Product Details · layouts</li><li>Resource 360</li></ol></div>
+      <div class="grp"><h3>Reporting</h3><ol start="19">
+        <li>Close the Month</li><li>Cost Report / P&amp;L</li></ol>
+        <h3 style="margin-top:14px">Governance</h3><ol start="21">
+        <li>Truth Tables</li><li>Access &amp; Audit</li><li>Tag Write-back</li></ol></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Editing from anywhere</h2>
+    <p class="note">Everything lives in <code>wireframe.html</code>. Edit it in the GitHub web editor (press <code>.</code> on the repo, or the ✎ pencil on the file), commit, and this site redeploys automatically within a minute or two.</p>
+    <p style="font-size:13px; color:var(--ink-soft); margin:10px 0 0">Repo: <a class="inline" href="https://github.com/oshal7/Tag-management">github.com/oshal7/Tag-management</a></p>
+  </div>
+
+  <div class="foot">Compass · lo-fi wireframe · hosted on GitHub Pages</div>
+</div>
+</body>
+</html>
