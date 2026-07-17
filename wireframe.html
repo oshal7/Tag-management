@@ -394,6 +394,35 @@ ul.clean{margin:6px 0; padding-left:18px} ul.clean li{margin:4px 0; font-size:12
 .kv{display:grid; grid-template-columns:118px 1fr; gap:4px 10px; font-size:12.5px}
 .kv .k{color:var(--ink-faint); font-family:var(--mono); font-size:11px}
 .shared-flag{border:1px solid var(--review-line); background:var(--review-bg); color:var(--review); border-radius:var(--radius); padding:8px 11px; font-size:12px; display:flex; gap:8px; align-items:center; margin-top:10px}
+
+/* ---------- period / time-travel control ---------- */
+.periodctl{position:relative}
+.periodbtn{font:inherit; font-size:12px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:5px 10px; cursor:pointer; color:var(--ink); display:flex; gap:7px; align-items:center}
+.periodbtn:hover{background:var(--fill)}
+.periodmenu{position:absolute; right:0; top:118%; z-index:20; background:var(--panel); border:1px solid var(--line-strong); border-radius:var(--radius); padding:6px; width:212px; box-shadow:0 8px 24px rgba(0,0,0,.14); display:none}
+.periodmenu.open{display:block}
+.periodmenu a{display:block; padding:6px 9px; border-radius:2px; font-size:12.5px; color:var(--ink-soft); cursor:pointer}
+.periodmenu a:hover{background:var(--fill)} .periodmenu a.sel{color:var(--ink); font-weight:600}
+.periodmenu .sec{font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); padding:9px 9px 3px}
+.ttbanner{display:none; align-items:center; gap:10px; background:var(--inferred-bg); border:1px solid var(--inferred-line); color:var(--inferred); border-radius:var(--radius); padding:8px 12px; margin-bottom:16px; font-size:12.5px}
+.ttbanner.open{display:flex}
+
+/* ---------- reporting + governance ---------- */
+.check{display:flex; align-items:center; gap:12px; padding:11px 4px; border-bottom:1px solid var(--line)}
+.check:last-child{border-bottom:none}
+.ci{width:20px; height:20px; border-radius:50%; display:grid; place-items:center; font-size:12px; flex:none}
+.ci.pass{background:var(--auto-bg); color:var(--auto); border:1px solid var(--auto-line)}
+.ci.block{background:var(--review-bg); color:var(--review); border:1px solid var(--review-line)}
+.check .cm{flex:1} .check .cm b{font-size:13px} .check .cm div{font-size:11.5px; color:var(--ink-soft)}
+.perm{color:var(--auto); font-weight:700} .noperm{color:var(--ink-faint)}
+.gate{color:var(--inferred); font-weight:700}
+.actor{display:inline-flex; align-items:center; gap:6px}
+.actor .av{width:20px;height:20px;border-radius:50%;background:var(--fill-2);border:1px solid var(--line)}
+.codebox{background:var(--fill); border:1px solid var(--line); border-radius:var(--radius); padding:12px; font-family:var(--mono); font-size:11.5px; color:var(--ink-soft); white-space:pre; overflow-x:auto; display:none}
+.codebox.open{display:block}
+.vardrill{background:var(--fill); border-left:2px solid var(--overhead-line)}
+.vardrill td{font-size:11.5px; color:var(--ink-soft); font-family:var(--mono)}
+.lock{font-size:11px; color:var(--ink-faint)}
 </style>
 </head>
 <body>
@@ -431,6 +460,13 @@ ul.clean{margin:6px 0; padding-left:18px} ul.clean li{margin:4px 0; font-size:12
       <div class="navsec">Explorations</div>
       <a data-screen="details"><span class="n">17</span> Product Details · layouts</a>
       <a data-screen="r360"><span class="n">18</span> Resource 360</a>
+      <div class="navsec">Reporting</div>
+      <a data-screen="close"><span class="n">19</span> Close the Month</a>
+      <a data-screen="report"><span class="n">20</span> Cost Report / P&amp;L</a>
+      <div class="navsec">Governance</div>
+      <a data-screen="truth"><span class="n">21</span> Truth Tables</a>
+      <a data-screen="access"><span class="n">22</span> Access &amp; Audit</a>
+      <a data-screen="writeback"><span class="n">23</span> Tag Write-back</a>
     </nav>
   </aside>
 
@@ -447,12 +483,29 @@ ul.clean{margin:6px 0; padding-left:18px} ul.clean li{margin:4px 0; font-size:12
           <span class="seg-overhead" style="width:2%"></span>
         </div>
       </div>
+      <div class="periodctl">
+        <button class="periodbtn" id="periodbtn" type="button">◷ <span id="periodlbl">July 2026</span> ▾</button>
+        <div class="periodmenu" id="periodmenu">
+          <div class="sec">Period</div>
+          <a data-period="July 2026" class="sel">This month</a>
+          <a data-period="June 2026">Last month</a>
+          <a data-period="Q3 2026">Quarter to date</a>
+          <a data-period="Last 3 months">Last 3 months</a>
+          <a data-period="Custom range…">Custom range…</a>
+          <div class="sec">Compare</div>
+          <a data-period="July vs June">vs previous period</a>
+          <div class="sec">Time-travel</div>
+          <a data-tt="1">As of a past date…</a>
+        </div>
+      </div>
       <div class="modepill">● Showback mode</div>
       <div class="who"><span>FinOps · A. Rivera</span><span class="av"></span></div>
       <button class="themebtn" id="themebtn" type="button">◐ Theme</button>
     </div>
 
     <div class="canvas">
+
+      <div class="ttbanner" id="ttbanner">⟲ <b>Time-travel</b> — showing attribution <b>as of Jun 30, 2026</b>, before rule R-118. Numbers are historical and read-only. <button class="btn sm ghost" id="ttclose" style="margin-left:auto">Back to live</button></div>
 
       <!-- ============ 01 OVERVIEW ============ -->
       <section class="screen active" id="s-overview">
@@ -1483,6 +1536,204 @@ ul.clean{margin:6px 0; padding-left:18px} ul.clean li{margin:4px 0; font-size:12
         </div>
       </section>
 
+      <!-- ============ 19 CLOSE THE MONTH ============ -->
+      <section class="screen" id="s-close">
+        <div class="crumbs">Compass / Reporting / Close</div>
+        <div class="spread">
+          <h1 class="h1">Close — July 2026</h1>
+          <span class="mono" style="font-size:11.5px; color:var(--ink-faint)">FinOps · monthly close</span>
+        </div>
+        <p class="sub">Everything must reconcile before the month locks. Once locked, July’s attribution is <b>frozen</b> — later rule changes won’t move signed-off numbers (re-opening is a permissioned admin action).</p>
+
+        <div class="panel">
+          <div class="ph-title">Readiness checklist</div>
+          <div class="check"><span class="ci pass">✓</span><div class="cm"><b>Coverage ≥ 85% target</b><div>94% attributed · 4% review · 2% overhead</div></div><button class="btn sm" data-goto="coverage">View</button></div>
+          <div class="check"><span class="ci pass">✓</span><div class="cm"><b>Nothing unallocated</b><div>Every dollar attributed, allocated by rule, or in overhead — $0 dropped</div></div><button class="btn sm" data-goto="shared">View</button></div>
+          <div class="check"><span class="ci pass">✓</span><div class="cm"><b>Rule conflicts</b><div>0 open conflicts</div></div><button class="btn sm" data-goto="rules">View</button></div>
+          <div class="check"><span class="ci block">!</span><div class="cm"><b>Review queue not clear</b><div class="warn">18 resources · $11,400 unresolved</div></div><button class="btn sm" data-goto="review">Resolve</button></div>
+          <div class="check"><span class="ci block">!</span><div class="cm"><b>Open disputes</b><div class="warn">3 disputes from eng managers awaiting decision</div></div><button class="btn sm" data-goto="review">Resolve</button></div>
+          <hr class="hr">
+          <div class="spread">
+            <span class="mono warn" style="font-size:12px">2 blockers remaining</span>
+            <button class="btn primary" disabled style="opacity:.5; cursor:not-allowed">🔒 Lock &amp; generate report</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="ph-title">Recent closes</div>
+          <div class="tblwrap"><table>
+            <thead><tr><th>Period</th><th>Total</th><th>Status</th><th>Closed by</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>June 2026</td><td class="num">$268,300</td><td><span class="lock">🔒 locked</span></td><td>A. Rivera · Jul 2</td><td><div class="btnrow"><button class="btn sm" data-goto="report">Report</button><button class="btn sm ghost">Reopen (admin)</button></div></td></tr>
+              <tr><td>May 2026</td><td class="num">$254,110</td><td><span class="lock">🔒 locked</span></td><td>A. Rivera · Jun 3</td><td><div class="btnrow"><button class="btn sm" data-goto="report">Report</button><button class="btn sm ghost">Reopen (admin)</button></div></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- ============ 20 COST REPORT / P&L ============ -->
+      <section class="screen" id="s-report">
+        <div class="crumbs">Compass / Reporting / Report</div>
+        <div class="spread">
+          <h1 class="h1">Product Cost Report — July 2026</h1>
+          <div class="btnrow"><button class="btn sm">Export CSV</button><button class="btn sm">Export JSON</button><button class="btn sm primary">Push to FP&amp;A</button></div>
+        </div>
+        <p class="sub">The defensible, per-product artifact Finance signs off. Showback framing — what each product used — with confidence bands so you know how hard to lean on each number, and variance explained line by line.</p>
+
+        <div class="grid g4" style="margin-bottom:14px">
+          <div class="tile"><div class="k">Total non-prod</div><div class="v">$284,910</div><div class="d up">▲ 6.2% MoM</div></div>
+          <div class="tile"><div class="k">High-confidence</div><div class="v">94%</div><div class="d">auto + inferred attributed</div></div>
+          <div class="tile"><div class="k">Shared overhead</div><div class="v">$5,740</div><div class="d">2% · defensible line</div></div>
+          <div class="tile"><div class="k">Sign-off</div><div class="v" style="font-size:15px">Awaiting Finance</div><div class="d">FinOps closed Jul 2</div></div>
+        </div>
+
+        <div class="panel">
+          <div class="ph-title">Per-product cost lines — click ▸ to explain variance</div>
+          <div class="tblwrap"><table>
+            <thead><tr><th>Product</th><th>Cost/mo</th><th>Confidence</th><th>Share</th><th>MoM Δ</th></tr></thead>
+            <tbody>
+              <tr><td>▸ Payments</td><td class="num">$92,400</td><td><span class="band b-auto"><span class="dot"></span>0.95</span></td><td class="num">32%</td><td class="num up">▲ $6,120 (8%)</td></tr>
+              <tr class="vardrill"><td colspan="5">↳ +$4,100 new resources (128) · +$2,880 rate/usage · −$860 re-attributed to Checkout</td></tr>
+              <tr><td>▸ Checkout</td><td class="num">$61,850</td><td><span class="band b-auto"><span class="dot"></span>0.91</span></td><td class="num">22%</td><td class="num up">▲ $2,380 (4%)</td></tr>
+              <tr><td>▸ Search</td><td class="num">$47,200</td><td><span class="band b-inferred"><span class="dot"></span>0.78</span></td><td class="num">17%</td><td class="num down">▼ $960 (2%)</td></tr>
+              <tr><td>▸ Fulfillment</td><td class="num">$38,600</td><td><span class="band b-inferred"><span class="dot"></span>0.72</span></td><td class="num">14%</td><td class="num up">▲ $3,820 (11%)</td></tr>
+              <tr><td>▸ Identity</td><td class="num">$28,760</td><td><span class="band b-auto"><span class="dot"></span>0.88</span></td><td class="num">10%</td><td class="num">— 0%</td></tr>
+              <tr><td>Shared overhead</td><td class="num">$5,740</td><td><span class="band b-overhead"><span class="dot"></span>allocated</span></td><td class="num">2%</td><td class="num">▲ $210</td></tr>
+              <tr style="font-weight:700; background:var(--fill-2)"><td>Total</td><td class="num">$284,910</td><td>—</td><td class="num">100%</td><td class="num up">▲ 6.2%</td></tr>
+            </tbody>
+          </table></div>
+          <div class="spread" style="margin-top:12px">
+            <div class="rowflex"><span class="modepill">● Showback mode</span><label class="mono" style="font-size:11px; color:var(--ink-faint); display:flex; gap:6px; align-items:center"><input type="checkbox" disabled> chargeback (coming)</label></div>
+            <button class="btn primary sm">Approve as Finance →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 21 TRUTH TABLES ============ -->
+      <section class="screen" id="s-truth">
+        <div class="crumbs">Compass / Governance / Truth tables</div>
+        <div class="spread">
+          <h1 class="h1">Truth Tables</h1>
+          <span class="mono" style="font-size:11.5px; color:var(--ink-faint)">platform-owned · versioned</span>
+        </div>
+        <p class="sub">The small lookup tables that replace per-resource tagging — the manual investment the platform team maintains. Edit in-app, versioned; or view/export as code to keep them in Git.</p>
+
+        <div class="panel">
+          <div class="ph-title">Account / OU → Product <span class="strat">S1</span>
+            <button class="btn sm ghost" data-codetoggle="code-acct">&lt;/&gt; view as code</button></div>
+          <div class="tblwrap"><table>
+            <thead><tr><th>Account / OU</th><th>Product</th><th>Coverage</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="mono">acct 4471</td><td>Payments</td><td class="mono">dedicated</td><td><button class="btn sm ghost">Edit</button></td></tr>
+              <tr><td class="mono">ou-search-6620</td><td>Search</td><td class="mono">dedicated OU</td><td><button class="btn sm ghost">Edit</button></td></tr>
+              <tr><td class="mono">acct 1180</td><td class="warn">— shared sandbox (weak prior) —</td><td class="mono">0.3</td><td><button class="btn sm ghost">Edit</button></td></tr>
+            </tbody>
+          </table></div>
+          <div class="btnrow" style="margin-top:8px"><button class="btn sm">+ Add mapping</button></div>
+          <div class="codebox" id="code-acct">accounts:
+  "4471": { product: Payments, confidence: 0.95 }
+  "1180": { product: null, note: "shared sandbox", confidence: 0.3 }
+ous:
+  ou-search-6620: { product: Search, confidence: 0.90 }</div>
+        </div>
+
+        <div class="grid g2">
+          <div class="panel">
+            <div class="ph-title">IdP-group → Team → Product <span class="strat">S4</span></div>
+            <div class="tblwrap"><table>
+              <thead><tr><th>IdP group</th><th>Product</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">eng-payments</td><td>Payments</td></tr>
+                <tr><td class="mono">eng-checkout</td><td>Checkout</td></tr>
+                <tr><td class="mono warn">eng-analytics</td><td class="warn">unmapped</td></tr>
+              </tbody>
+            </table></div>
+            <div class="footnote">12 of 15 groups mapped — see Signal Health.</div>
+          </div>
+          <div class="panel">
+            <div class="ph-title">Tag-alias → Product <span class="strat">S12</span></div>
+            <div class="tblwrap"><table>
+              <thead><tr><th>Existing tag</th><th>Normalizes to</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">team=pmts</td><td>Payments</td></tr>
+                <tr><td class="mono">app=chkout</td><td>Checkout</td></tr>
+                <tr><td class="mono">owner=srch-team</td><td>Search</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+        <div class="footnote">Also maintained: VPC/Subnet → Product (S2), Repo → Product (S7), Namespace → Product (S14).</div>
+      </section>
+
+      <!-- ============ 22 ACCESS & AUDIT ============ -->
+      <section class="screen" id="s-access">
+        <div class="crumbs">Compass / Governance / Access &amp; audit</div>
+        <h1 class="h1">Access &amp; Audit</h1>
+        <p class="sub">Who can do what — with tag-writing and prod scope specifically gated — and a complete trail of every change for finance audit.</p>
+
+        <div class="panel">
+          <div class="ph-title">Roles &amp; permissions</div>
+          <div class="tblwrap"><table>
+            <thead><tr><th>Capability</th><th>Viewer</th><th>Analyst</th><th>Admin</th></tr></thead>
+            <tbody>
+              <tr><td>View dashboards &amp; reports</td><td class="perm">●</td><td class="perm">●</td><td class="perm">●</td></tr>
+              <tr><td>Resolve review queue / disputes</td><td class="noperm">—</td><td class="perm">●</td><td class="perm">●</td></tr>
+              <tr><td>Author &amp; edit rules</td><td class="noperm">—</td><td class="perm">●</td><td class="perm">●</td></tr>
+              <tr><td>Close the month</td><td class="noperm">—</td><td class="perm">●</td><td class="perm">●</td></tr>
+              <tr><td>Write real AWS tags <span class="gate">(gated)</span></td><td class="noperm">—</td><td class="noperm">—</td><td class="perm">●</td></tr>
+              <tr><td>Edit truth tables</td><td class="noperm">—</td><td class="noperm">—</td><td class="perm">●</td></tr>
+              <tr><td>Act on prod scope <span class="gate">(separately permissioned)</span></td><td class="noperm">—</td><td class="noperm">—</td><td class="perm">●</td></tr>
+            </tbody>
+          </table></div>
+          <div class="footnote">Rules are non-prod-scoped by default; prod requires the separate prod-scope grant.</div>
+        </div>
+
+        <div class="panel">
+          <div class="ph-title">Global audit log</div>
+          <div class="tblwrap"><table>
+            <thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Target</th></tr></thead>
+            <tbody>
+              <tr class="auditrow"><td class="mono">Jul 12 14:20</td><td><span class="actor"><span class="av"></span>A. Rivera</span></td><td>wrote real tags via rule</td><td class="mono">R-118 · 280 resources</td></tr>
+              <tr class="auditrow"><td class="mono">Jul 11 09:02</td><td><span class="actor"><span class="av"></span>J. Doe</span></td><td>edited truth table</td><td class="mono">Account→Product · acct 1180</td></tr>
+              <tr class="auditrow"><td class="mono">Jul 10 16:44</td><td><span class="actor"><span class="av"></span>M. Lee</span></td><td>disputed attribution</td><td class="mono">i-0a1f9c3d</td></tr>
+              <tr class="auditrow"><td class="mono">Jul 09 11:15</td><td><span class="actor"><span class="av"></span>A. Rivera</span></td><td>override → learned rule</td><td class="mono">search-index-cache</td></tr>
+              <tr class="auditrow"><td class="mono">Jul 02 18:30</td><td><span class="actor"><span class="av"></span>A. Rivera</span></td><td>locked period</td><td class="mono">June 2026</td></tr>
+            </tbody>
+          </table></div>
+          <div class="btnrow" style="margin-top:8px"><button class="btn sm ghost">Export audit log</button></div>
+        </div>
+      </section>
+
+      <!-- ============ 23 TAG WRITE-BACK ============ -->
+      <section class="screen" id="s-writeback">
+        <div class="crumbs">Compass / Governance / Tag write-back</div>
+        <div class="spread">
+          <h1 class="h1">Tag Write-back</h1>
+          <span class="mono" style="font-size:11.5px; color:var(--ink-faint)">attribution-only by default · tag-writing opt-in</span>
+        </div>
+        <p class="sub">Compass attributes and keeps a virtual tag by default. Writing real AWS tags is opt-in per rule so Cost Explorer &amp; Budgets keep working. Every written tag carries <span class="mono">managed-by=compass</span>, which makes any rule’s tags bulk-revertible.</p>
+
+        <div class="grid g4" style="margin-bottom:14px">
+          <div class="tile"><div class="k">Rules writing tags</div><div class="v">3</div><div class="d">of 12 rules · opt-in</div></div>
+          <div class="tile"><div class="k">Resources tagged</div><div class="v">612</div><div class="d">real AWS tags</div></div>
+          <div class="tile"><div class="k">managed-by=compass</div><div class="v">612</div><div class="d">all reversible</div></div>
+          <div class="tile"><div class="k">Untaggable</div><div class="v">44</div><div class="d">→ virtual only</div></div>
+        </div>
+
+        <div class="panel">
+          <div class="ph-title">Rules that write real tags</div>
+          <div class="tblwrap"><table>
+            <thead><tr><th>Rule</th><th>Product</th><th>Tags written</th><th>Last write</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="rowlink" data-goto="rules">Checkout — created-by eng-checkout</td><td>Checkout</td><td class="num">280</td><td class="mono">Jul 12</td><td><div class="btnrow"><button class="btn sm ghost">Simulate</button><button class="btn sm ghost">Revert tags</button></div></td></tr>
+              <tr><td class="rowlink" data-goto="rules">Payments — acct 4471</td><td>Payments</td><td class="num">214</td><td class="mono">Jul 12</td><td><div class="btnrow"><button class="btn sm ghost">Simulate</button><button class="btn sm ghost">Revert tags</button></div></td></tr>
+              <tr><td class="rowlink" data-goto="rules">idp eng-fulfil → Fulfillment</td><td>Fulfillment</td><td class="num">118</td><td class="mono">Jul 11</td><td><div class="btnrow"><button class="btn sm ghost">Simulate</button><button class="btn sm ghost">Revert tags</button></div></td></tr>
+            </tbody>
+          </table></div>
+          <div class="shared-flag" style="background:var(--overhead-bg); border-color:var(--overhead-line); color:var(--overhead)">↺ <b>Bulk revert</b> — because every write carries <span class="mono">managed-by=compass</span>, a rule’s tags can be removed in one action with no collateral damage. Simulate first to preview the diff.</div>
+        </div>
+      </section>
+
     </div><!-- /canvas -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -1586,6 +1837,36 @@ ul.clean{margin:6px 0; padding-left:18px} ul.clean li{margin:4px 0; font-size:12
       var node=c.closest('.tnode'); if(node && node.querySelector('.tchild')) node.classList.toggle('open');
     });
   }
+
+  // period / time-travel control
+  var periodbtn=document.getElementById('periodbtn'), periodmenu=document.getElementById('periodmenu'),
+      periodlbl=document.getElementById('periodlbl'), ttbanner=document.getElementById('ttbanner'),
+      ttclose=document.getElementById('ttclose');
+  if(periodbtn){
+    periodbtn.addEventListener('click',function(e){ e.stopPropagation(); periodmenu.classList.toggle('open'); });
+    periodmenu.addEventListener('click',function(e){
+      e.stopPropagation();
+      var a=e.target.closest('[data-period]');
+      if(a){
+        periodmenu.querySelectorAll('[data-period]').forEach(function(x){x.classList.remove('sel')});
+        a.classList.add('sel'); periodlbl.textContent=a.getAttribute('data-period');
+        if(ttbanner) ttbanner.classList.remove('open');
+        periodmenu.classList.remove('open'); return;
+      }
+      if(e.target.closest('[data-tt]')){
+        if(ttbanner) ttbanner.classList.add('open');
+        periodlbl.textContent='As of Jun 30'; periodmenu.classList.remove('open');
+      }
+    });
+    document.addEventListener('click',function(){ periodmenu.classList.remove('open'); });
+  }
+  if(ttclose){ ttclose.addEventListener('click',function(){ ttbanner.classList.remove('open'); if(periodlbl) periodlbl.textContent='July 2026'; }); }
+
+  // "view as code" toggles (truth tables)
+  document.body.addEventListener('click',function(e){
+    var t=e.target.closest('[data-codetoggle]'); if(!t) return;
+    var el=document.getElementById(t.getAttribute('data-codetoggle')); if(el) el.classList.toggle('open');
+  });
 
   // theme toggle: cycles auto → light → dark
   var order=['auto','light','dark'], idx=0, root=document.documentElement;

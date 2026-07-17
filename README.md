@@ -66,6 +66,27 @@ the left sidebar.
     (run-rate, trend, breakdown, forecast, share), and a linked & shared panel
     that flags cross-product sharing (S14)
 
+**Reporting (closes the FinOps & Finance journeys):**
+
+19. **Close the Month** — a readiness checklist (coverage, review queue,
+    disputes, unallocated, conflicts) gating a lock; closed periods are frozen
+20. **Cost Report / P&L** — per-product cost lines with confidence bands,
+    line-by-line variance explanation, showback framing (chargeback stubbed),
+    export (CSV/JSON/FP&A push), and a Finance sign-off step
+
+**Governance (the Platform/Admin surfaces):**
+
+21. **Truth Tables** — the editable, versioned lookup tables (Account→Product,
+    IdP-group→Team, Tag-alias, …) with a view/export-as-code affordance
+22. **Access & Audit** — RBAC role matrix (tag-write and prod-scope gated) plus
+    the global audit log of every rule change, tag write, override, and close
+23. **Tag Write-back** — real tags are opt-in per rule; every write carries
+    `managed-by=compass` so a rule's tags can be simulated and bulk-reverted
+
+A global **period / time-travel control** in the top ribbon drives every screen:
+pick a period, compare to the previous one, or view attribution *as of* a past
+date (historical, read-only).
+
 ## Design intent
 
 Deliberately lo-fi — grayscale boxes and monospace annotations keep attention on
