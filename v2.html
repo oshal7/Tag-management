@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass v2 — Interactive Lo-fi</title>
+<style>
+  :root{
+    --paper:#F7F6F2; --panel:#FFFFFF; --line:#B3AFA6; --line-soft:#DAD7CF;
+    --ink:#262420; --muted:#7A7568; --pen:#3B5BA5; --pen-soft:#E7ECF7;
+    --highlight:#FFDE59; --warn:#C1502E; --warn-soft:#F7E3DD;
+    --ok:#3E7C55; --ok-soft:#E4F0E8;
+    --mono:'Courier New',Courier,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); font-size:13px;}
+  .wrap{max-width:1440px; margin:0 auto; padding:16px 22px 70px;}
+  a{color:var(--pen);}
+
+  /* header + nav */
+  header{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; border-bottom:2px dashed var(--line); padding-bottom:12px; flex-wrap:wrap; gap:12px;}
+  .brand{display:flex; align-items:baseline; gap:10px;}
+  .brand h1{font-size:19px; margin:0; letter-spacing:.5px;}
+  .brand .tag{font-family:var(--mono); font-size:11px; color:var(--muted); border:1px dashed var(--line); padding:2px 8px; border-radius:3px;}
+  .stamp{font-family:var(--mono); font-size:11px; color:var(--muted); text-align:right; line-height:1.5;}
+  .stamp b{color:var(--ink);}
+  nav.tabs{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
+  nav.tabs button{font-family:var(--mono); font-size:12px; cursor:pointer; border:1.5px dashed var(--line); background:#fff; color:var(--muted); border-radius:5px; padding:7px 14px;}
+  nav.tabs button:hover{border-color:var(--pen); color:var(--pen);}
+  nav.tabs button.on{background:var(--pen); border-style:solid; border-color:var(--pen); color:#fff;}
+  nav.tabs .step{font-family:var(--mono); font-size:10px; opacity:.7; margin-right:5px;}
+
+  .panel{background:var(--panel); border:1.5px dashed var(--line); border-radius:6px; padding:14px;}
+  .panel-label{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin:0 0 10px; display:flex; align-items:center; gap:6px; justify-content:space-between;}
+  .panel-label .t::before{content:'['; color:var(--line);}
+  .panel-label .t::after{content:']'; color:var(--line);}
+
+  .grid3{display:grid; grid-template-columns:238px 1fr 330px; gap:14px; align-items:start;}
+  @media (max-width:1150px){ .grid3{grid-template-columns:1fr;} }
+
+  /* buttons */
+  .btn{font-family:var(--mono); font-size:11.5px; cursor:pointer; border-radius:4px; text-align:center; padding:8px 10px; border:1.5px dashed var(--pen); color:var(--pen); background:#fff;}
+  .btn:hover{background:var(--pen-soft);}
+  .btn.solid{background:var(--pen); color:#fff; border-style:solid;}
+  .btn.solid:hover{opacity:.9;}
+  .btn.danger{border-color:var(--warn); color:var(--warn);}
+  .btn.danger:hover{background:var(--warn-soft);}
+  .btn.ok{border-color:var(--ok); color:var(--ok);}
+  .btn.ok:hover{background:var(--ok-soft);}
+  .btn.small{padding:4px 9px; font-size:10.5px;}
+  .btn.full{width:100%;}
+  .btnrow{display:flex; gap:8px; flex-wrap:wrap;}
+
+  /* group rail */
+  .group-item{border:1px solid var(--line-soft); border-radius:5px; padding:9px 10px; margin-bottom:8px; cursor:pointer; background:#fff; position:relative;}
+  .group-item:hover{border-color:var(--pen);}
+  .group-item.active{border:1.5px solid var(--pen); background:var(--pen-soft);}
+  .group-item .gname{font-weight:600; font-size:13px; margin-bottom:3px; padding-right:34px;}
+  .group-item .gmeta{font-family:var(--mono); font-size:10px; color:var(--muted); display:flex; gap:6px; flex-wrap:wrap;}
+  .group-item .gcount{position:absolute; top:8px; right:8px; font-family:var(--mono); font-size:10px; background:var(--highlight); border:1px solid var(--ink); border-radius:10px; padding:1px 7px;}
+  .special .group-item{border-style:dashed;}
+  .kindchip{font-family:var(--mono); font-size:9px; border:1px solid var(--line); border-radius:3px; padding:0 5px; color:var(--muted);}
+  .envchip{font-family:var(--mono); font-size:9px; border-radius:10px; padding:0 6px;}
+  .env-prod{background:var(--warn-soft); color:var(--warn); border:1px solid var(--warn);}
+  .env-nonprod,.env-dev,.env-staging{background:var(--pen-soft); color:var(--pen); border:1px solid var(--line-soft);}
+  .env-custom{background:#F0ECD8; color:#8a7a2a; border:1px solid #d9c98a;}
+
+  /* condition builder */
+  .cond{border:1.5px dashed var(--line-soft); border-radius:6px; padding:10px; margin-bottom:8px; background:#FDFCFA;}
+  .cond-grid{display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:8px; align-items:end;}
+  .cond-grid.tag{grid-template-columns:1fr .9fr .8fr .9fr auto;}
+  label.f{display:block; font-family:var(--mono); font-size:10px; color:var(--muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:.5px;}
+  input[type=text],select{width:100%; padding:7px 8px; border:1px solid var(--line); border-radius:4px; background:#fff; font-family:var(--sans); font-size:12.5px; color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--pen); outline-offset:1px; border-color:var(--pen);}
+  .remove-x{border:1px solid var(--warn); color:var(--warn); background:#fff; border-radius:4px; height:32px; width:32px; cursor:pointer; font-size:15px; display:flex; align-items:center; justify-content:center;}
+  .remove-x:hover{background:var(--warn-soft);}
+  .conn{display:flex; align-items:center; gap:8px; margin:2px 0 8px 12px;}
+  .conn .line{flex:0 0 18px; border-top:2px dashed var(--line);}
+  .toggle{display:inline-flex; border:1px solid var(--pen); border-radius:14px; overflow:hidden; font-family:var(--mono); font-size:10.5px;}
+  .toggle span{padding:3px 12px; cursor:pointer; color:var(--pen); background:#fff;}
+  .toggle span.on{background:var(--pen); color:#fff;}
+  .add-cond{border:1.5px dashed var(--line); border-radius:6px; padding:9px; text-align:center; font-family:var(--mono); font-size:11.5px; color:var(--muted); cursor:pointer; margin-bottom:14px;}
+  .add-cond:hover{border-color:var(--pen); color:var(--pen);}
+  .name-edit{display:flex; gap:8px; margin-bottom:12px;}
+  .name-edit input{font-size:15px; font-weight:600;}
+  hr.sk{border:none; border-top:1.5px dashed var(--line); margin:14px 0;}
+
+  /* preview + cards */
+  .match-count{font-family:var(--mono); font-size:24px; font-weight:bold; display:flex; align-items:baseline; gap:8px;}
+  .match-count .of{font-size:12px; color:var(--muted); font-weight:normal;}
+  .plist{max-height:300px; overflow-y:auto; margin-top:10px;}
+  .rcard{border:1px solid var(--line-soft); border-radius:5px; padding:7px 9px; margin-bottom:6px; background:#fff;}
+  .rcard .rn{font-size:12px; font-weight:600;}
+  .rcard .rm{font-family:var(--mono); font-size:10px; color:var(--muted); margin-top:2px;}
+  .rtags{margin-top:4px; display:flex; flex-wrap:wrap; gap:4px;}
+  .rtag{font-family:var(--mono); font-size:9.5px; background:var(--pen-soft); border:1px solid var(--line-soft); border-radius:3px; padding:1px 5px;}
+  .empty{font-family:var(--mono); font-size:11px; color:var(--muted); border:1px dashed var(--line-soft); border-radius:5px; padding:16px; text-align:center;}
+
+  /* conflict */
+  .conflict-row{border:1px solid var(--warn); background:var(--warn-soft); border-radius:5px; padding:8px 10px; margin-bottom:8px;}
+  .conflict-row .cn{font-weight:600; font-size:12.5px;}
+  .conflict-row .cg{font-family:var(--mono); font-size:10.5px; color:var(--warn); margin:3px 0 6px;}
+
+  /* AI chat */
+  .chat{border:1px solid var(--line-soft); border-radius:6px; background:#FDFCFA; padding:10px; max-height:240px; overflow-y:auto; margin-bottom:8px;}
+  .bubble{border-radius:8px; padding:8px 11px; margin:6px 0; font-size:12.5px; max-width:90%; line-height:1.5;}
+  .bubble.u{background:var(--highlight); border:1px solid var(--ink); margin-left:auto;}
+  .bubble.a{background:#fff; border:1px solid var(--line-soft);}
+  .chatbar{display:flex; gap:8px;}
+
+  /* stat tiles */
+  .tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:14px;}
+  .tile{background:var(--panel); border:1.5px dashed var(--line); border-radius:6px; padding:12px 14px;}
+  .tile .k{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted);}
+  .tile .v{font-size:22px; font-weight:700; margin-top:3px;}
+  .tile .d{font-size:11px; color:var(--muted); margin-top:2px;}
+
+  /* treemap */
+  .treemap{display:flex; flex-wrap:wrap; gap:5px; align-content:flex-start;}
+  .tm{border:1.5px solid var(--line); border-radius:5px; padding:9px 10px; cursor:pointer; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; min-height:66px; min-width:120px;}
+  .tm:hover{outline:2px solid var(--pen);}
+  .tm .tmn{font-weight:600; font-size:12.5px;}
+  .tm .tmsub{font-family:var(--mono); font-size:9.5px; color:var(--muted);}
+  .tm .tmc{font-family:var(--mono); font-size:15px; font-weight:bold; margin-top:6px;}
+  .tm.orph{border-style:dashed; border-color:var(--muted); background:repeating-linear-gradient(45deg,#fff,#fff 6px,#f0eee7 6px,#f0eee7 12px);}
+  .tm.unassigned{border-style:dashed; border-color:var(--warn); background:var(--warn-soft);}
+
+  /* group cards grid */
+  .cardgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:14px;}
+  .gcard{border:1.5px dashed var(--line); border-radius:8px; background:var(--panel); padding:14px; cursor:pointer; position:relative;}
+  .gcard:hover{border-color:var(--pen); box-shadow:3px 3px 0 var(--pen-soft);}
+  .gcard.special{border-color:var(--warn);}
+  .gcard.orph{border-color:var(--muted);}
+  .gcard .ch{display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:8px;}
+  .gcard .ct{font-size:15px; font-weight:700;}
+  .gcard .cmeta{display:flex; gap:5px; margin-bottom:10px; flex-wrap:wrap;}
+  .costgraph{display:flex; align-items:flex-end; gap:3px; height:44px; margin:8px 0;}
+  .costgraph i{flex:1; background:var(--pen-soft); border-top:2px solid var(--pen); border-radius:2px 2px 0 0;}
+  .gcard .cstats{display:flex; justify-content:space-between; font-family:var(--mono); font-size:11px; color:var(--muted); border-top:1px dashed var(--line-soft); padding-top:8px;}
+  .gcard .cstats b{color:var(--ink); font-size:14px;}
+
+  /* tables */
+  table{width:100%; border-collapse:collapse; font-size:12px;}
+  th{font-family:var(--mono); font-size:10px; text-transform:uppercase; color:var(--muted); text-align:left; padding:7px 8px; border-bottom:2px dashed var(--line); position:sticky; top:0; background:var(--panel); cursor:pointer;}
+  td{padding:6px 8px; border-bottom:1px solid var(--line-soft); vertical-align:middle;}
+  tbody tr:hover td{background:#FFFDF2;}
+  tr.rowclick{cursor:pointer;}
+  .type-chip{font-family:var(--mono); font-size:10px; border:1px solid var(--line); border-radius:3px; padding:1px 6px; display:inline-block; white-space:nowrap;}
+  .status-chip{font-family:var(--mono); font-size:10px; padding:1px 7px; border-radius:10px; display:inline-block; white-space:nowrap;}
+  .st-assigned{background:var(--ok-soft); color:var(--ok); border:1px solid var(--ok);}
+  .st-shared{background:var(--pen-soft); color:var(--pen); border:1px solid var(--pen);}
+  .st-conflict{background:var(--warn); color:#fff;}
+  .st-unassigned{background:var(--warn-soft); color:var(--warn); border:1px dashed var(--warn);}
+  .st-orphaned{background:#eee; color:var(--muted); border:1px dashed var(--muted);}
+  .num{text-align:right; font-family:var(--mono); white-space:nowrap;}
+
+  .toolbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:10px; flex-wrap:wrap;}
+  .filters{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .filters input,.filters select{width:auto; min-width:130px;}
+  .legend{font-family:var(--mono); font-size:10px; color:var(--muted); display:flex; gap:14px; margin-top:10px; flex-wrap:wrap;}
+
+  /* modal */
+  .modal-bg{position:fixed; inset:0; background:rgba(38,36,32,.4); display:flex; align-items:flex-start; justify-content:center; padding:60px 16px; z-index:100; overflow:auto;}
+  .modal{background:var(--panel); border:2px solid var(--ink); border-radius:8px; padding:18px; width:560px; max-width:100%; box-shadow:6px 6px 0 rgba(0,0,0,.15);}
+  .modal h3{margin:0 0 12px; font-size:16px;}
+  .link-item{display:flex; align-items:center; gap:9px; padding:7px 0; border-bottom:1px dashed var(--line-soft); font-size:12.5px;}
+  .link-item:last-child{border-bottom:none;}
+  .link-item .lr{font-family:var(--mono); font-size:10px; color:var(--muted); margin-left:auto;}
+
+  /* detail layout */
+  .detailgrid{display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start;}
+  @media (max-width:900px){ .detailgrid{grid-template-columns:1fr;} }
+  .kv{display:grid; grid-template-columns:130px 1fr; gap:5px 10px; font-size:12.5px;}
+  .kv .k{color:var(--muted); font-family:var(--mono); font-size:11px;}
+  .back{font-family:var(--mono); font-size:11px; color:var(--pen); cursor:pointer; display:inline-block; margin-bottom:8px;}
+  .rec{border:1px dashed var(--pen); background:var(--pen-soft); border-radius:5px; padding:9px 11px; margin-bottom:8px; font-size:12px; display:flex; justify-content:space-between; align-items:center; gap:10px;}
+  .tree-node{margin-left:16px; border-left:1.5px dashed var(--line); padding-left:12px;}
+  .tree-row{padding:5px 0; font-size:12.5px; display:flex; align-items:center; gap:8px;}
+  .dot{width:8px; height:8px; border-radius:50%; background:var(--pen); flex:none;}
+  .dot.child{background:var(--muted);}
+  .barmini{height:8px; background:var(--pen-soft); border-radius:4px; overflow:hidden; border:1px solid var(--line-soft);}
+  .barmini i{display:block; height:100%; background:var(--pen);}
+  .hl{background:var(--highlight); padding:0 3px; border-radius:2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Compass</h1>
+      <span class="tag">v2 · interactive lo-fi</span>
+    </div>
+    <div class="stamp">
+      resources scanned: <b id="s-total">–</b> · groups: <b id="s-groups">–</b><br>
+      mapped: <b id="s-mapped">–</b> · unassigned: <b id="s-unassigned">–</b> · orphaned: <b id="s-orph">–</b>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-action="nav" data-page="setup"><span class="step">1</span>Setup &amp; Rules</button>
+    <button data-action="nav" data-page="overview"><span class="step">2</span>Groups Overview</button>
+    <button data-action="nav" data-page="resources"><span class="step">3</span>All Resources</button>
+  </nav>
+
+  <div id="app"></div>
+</div>
+<div id="modal-root"></div>
+
+<script>
+/* ============================================================
+   Compass v2 — interactive lo-fi. Rule engine extended from the
+   provided resource-rule-builder: adds Groups (kind + env), cost,
+   parent/child links, orphaned vs unassigned, moves/overrides,
+   conflict resolution, and multiple drill-in pages.
+   ============================================================ */
+
+/* ---------- seeded RNG (stable numbers) ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const rng = mulberry32(42);
+function rint(min,max){return Math.floor(rng()*(max-min+1))+min;}
+
+/* ---------- reference data ---------- */
+const TEAMS=['Payments','Checkout','Marketing','Core-Platform','Data-Eng'];
+const ENVS=['prod','dev','staging'];
+const OWNERS=['jsmith','arao','mchen','tolawale','pgarcia'];
+const ACCOUNTS=[
+  {id:'111122223333',alias:'payments-prod'},
+  {id:'222233334444',alias:'marketing-prod'},
+  {id:'333344445555',alias:'shared-dev'},
+  {id:'444455556666',alias:'data-eng-prod'},
+];
+const VPCS=['vpc-0aa111','vpc-0bb222','vpc-0cc333','vpc-0dd444'];
+const COST={EC2:[220,1400],RDS:[600,3200],Redshift:[1800,5200],ElastiCache:[180,900],Lambda:[15,240],S3:[25,520],DynamoDB:[40,600],SNS:[4,45],Cognito:[15,120],StepFunctions:[18,160],EBS:[20,180],ENI:[2,15],SecurityGroup:[0,0]};
+const TEMPLATES=[
+  ['pay-checkout-svc','EC2'],['pay-checkout-svc','SecurityGroup'],['pay-api-gw','Lambda'],
+  ['pay-ledger-db','RDS'],['pay-events','SNS'],['pay-audit-logs','S3'],
+  ['chk-cart-lambda','Lambda'],['chk-cart-cache','ElastiCache'],['chk-session-store','DynamoDB'],
+  ['chk-web-frontend','EC2'],['chk-assets','S3'],
+  ['mkt-campaign-assets','S3'],['mkt-analytics-db','RDS'],['mkt-email-worker','Lambda'],
+  ['mkt-cdn-origin','S3'],['mkt-crm-sync','Lambda'],
+  ['core-auth-svc','EC2'],['core-auth-sg','SecurityGroup'],['core-idp','Cognito'],
+  ['core-shared-vpc-nat','EC2'],['core-config-store','S3'],['core-audit-trail','S3'],
+  ['data-lake-raw','S3'],['data-lake-curated','S3'],['data-etl-job','Lambda'],
+  ['data-warehouse','Redshift'],['data-pipeline-orchestrator','StepFunctions'],
+];
+function costFor(type){const c=COST[type]||[20,200]; return rint(c[0],c[1]);}
+
+function buildResources(){
+  const res=[]; let n=1;
+  TEMPLATES.forEach((t,i)=>{
+    ENVS.forEach((env,ei)=>{
+      if(ei===2 && i%3!==0) return; // fewer staging
+      const team=TEAMS[Math.floor(i/(TEMPLATES.length/TEAMS.length))]||TEAMS[i%TEAMS.length];
+      const account=ACCOUNTS[TEAMS.indexOf(team)%ACCOUNTS.length]||ACCOUNTS[0];
+      const owner=OWNERS[(i+ei)%OWNERS.length];
+      const vpc=VPCS[i%VPCS.length];
+      const app=t[0];
+      const name=`${app}-${env}-${String(n).padStart(2,'0')}`;
+      res.push({
+        id:'rsc-'+n, name, app, type:t[1], account:account.alias, accountId:account.id, vpc,
+        owner, team, env, createdBy:owner+'@corp.com', cost:costFor(t[1]),
+        cluster:app+'|'+env, parent:null, links:[], orphaned:false,
+        tags:{Env:env,Team:team,Owner:owner,CostCenter:'CC-'+(1000+TEAMS.indexOf(team)*10)}
+      });
+      n++;
+    });
+  });
+  // orphaned resources: generic ids, no usable metadata
+  const ORPH=[['i-0a91f','EC2'],['vol-0f2e','EBS'],['eni-04b7','ENI'],['i-07c3d','EC2'],
+    ['vol-1a83','EBS'],['s3-legacy-bkt-7742','S3'],['eni-0d19','ENI'],['i-0b52a','EC2'],
+    ['vol-9c04','EBS'],['i-0e77f','EC2'],['s3-tmp-4410','S3'],['eni-0aa2','ENI']];
+  ORPH.forEach(o=>{
+    res.push({id:'rsc-'+n, name:o[0], app:'(none)', type:o[1], account:ACCOUNTS[rint(0,3)].alias,
+      accountId:'—', vpc:rng()<.5?VPCS[rint(0,3)]:'—', owner:'—', team:'—', env:'unknown',
+      createdBy:'—', cost:costFor(o[1]), cluster:'orphan-'+n, parent:null, links:[], orphaned:true, tags:{}});
+    n++;
+  });
+  // wire parent/child + links within a cluster
+  const byCluster={};
+  res.forEach(r=>{ (byCluster[r.cluster]=byCluster[r.cluster]||[]).push(r); });
+  Object.values(byCluster).forEach(list=>{
+    if(list.length<2) return;
+    const prio={EC2:4,RDS:3,Redshift:3,Lambda:2};
+    let parent=list.slice().sort((a,b)=>(prio[b.type]||1)-(prio[a.type]||1))[0];
+    list.forEach(r=>{
+      r.links=list.filter(x=>x.id!==r.id).map(x=>x.id);
+      if(r!==parent) r.parent=parent.id;
+    });
+  });
+  return res;
+}
+const RESOURCES=buildResources();
+const byId=id=>RESOURCES.find(r=>r.id===id);
+
+/* ---------- state ---------- */
+let groups=[
+  {id:'g1',name:'Checkout Service',kind:'Product',env:'non-prod',conditions:[{field:'name',op:'startsWith',value:'chk-'}],connectors:[]},
+  {id:'g2',name:'Payments Platform',kind:'Product',env:'prod',conditions:[{field:'name',op:'startsWith',value:'pay-'}],connectors:[]},
+  {id:'g3',name:'Marketing',kind:'Team',env:'non-prod',conditions:[{field:'name',op:'startsWith',value:'mkt-'}],connectors:[]},
+  {id:'g4',name:'Core Platform',kind:'Team',env:'prod',conditions:[{field:'name',op:'startsWith',value:'core-'}],connectors:[]},
+  {id:'g6',name:'Audit & Compliance',kind:'Feature',env:'prod',conditions:[{field:'name',op:'contains',value:'audit'}],connectors:[]},
+];
+const HUES=['#E7ECF7','#EAF3EC','#F7ECDD','#F3E9F5','#E9F2F5','#F5F1DE','#EFE9E2','#E7F0F7'];
+let overrides={};          // resourceId -> groupId (manual move/pin)
+let sharedResolutions={};  // resourceId -> 'shared' | groupId
+let route={page:'setup', groupId:'g1', resourceId:null, editGroupId:'g1'};
+
+const FIELD_OPTIONS=[
+  {value:'name',label:'Resource name'},{value:'type',label:'Resource type'},
+  {value:'account',label:'Account'},{value:'vpc',label:'VPC'},
+  {value:'owner',label:'Owner / Created by'},{value:'team',label:'Team / Group'},
+  {value:'tagValue',label:'Tag (key = value)'},{value:'tagExists',label:'Tag key exists'},
+];
+const OPS_TEXT=[{value:'equals',label:'equals'},{value:'notEquals',label:'not equals'},{value:'contains',label:'contains'},{value:'startsWith',label:'starts with'},{value:'endsWith',label:'ends with'}];
+const OPS_TAG=[{value:'equals',label:'equals'},{value:'contains',label:'contains'}];
+const TYPE_VALUES=['EC2','S3','RDS','Lambda','SecurityGroup','DynamoDB','ElastiCache','SNS','Cognito','Redshift','StepFunctions','EBS','ENI'];
+const KINDS=['Product','Feature','Customer','Team'];
+const ENV_OPTS=['prod','non-prod','dev','staging','custom'];
+
+/* ---------- rule engine ---------- */
+function evalCondition(r,cond){
+  let left;
+  if(cond.field==='tagValue') left=(r.tags[cond.tagKey||'Env']||'');
+  else if(cond.field==='tagExists') return !!r.tags[cond.value];
+  else left=String(r[cond.field]??'');
+  const val=cond.value||'';
+  switch(cond.op){
+    case 'equals':return left.toLowerCase()===val.toLowerCase();
+    case 'notEquals':return left.toLowerCase()!==val.toLowerCase();
+    case 'contains':return left.toLowerCase().includes(val.toLowerCase());
+    case 'startsWith':return left.toLowerCase().startsWith(val.toLowerCase());
+    case 'endsWith':return left.toLowerCase().endsWith(val.toLowerCase());
+    default:return false;
+  }
+}
+function evalGroup(r,g){
+  if(!g.conditions.length) return false;
+  let result=evalCondition(r,g.conditions[0]);
+  for(let i=1;i<g.conditions.length;i++){
+    const conn=g.connectors[i-1]||'AND';
+    const next=evalCondition(r,g.conditions[i]);
+    result=conn==='AND'?(result&&next):(result||next);
+  }
+  return result;
+}
+const groupById=id=>groups.find(g=>g.id===id);
+function ruleMatches(r){ return groups.filter(g=>evalGroup(r,g)).map(g=>g.id); }
+
+// assignment resolution (override > orphaned > rules > conflict/shared)
+function assignmentFor(r){
+  if(overrides[r.id]){ const g=groupById(overrides[r.id]); return {status:'assigned',groups:g?[g.id]:[],overridden:true}; }
+  if(r.orphaned) return {status:'orphaned',groups:[]};
+  const m=ruleMatches(r);
+  if(m.length===0) return {status:'unassigned',groups:[]};
+  if(m.length===1) return {status:'assigned',groups:m};
+  const res=sharedResolutions[r.id];
+  if(res==='shared') return {status:'shared',groups:m};
+  if(res && groupById(res)) return {status:'assigned',groups:[res],resolved:true};
+  return {status:'conflict',groups:m};
+}
+function resourcesInGroup(gid){
+  return RESOURCES.filter(r=>{const a=assignmentFor(r); return (a.status==='assigned'||a.status==='shared')&&a.groups.includes(gid);});
+}
+function bucket(status){ return RESOURCES.filter(r=>assignmentFor(r).status===status); }
+function groupCost(gid){
+  return resourcesInGroup(gid).reduce((s,r)=>{const a=assignmentFor(r); return s + (a.status==='shared'? r.cost/a.groups.length : r.cost);},0);
+}
+function conflictResources(){ return RESOURCES.filter(r=>assignmentFor(r).status==='conflict'); }
+
+/* ---------- format helpers ---------- */
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function money(n){ n=Math.round(n); return '$'+n.toLocaleString(); }
+function moneyK(n){ return n>=1000? '$'+(n/1000).toFixed(1)+'k' : '$'+Math.round(n); }
+function envClass(env){ return 'env-'+(['prod','non-prod','dev','staging'].includes(env)? (env==='non-prod'?'nonprod':env) : 'custom'); }
+function sparkBars(seed,count){ const r=mulberry32(seed); let h=''; for(let i=0;i<count;i++){ h+='<i style="height:'+(20+Math.floor(r()*80))+'%"></i>'; } return h; }
+
+/* ---------- stats bar ---------- */
+function renderStats(){
+  document.getElementById('s-total').textContent=RESOURCES.length;
+  document.getElementById('s-groups').textContent=groups.length;
+  const mapped=RESOURCES.filter(r=>['assigned','shared'].includes(assignmentFor(r).status)).length;
+  document.getElementById('s-mapped').textContent=mapped;
+  document.getElementById('s-unassigned').textContent=bucket('unassigned').length;
+  document.getElementById('s-orph').textContent=bucket('orphaned').length;
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on', b.dataset.page===route.page || (route.page==='group'&&b.dataset.page==='overview') || (route.page==='r360'&&b.dataset.page==='resources')));
+}
+
+/* =====================================================================
+   PAGE 1 — SETUP & RULES
+   ===================================================================== */
+function pageSetup(){
+  const g=groupById(route.editGroupId)||groups[0];
+  route.editGroupId=g?g.id:null;
+  return `<div class="grid3">
+    ${railHtml()}
+    ${builderHtml(g)}
+    ${previewHtml(g)}
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px;">
+    ${conflictHtml()}
+    ${aiHtml()}
+  </div>`;
+}
+function railHtml(){
+  let items=groups.map(g=>{
+    const c=resourcesInGroup(g.id).length;
+    return `<div class="group-item ${g.id===route.editGroupId?'active':''}" data-action="editGroup" data-id="${g.id}">
+      <div class="gname">${esc(g.name)}</div>
+      <div class="gmeta"><span class="kindchip">${g.kind}</span><span class="envchip ${envClass(g.env)}">${g.env}</span><span>${g.conditions.length} cond</span></div>
+      <div class="gcount">${c}</div>
+    </div>`;
+  }).join('');
+  const un=bucket('unassigned').length, orph=bucket('orphaned').length, conf=conflictResources().length;
+  return `<div class="panel">
+    <p class="panel-label"><span class="t">Groups</span><span>${groups.length}</span></p>
+    ${items}
+    <div class="btn solid full" data-action="newGroup" style="margin-top:4px;">+ New group</div>
+    <hr class="sk">
+    <div class="special">
+      <div class="group-item" style="border-color:var(--warn);" data-action="nav" data-page="overview"><div class="gname" style="color:var(--warn)">⚠ Unassigned</div><div class="gmeta">has data · no rule</div><div class="gcount">${un}</div></div>
+      <div class="group-item" style="border-color:var(--muted);" data-action="nav" data-page="overview"><div class="gname" style="color:var(--muted)">◌ Orphaned</div><div class="gmeta">no usable metadata</div><div class="gcount">${orph}</div></div>
+      <div class="group-item" style="border-color:var(--warn);" data-action="scrollConflicts"><div class="gname" style="color:var(--warn)">⚡ Conflicts</div><div class="gmeta">match 2+ groups</div><div class="gcount">${conf}</div></div>
+    </div>
+    <div class="btn ok full" data-action="nav" data-page="overview" style="margin-top:10px;">▶ Map resources</div>
+  </div>`;
+}
+function builderHtml(g){
+  if(!g) return `<div class="panel"><div class="empty">No group selected. Create one on the left to begin.</div></div>`;
+  let conds='';
+  g.conditions.forEach((cond,idx)=>{
+    if(idx>0){
+      const on=g.connectors[idx-1]==='OR';
+      conds+=`<div class="conn"><div class="line"></div><div class="toggle">
+        <span class="${!on?'on':''}" data-action="conn" data-idx="${idx-1}" data-val="AND">AND</span>
+        <span class="${on?'on':''}" data-action="conn" data-idx="${idx-1}" data-val="OR">OR</span></div></div>`;
+    }
+    conds+=condRow(cond,idx);
+  });
+  if(!g.conditions.length) conds=`<div class="empty">No conditions yet — add one below, or use the AI chat.</div>`;
+  return `<div class="panel">
+    <p class="panel-label"><span class="t">Rules for this group</span><span>${g.kind} · ${g.env}</span></p>
+    <div class="name-edit">
+      <input type="text" id="group-name-input" value="${esc(g.name)}" data-action="renameGroup" placeholder="Group name">
+      <div class="btn danger" data-action="deleteGroup" style="padding:8px 14px;">Delete</div>
+    </div>
+    <div class="btnrow" style="margin-bottom:12px;">
+      <select id="kind-sel" data-action="setKind" style="width:auto;">${KINDS.map(k=>`<option ${g.kind===k?'selected':''}>${k}</option>`).join('')}</select>
+      <select id="env-sel" data-action="setEnv" style="width:auto;">${ENV_OPTS.map(e=>`<option ${g.env===e?'selected':''}>${e}</option>`).join('')}</select>
+    </div>
+    ${conds}
+    <div class="add-cond" data-action="addCondition">+ add condition</div>
+    <p style="font-family:var(--mono); font-size:10.5px; color:var(--muted); line-height:1.6;">Matches <b>zero</b> groups → <b style="color:var(--warn)">Unassigned</b>. Matches <b>2+</b> → <b style="color:var(--warn)">Conflict</b> (resolve below).</p>
+  </div>`;
+}
+function condRow(cond,idx){
+  const isTV=cond.field==='tagValue', isTE=cond.field==='tagExists';
+  const fieldSel=`<div><label class="f">Field</label><select data-cond="${idx}" data-part="field">${FIELD_OPTIONS.map(f=>`<option value="${f.value}" ${f.value===cond.field?'selected':''}>${f.label}</option>`).join('')}</select></div>`;
+  let mid='';
+  if(isTV){
+    mid=`<div><label class="f">Tag key</label><input type="text" id="cond-key-${idx}" data-cond="${idx}" data-part="tagKey" value="${esc(cond.tagKey||'Env')}" placeholder="Team"></div>
+      <div><label class="f">Op</label><select data-cond="${idx}" data-part="op">${OPS_TAG.map(o=>`<option value="${o.value}" ${o.value===cond.op?'selected':''}>${o.label}</option>`).join('')}</select></div>
+      <div><label class="f">Value</label><input type="text" id="cond-val-${idx}" data-cond="${idx}" data-part="value" value="${esc(cond.value||'')}" placeholder="prod"></div>`;
+  } else if(isTE){
+    mid=`<div style="grid-column:span 2;"><label class="f">Tag key must exist</label><input type="text" id="cond-val-${idx}" data-cond="${idx}" data-part="value" value="${esc(cond.value||'')}" placeholder="CostCenter"></div>`;
+  } else {
+    const opSel=`<div><label class="f">Op</label><select data-cond="${idx}" data-part="op">${OPS_TEXT.map(o=>`<option value="${o.value}" ${o.value===cond.op?'selected':''}>${o.label}</option>`).join('')}</select></div>`;
+    let valField;
+    const selList=(arr,val)=>`<div><label class="f">Value</label><select data-cond="${idx}" data-part="value">${arr.map(v=>`<option value="${v}" ${v===val?'selected':''}>${v}</option>`).join('')}</select></div>`;
+    if(cond.field==='type') valField=selList(TYPE_VALUES,cond.value||TYPE_VALUES[0]);
+    else if(cond.field==='account') valField=selList(ACCOUNTS.map(a=>a.alias),cond.value||ACCOUNTS[0].alias);
+    else if(cond.field==='vpc') valField=selList(VPCS,cond.value||VPCS[0]);
+    else if(cond.field==='team') valField=selList(TEAMS,cond.value||TEAMS[0]);
+    else valField=`<div><label class="f">Value</label><input type="text" id="cond-val-${idx}" data-cond="${idx}" data-part="value" value="${esc(cond.value||'')}" placeholder="value..."></div>`;
+    mid=opSel+valField;
+  }
+  return `<div class="cond"><div class="cond-grid ${isTV?'tag':''}">
+    ${fieldSel}${mid}
+    <div><label class="f">&nbsp;</label><div class="remove-x" data-action="removeCondition" data-idx="${idx}">×</div></div>
+  </div></div>`;
+}
+function previewHtml(g){
+  const matches=g?RESOURCES.filter(r=>evalGroup(r,g)):[];
+  let list=matches.length? matches.slice(0,50).map(r=>{
+    const tags=Object.entries(r.tags).map(([k,v])=>`<span class="rtag">${k}=${v}</span>`).join('');
+    return `<div class="rcard"><div class="rn">${esc(r.name)}</div><div class="rm">${r.type} · ${r.account} · ${money(r.cost)}/mo</div><div class="rtags">${tags}</div></div>`;
+  }).join('') : `<div class="empty">No resources match yet.</div>`;
+  return `<div class="panel">
+    <p class="panel-label"><span class="t">Live match preview</span></p>
+    <div class="match-count"><span>${matches.length}</span><span class="of">/ ${RESOURCES.length} resources · ${money(matches.reduce((s,r)=>s+r.cost,0))}/mo</span></div>
+    <div class="plist">${list}</div>
+  </div>`;
+}
+function conflictHtml(){
+  const conf=conflictResources();
+  let rows=conf.length? conf.slice(0,20).map(r=>{
+    const gs=assignmentFor(r).groups;
+    const opts=gs.map(gid=>`<div class="btn small" data-action="resolve" data-id="${r.id}" data-mode="${gid}">→ ${esc(groupById(gid).name)}</div>`).join('');
+    return `<div class="conflict-row">
+      <div class="cn">${esc(r.name)} <span class="rm" style="color:var(--warn)">${money(r.cost)}/mo</span></div>
+      <div class="cg">matches: ${gs.map(gid=>esc(groupById(gid).name)).join('  ·  ')}</div>
+      <div class="btnrow">${opts}<div class="btn small ok" data-action="resolve" data-id="${r.id}" data-mode="shared">◒ Mark shared</div></div>
+    </div>`;
+  }).join('') : `<div class="empty">No conflicts 🎉 — every resource matches at most one group.</div>`;
+  return `<div class="panel" id="conflict-panel">
+    <p class="panel-label"><span class="t">Conflicts — resource in multiple groups</span><span>${conf.length}</span></p>
+    <p style="font-family:var(--mono); font-size:10.5px; color:var(--muted); margin:0 0 10px;">Pick the true owner, or mark <b>shared</b> to split its cost across the matching groups. Resolving narrows the winning rule.</p>
+    ${rows}
+  </div>`;
+}
+function aiHtml(){
+  const log=aiLog.map(m=>`<div class="bubble ${m.role==='u'?'u':'a'}">${m.html}</div>`).join('');
+  return `<div class="panel">
+    <p class="panel-label"><span class="t">Native AI — describe a rule</span></p>
+    <div class="chat" id="ai-chat">${log||`<div class="bubble a">Hi! Tell me what to group. Try: <span class="hl">"group everything starting with data- as Data Engineering"</span> or <span class="hl">"add RDS resources in payments-prod"</span>.</div>`}</div>
+    <div class="chatbar">
+      <input type="text" id="ai-input" placeholder="e.g. group name starts with data- as a new Team called Data Eng">
+      <div class="btn solid" data-action="aiSend" style="padding:8px 16px;">Send</div>
+    </div>
+  </div>`;
+}
+
+/* ---------- AI intent parser (lightweight, real) ---------- */
+let aiLog=[];
+function parseIntent(text){
+  const t=text.toLowerCase();
+  const conds=[]; let groupName=null, kind=null, env=null;
+  // group name "as <Name>" / "called <Name>"
+  let mName=text.match(/\b(?:as|called|named)\s+(?:a\s+)?(?:new\s+)?(?:team|product|feature|customer\s+)?["']?([A-Za-z][\w\- ]{1,30})["']?/i);
+  if(mName) groupName=mName[1].trim().replace(/\b\w/g,c=>c.toUpperCase());
+  if(/\bteam\b/.test(t)) kind='Team'; else if(/\bfeature\b/.test(t)) kind='Feature'; else if(/\bcustomer\b/.test(t)) kind='Customer'; else if(/\bproduct\b/.test(t)) kind='Product';
+  if(/non[- ]?prod/.test(t)) env='non-prod'; else if(/\bprod\b/.test(t)) env='prod'; else if(/\bdev\b/.test(t)) env='dev'; else if(/\bstaging\b/.test(t)) env='staging';
+  // name starts with X
+  let m;
+  if(m=t.match(/(?:name |resources? )?(?:start(?:s|ing)? with|prefix(?:ed)? (?:with|by)?)\s+["']?([a-z0-9\-_]+)["']?/)) conds.push({field:'name',op:'startsWith',value:m[1]});
+  if(m=t.match(/(?:name )?(?:contain(?:s|ing)?|with)\s+["']?([a-z0-9\-_]+)["']?\s+in (?:the )?name/)) conds.push({field:'name',op:'contains',value:m[1]});
+  if(m=t.match(/end(?:s|ing)? with\s+["']?([a-z0-9\-_]+)["']?/)) conds.push({field:'name',op:'endsWith',value:m[1]});
+  // type is X / X resources
+  TYPE_VALUES.forEach(tp=>{ if(new RegExp('\\b'+tp.toLowerCase()+'\\b').test(t)) conds.push({field:'type',op:'equals',value:tp}); });
+  // account
+  ACCOUNTS.forEach(a=>{ if(t.includes(a.alias)) conds.push({field:'account',op:'equals',value:a.alias}); });
+  // team X
+  TEAMS.forEach(tm=>{ if(t.includes(tm.toLowerCase())) conds.push({field:'team',op:'equals',value:tm}); });
+  // env tag
+  if(/non[- ]?prod|dev|staging|prod/.test(t) && conds.length && /env|environment/.test(t)){
+    const ev=(/non[- ]?prod/.test(t))?'dev':(/staging/.test(t)?'staging':(/dev/.test(t)?'dev':'prod'));
+    conds.push({field:'tagValue',tagKey:'Env',op:'equals',value:ev});
+  }
+  // dedupe
+  const seen=new Set(); const uniq=conds.filter(c=>{const k=c.field+c.op+c.value+(c.tagKey||''); if(seen.has(k))return false; seen.add(k); return true;});
+  return {conds:uniq, groupName, kind, env};
+}
+function aiSend(){
+  const inp=document.getElementById('ai-input'); if(!inp) return;
+  const text=inp.value.trim(); if(!text) return;
+  aiLog.push({role:'u',html:esc(text)});
+  const {conds,groupName,kind,env}=parseIntent(text);
+  if(!conds.length){
+    aiLog.push({role:'a',html:`I couldn't find a condition in that. Try naming a field — e.g. <span class="hl">"starts with data-"</span>, <span class="hl">"RDS resources"</span>, or <span class="hl">"in account payments-prod"</span>.`});
+  } else {
+    let g;
+    if(groupName){ g={id:'g'+Date.now(),name:groupName,kind:kind||'Product',env:env||'non-prod',conditions:[],connectors:[]}; groups.push(g); route.editGroupId=g.id; }
+    else { g=groupById(route.editGroupId)||groups[0]; }
+    conds.forEach(c=>{ g.conditions.push(c); if(g.conditions.length>1) g.connectors.push('AND'); });
+    const n=RESOURCES.filter(r=>evalGroup(r,g)).length;
+    const desc=conds.map(c=>`<b>${c.field}${c.tagKey?':'+c.tagKey:''} ${c.op} ${esc(c.value)}</b>`).join(' AND ');
+    aiLog.push({role:'a',html:`${groupName?`Created group <b>${esc(g.name)}</b> (${g.kind} · ${g.env}). `:''}Added ${desc} to <b>${esc(g.name)}</b> → now matches <b>${n}</b> resources. Tweak it in the builder if needed.`});
+  }
+  render();
+}
+
+/* =====================================================================
+   PAGE 2 — GROUPS OVERVIEW (treemap + cards)
+   ===================================================================== */
+function pageOverview(){
+  const totalCost=RESOURCES.reduce((s,r)=>s+r.cost,0);
+  const mappedCost=groups.reduce((s,g)=>s+groupCost(g.id),0);
+  const orphC=bucket('orphaned').reduce((s,r)=>s+r.cost,0);
+  const unC=bucket('unassigned').reduce((s,r)=>s+r.cost,0);
+  // treemap tiles
+  const tiles=groups.map((g,i)=>({name:g.name,sub:g.kind+' · '+g.env,cost:groupCost(g.id),count:resourcesInGroup(g.id).length,hue:HUES[i%HUES.length],cls:'',id:g.id}))
+    .concat([
+      {name:'Unassigned',sub:'no rule matched',cost:unC,count:bucket('unassigned').length,cls:'unassigned',id:'__unassigned'},
+      {name:'Orphaned',sub:'no metadata',cost:orphC,count:bucket('orphaned').length,cls:'orph',id:'__orphaned'},
+    ]).filter(t=>t.count>0).sort((a,b)=>b.cost-a.cost);
+  const maxC=Math.max(...tiles.map(t=>t.cost),1);
+  const tmHtml=tiles.map(t=>{
+    const w=Math.max(12, Math.round((t.cost/maxC)*100));
+    return `<div class="tm ${t.cls}" style="flex:1 1 ${w*2.2}px; ${t.hue?'background:'+t.hue+';':''}" data-action="openGroup" data-id="${t.id}">
+      <div><div class="tmn">${esc(t.name)}</div><div class="tmsub">${esc(t.sub)} · ${t.count} res</div></div>
+      <div class="tmc">${moneyK(t.cost)}</div></div>`;
+  }).join('');
+  // cards
+  const cards=groups.map((g,i)=>groupCard(g,i)).join('')
+    + specialCard('__unassigned','⚠ Unassigned','no rule matched — needs a rule or manual move',bucket('unassigned'),'special')
+    + specialCard('__orphaned','◌ Orphaned','no usable metadata to match on',bucket('orphaned'),'orph');
+  return `<div class="tiles">
+      <div class="tile"><div class="k">Total non-prod cost</div><div class="v">${money(totalCost)}</div><div class="d">${RESOURCES.length} resources</div></div>
+      <div class="tile"><div class="k">Mapped to groups</div><div class="v">${money(mappedCost)}</div><div class="d">${Math.round(mappedCost/totalCost*100)}% of spend</div></div>
+      <div class="tile"><div class="k">Unassigned</div><div class="v" style="color:var(--warn)">${money(unC)}</div><div class="d">${bucket('unassigned').length} resources</div></div>
+      <div class="tile"><div class="k">Orphaned</div><div class="v" style="color:var(--muted)">${money(orphC)}</div><div class="d">${bucket('orphaned').length} resources</div></div>
+    </div>
+    <div class="panel" style="margin-bottom:14px;">
+      <p class="panel-label"><span class="t">Cost treemap — sized by spend · click a tile</span></p>
+      <div class="treemap">${tmHtml}</div>
+    </div>
+    <div class="panel">
+      <p class="panel-label"><span class="t">Groups</span><span>${groups.length} + 2 buckets</span></p>
+      <div class="cardgrid">${cards}</div>
+    </div>`;
+}
+function groupCard(g,i){
+  const res=resourcesInGroup(g.id); const cost=groupCost(g.id);
+  const types={}; res.forEach(r=>types[r.type]=(types[r.type]||0)+1);
+  const topTypes=Object.entries(types).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>`${k} ${v}`).join(' · ')||'—';
+  return `<div class="gcard" style="border-color:var(--line); background:${HUES[i%HUES.length]}55;" data-action="openGroup" data-id="${g.id}">
+    <div class="ch"><div class="ct">${esc(g.name)}</div><span class="kindchip">${g.kind}</span></div>
+    <div class="cmeta"><span class="envchip ${envClass(g.env)}">${g.env}</span><span class="kindchip">${g.conditions.length} rule cond</span></div>
+    <div class="costgraph">${sparkBars(i+7,10)}</div>
+    <div class="cstats"><span><b>${res.length}</b><br>resources</span><span style="text-align:right;"><b>${moneyK(cost)}</b><br>/mo</span></div>
+    <div class="rm" style="font-family:var(--mono); font-size:10px; color:var(--muted); margin-top:8px;">${topTypes}</div>
+  </div>`;
+}
+function specialCard(id,title,sub,list,cls){
+  const cost=list.reduce((s,r)=>s+r.cost,0);
+  return `<div class="gcard ${cls}" data-action="openGroup" data-id="${id}">
+    <div class="ch"><div class="ct">${esc(title)}</div></div>
+    <div class="rm" style="font-family:var(--mono); font-size:10px; color:var(--muted); margin-bottom:10px;">${sub}</div>
+    <div class="costgraph">${sparkBars(id.length+3,10)}</div>
+    <div class="cstats"><span><b>${list.length}</b><br>resources</span><span style="text-align:right;"><b>${moneyK(cost)}</b><br>/mo</span></div>
+  </div>`;
+}
+
+/* =====================================================================
+   GROUP DETAILS
+   ===================================================================== */
+function pageGroup(){
+  const id=route.groupId;
+  if(id==='__unassigned') return specialDetail('⚠ Unassigned','Resources that have metadata but match no group rule. Write a rule or move them into a group.',bucket('unassigned'));
+  if(id==='__orphaned') return specialDetail('◌ Orphaned','Resources with no usable metadata (generic ids, no tags). They can only be assigned manually.',bucket('orphaned'));
+  const g=groupById(id); if(!g) return `<div class="panel"><div class="empty">Group not found.</div></div>`;
+  const res=resourcesInGroup(id); const cost=groupCost(id);
+  const accounts=[...new Set(res.map(r=>r.account))];
+  const vpcs=[...new Set(res.map(r=>r.vpc))];
+  const types={}; res.forEach(r=>types[r.type]=(types[r.type]||0)+1);
+  const typeRows=Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
+    const tc=res.filter(r=>r.type===k).reduce((s,r)=>s+r.cost,0);
+    const w=Math.round(v/res.length*100);
+    return `<div style="margin-bottom:7px;"><div style="display:flex; justify-content:space-between; font-size:12px;"><span><span class="type-chip">${k}</span> ${v}</span><span class="num">${money(tc)}/mo</span></div><div class="barmini" style="margin-top:3px;"><i style="width:${w}%"></i></div></div>`;
+  }).join('');
+  // sub-group recommendations: secondary name token
+  const subTokens={};
+  res.forEach(r=>{ const parts=r.name.split('-'); if(parts.length>1){ const tok=parts[1]; subTokens[tok]=(subTokens[tok]||0)+1; } });
+  const recs=Object.entries(subTokens).filter(([k,v])=>v>=2 && k.length>1).sort((a,b)=>b[1]-a[1]).slice(0,3)
+    .map(([tok,v])=>`<div class="rec"><span>Split out <b>${res[0]?res[0].name.split('-')[0]:''}-${esc(tok)}-*</b> — ${v} resources look like a sub-group.</span><div class="btn small" data-action="makeSubgroup" data-parent="${id}" data-token="${esc(tok)}">Create sub-group</div></div>`).join('')
+    || `<div class="empty">No obvious sub-groups — resources look uniform.</div>`;
+  const rows=res.slice(0,200).map(r=>resRow(r,{context:'group'})).join('');
+  return `<span class="back" data-action="nav" data-page="overview">← back to groups</span>
+    <div class="toolbar">
+      <div><h1 style="margin:0 0 4px; font-size:19px;">${esc(g.name)}</h1>
+        <div class="cmeta"><span class="kindchip">${g.kind}</span><span class="envchip ${envClass(g.env)}">${g.env}</span></div></div>
+      <div class="btnrow">
+        <div class="btn small" data-action="editRules" data-id="${id}">Edit rules</div>
+        <div class="btn small" data-action="addResourceModal" data-id="${id}">+ Add resource</div>
+        <div class="btn small ok" data-action="downloadGroup" data-id="${id}">⤓ Download report</div>
+      </div>
+    </div>
+    <div class="tiles">
+      <div class="tile"><div class="k">Monthly cost</div><div class="v">${money(cost)}</div><div class="d">${Math.round(cost/RESOURCES.reduce((s,r)=>s+r.cost,0)*100)}% of estate</div></div>
+      <div class="tile"><div class="k">Resources</div><div class="v">${res.length}</div><div class="d">${Object.keys(types).length} types</div></div>
+      <div class="tile"><div class="k">Accounts</div><div class="v">${accounts.length}</div><div class="d">${esc(accounts.slice(0,2).join(', '))}</div></div>
+      <div class="tile"><div class="k">VPCs</div><div class="v">${vpcs.filter(v=>v!=='—').length}</div><div class="d">rule cond: ${g.conditions.length}</div></div>
+    </div>
+    <div class="detailgrid">
+      <div>
+        <div class="panel" style="margin-bottom:14px;"><p class="panel-label"><span class="t">Metadata</span></p>
+          <div class="kv">
+            <span class="k">Group kind</span><span>${g.kind}</span>
+            <span class="k">Environment</span><span><span class="envchip ${envClass(g.env)}">${g.env}</span></span>
+            <span class="k">Accounts</span><span>${esc(accounts.join(', ')||'—')}</span>
+            <span class="k">VPCs</span><span>${esc(vpcs.join(', ')||'—')}</span>
+            <span class="k">Rule</span><span class="rm" style="font-family:var(--mono); font-size:11px;">${ruleText(g)}</span>
+          </div>
+        </div>
+        <div class="panel" style="margin-bottom:14px;"><p class="panel-label"><span class="t">Resource types</span></p>${typeRows||'<div class="empty">none</div>'}</div>
+        <div class="panel"><p class="panel-label"><span class="t">Sub-group recommendations</span></p>${recs}</div>
+      </div>
+      <div class="panel"><p class="panel-label"><span class="t">Resources in this group</span><span>${res.length}</span></p>
+        <div style="max-height:520px; overflow:auto;"><table><thead><tr><th>Name</th><th>Type</th><th class="num">Cost/mo</th><th>Move</th></tr></thead><tbody>${rows||'<tr><td colspan="4"><div class="empty">No resources yet — add one or adjust the rule.</div></td></tr>'}</tbody></table></div>
+      </div>
+    </div>`;
+}
+function specialDetail(title,sub,list){
+  const cost=list.reduce((s,r)=>s+r.cost,0);
+  const rows=list.slice(0,300).map(r=>resRow(r,{context:'special'})).join('');
+  return `<span class="back" data-action="nav" data-page="overview">← back to groups</span>
+    <h1 style="margin:0 0 4px; font-size:19px;">${esc(title)}</h1>
+    <p style="color:var(--muted); max-width:70ch; font-size:12.5px;">${sub}</p>
+    <div class="tiles">
+      <div class="tile"><div class="k">Resources</div><div class="v">${list.length}</div></div>
+      <div class="tile"><div class="k">Monthly cost</div><div class="v">${money(cost)}</div></div>
+    </div>
+    <div class="panel"><p class="panel-label"><span class="t">Resources</span><span>${list.length}</span></p>
+      <div style="max-height:560px; overflow:auto;"><table><thead><tr><th>Name</th><th>Type</th><th>Account</th><th class="num">Cost/mo</th><th>Assign</th></tr></thead>
+      <tbody>${rows||'<tr><td colspan="5"><div class="empty">Empty 🎉</div></td></tr>'}</tbody></table></div></div>`;
+}
+function ruleText(g){
+  if(!g.conditions.length) return '(no conditions)';
+  return g.conditions.map((c,i)=>(i?` ${g.connectors[i-1]||'AND'} `:'')+`${c.field}${c.tagKey?':'+c.tagKey:''} ${c.op} "${c.value}"`).join('');
+}
+
+/* =====================================================================
+   PAGE 3 — ALL RESOURCES EXPLORER
+   ===================================================================== */
+let filt={q:'',type:'',status:'',group:''};
+function pageResources(){
+  const rows=filteredResources();
+  const body=rows.slice(0,400).map(r=>resRow(r,{context:'explorer'})).join('');
+  return `<div class="panel">
+    <div class="toolbar">
+      <p class="panel-label" style="margin:0;"><span class="t">All resources — explorer</span></p>
+      <div class="filters">
+        <input type="text" id="filt-q" value="${esc(filt.q)}" placeholder="filter name, tag, account, owner..." data-action="filtQ" style="min-width:220px;">
+        <select id="filt-type" data-action="filtType"><option value="">all types</option>${TYPE_VALUES.map(t=>`<option ${filt.type===t?'selected':''}>${t}</option>`).join('')}</select>
+        <select id="filt-status" data-action="filtStatus"><option value="">all status</option>${['assigned','shared','conflict','unassigned','orphaned'].map(s=>`<option ${filt.status===s?'selected':''}>${s}</option>`).join('')}</select>
+        <select id="filt-group" data-action="filtGroup"><option value="">any group</option>${groups.map(g=>`<option value="${g.id}" ${filt.group===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div style="font-family:var(--mono); font-size:11px; color:var(--muted); margin-bottom:8px;">${rows.length} of ${RESOURCES.length} shown${rows.length>400?' (first 400)':''} · click a row for the 360 view</div>
+    <div style="max-height:620px; overflow:auto;"><table>
+      <thead><tr><th>Name</th><th>Type</th><th>Account</th><th>Owner/Team</th><th>Status</th><th class="num">Cost/mo</th><th>Move</th></tr></thead>
+      <tbody>${body||'<tr><td colspan="7"><div class="empty">Nothing matches the filter.</div></td></tr>'}</tbody>
+    </table></div>
+    <div class="legend">
+      <span><span class="status-chip st-assigned">assigned</span> in one group</span>
+      <span><span class="status-chip st-shared">shared</span> split across groups</span>
+      <span><span class="status-chip st-conflict">conflict</span> 2+ rules</span>
+      <span><span class="status-chip st-unassigned">unassigned</span> no rule</span>
+      <span><span class="status-chip st-orphaned">orphaned</span> no metadata</span>
+    </div>
+  </div>`;
+}
+function filteredResources(){
+  return RESOURCES.filter(r=>{
+    const a=assignmentFor(r);
+    if(filt.type && r.type!==filt.type) return false;
+    if(filt.status && a.status!==filt.status) return false;
+    if(filt.group && !a.groups.includes(filt.group)) return false;
+    if(filt.q){ const hay=[r.name,r.type,r.account,r.owner,r.team,...Object.values(r.tags)].join(' ').toLowerCase(); if(!hay.includes(filt.q.toLowerCase())) return false; }
+    return true;
+  });
+}
+function resRow(r,opts){
+  const a=assignmentFor(r);
+  const statusChip=`<span class="status-chip st-${a.status}">${a.status}${a.overridden?' ·moved':''}${a.status==='assigned'&&a.groups.length?': '+esc(groupById(a.groups[0]).name):''}${a.status==='shared'?' ×'+a.groups.length:''}</span>`;
+  if(opts.context==='explorer'){
+    return `<tr class="rowclick"><td data-action="openResource" data-id="${r.id}"><b>${esc(r.name)}</b></td>
+      <td><span class="type-chip">${r.type}</span></td>
+      <td>${esc(r.account)}</td>
+      <td class="rm" style="font-family:var(--mono); font-size:11px;">${esc(r.owner)} · ${esc(r.team)}</td>
+      <td>${statusChip}</td>
+      <td class="num">${money(r.cost)}</td>
+      <td><div class="btn small" data-action="moveResource" data-id="${r.id}">Move ▾</div></td></tr>`;
+  }
+  if(opts.context==='group'){
+    return `<tr class="rowclick"><td data-action="openResource" data-id="${r.id}"><b>${esc(r.name)}</b></td>
+      <td><span class="type-chip">${r.type}</span></td>
+      <td class="num">${money(r.cost)}</td>
+      <td><div class="btn small danger" data-action="moveResource" data-id="${r.id}">Move out ▾</div></td></tr>`;
+  }
+  // special (unassigned/orphaned) — assign
+  return `<tr class="rowclick"><td data-action="openResource" data-id="${r.id}"><b>${esc(r.name)}</b></td>
+    <td><span class="type-chip">${r.type}</span></td>
+    <td>${esc(r.account)}</td>
+    <td class="num">${money(r.cost)}</td>
+    <td><div class="btn small ok" data-action="moveResource" data-id="${r.id}">Assign ▾</div></td></tr>`;
+}
+
+/* =====================================================================
+   RESOURCE 360
+   ===================================================================== */
+function pageR360(){
+  const r=byId(route.resourceId); if(!r) return `<div class="panel"><div class="empty">Resource not found.</div></div>`;
+  const a=assignmentFor(r);
+  const statusChip=`<span class="status-chip st-${a.status}">${a.status}</span>`;
+  // hierarchy: walk to top parent
+  let top=r; const chain=[]; let guard=0;
+  while(top.parent && guard++<20){ chain.unshift(byId(top.parent)); top=byId(top.parent); }
+  const children=RESOURCES.filter(x=>x.parent===r.id);
+  const siblings=(r.links||[]).map(byId).filter(x=>x && x.parent===r.parent && x.id!==r.id);
+  const treeHtml=hierarchyHtml(r,chain,children);
+  const links=(r.links||[]).map(byId).filter(Boolean);
+  const linkRows=links.length? links.map(x=>{
+    const xa=assignmentFor(x); const shared=xa.groups.length&&a.groups.length&&!xa.groups.some(g=>a.groups.includes(g));
+    return `<div class="link-item"><span class="dot ${x.parent===r.id?'child':''}"></span><b data-action="openResource" data-id="${x.id}" style="cursor:pointer; text-decoration:underline;">${esc(x.name)}</b>
+      <span class="type-chip">${x.type}</span>
+      <span class="lr">${x.parent===r.id?'child':(r.parent===x.id?'parent':'linked')}${shared?' · other group':''}</span></div>`;
+  }).join('') : `<div class="empty">No linked resources.</div>`;
+  const tagRows=Object.keys(r.tags).length? Object.entries(r.tags).map(([k,v])=>`<span class="k">${esc(k)}</span><span><span class="rtag">${esc(v)}</span></span>`).join('') : `<span class="k">tags</span><span class="rm" style="color:var(--warn)">none — orphaned</span>`;
+  return `<span class="back" data-action="nav" data-page="resources">← back to all resources</span>
+    <div class="toolbar">
+      <div><h1 style="margin:0 0 4px; font-size:19px;">${esc(r.name)} ${statusChip}</h1>
+        <div class="rm" style="font-family:var(--mono); font-size:11px; color:var(--muted);">${r.type} · ${r.account} · ${r.vpc} · ${money(r.cost)}/mo</div></div>
+      <div class="btnrow">
+        <div class="btn small" data-action="moveResource" data-id="${r.id}">Move to group ▾</div>
+        <div class="btn small ok" data-action="downloadResource" data-id="${r.id}">⤓ Download report</div>
+      </div>
+    </div>
+    <div class="detailgrid">
+      <div>
+        <div class="panel" style="margin-bottom:14px;"><p class="panel-label"><span class="t">Cost insights</span></p>
+          <div class="match-count" style="font-size:22px;"><span>${money(r.cost)}</span><span class="of">/ month</span></div>
+          <div class="costgraph" style="height:56px; margin-top:10px;">${sparkBars(r.id.length+9,12)}</div>
+          <div class="kv" style="margin-top:10px;">
+            <span class="k">Annualised</span><span>${money(r.cost*12)}</span>
+            <span class="k">Group share</span><span>${a.groups.length? Math.round(r.cost/Math.max(groupCost(a.groups[0]),1)*100)+'% of '+esc(groupById(a.groups[0]).name):'—'}</span>
+            <span class="k">Forecast</span><span>~${money(r.cost*1.08)} next mo</span>
+          </div>
+        </div>
+        <div class="panel"><p class="panel-label"><span class="t">Tags &amp; metadata</span></p>
+          <div class="kv">
+            <span class="k">ARN account</span><span>${esc(r.accountId)}</span>
+            <span class="k">VPC</span><span>${esc(r.vpc)}</span>
+            <span class="k">Owner</span><span>${esc(r.owner)}</span>
+            <span class="k">Created by</span><span>${esc(r.createdBy)}</span>
+            ${tagRows}
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel" style="margin-bottom:14px;"><p class="panel-label"><span class="t">Hierarchy — top parent → this → children</span></p>${treeHtml}</div>
+        <div class="panel"><p class="panel-label"><span class="t">Linked &amp; shared</span><span>${links.length}</span></p>${linkRows}
+          ${links.some(x=>{const xa=assignmentFor(x); return xa.groups.length&&a.groups.length&&!xa.groups.some(g=>a.groups.includes(g));})?`<div class="rec" style="margin-top:10px;">⚠ Some linked resources sit in a different group — moving this one can suggest bringing them along.</div>`:''}
+        </div>
+      </div>
+    </div>`;
+}
+function hierarchyHtml(r,chain,children){
+  let h='';
+  chain.forEach((p,i)=>{ h+=`<div class="tree-row" style="margin-left:${i*16}px;"><span class="dot"></span><b data-action="openResource" data-id="${p.id}" style="cursor:pointer; text-decoration:underline;">${esc(p.name)}</b> <span class="type-chip">${p.type}</span> <span class="lr" style="font-family:var(--mono); font-size:10px; color:var(--muted);">parent</span></div>`; });
+  h+=`<div class="tree-row" style="margin-left:${chain.length*16}px;"><span class="dot" style="background:var(--warn)"></span><b>${esc(r.name)}</b> <span class="type-chip">${r.type}</span> <span class="lr" style="font-family:var(--mono); font-size:10px; color:var(--warn);">this</span></div>`;
+  children.forEach(c=>{ h+=`<div class="tree-row" style="margin-left:${(chain.length+1)*16}px;"><span class="dot child"></span><b data-action="openResource" data-id="${c.id}" style="cursor:pointer; text-decoration:underline;">${esc(c.name)}</b> <span class="type-chip">${c.type}</span> <span class="lr" style="font-family:var(--mono); font-size:10px; color:var(--muted);">child</span></div>`; });
+  if(!chain.length && !children.length) h+=`<div class="empty" style="margin-top:8px;">Standalone — no parent or children detected.</div>`;
+  return h;
+}
+
+/* =====================================================================
+   MODALS
+   ===================================================================== */
+function modal(html){ document.getElementById('modal-root').innerHTML=`<div class="modal-bg" data-action="closeModalBg"><div class="modal" data-stop="1">${html}</div></div>`; }
+function closeModal(){ document.getElementById('modal-root').innerHTML=''; }
+
+function moveModal(rid){
+  const r=byId(rid); const a=assignmentFor(r);
+  const cur=a.groups.length?a.groups[0]:null;
+  const linked=(r.links||[]).map(byId).filter(Boolean);
+  const targetOpts=groups.filter(g=>g.id!==cur).map(g=>`<option value="${g.id}">${esc(g.name)} (${g.kind}·${g.env})</option>`).join('');
+  const linkedHtml=linked.length? linked.map(x=>`<label class="link-item"><input type="checkbox" class="movelink" value="${x.id}" checked> <b>${esc(x.name)}</b> <span class="type-chip">${x.type}</span> <span class="lr">${x.parent===r.id?'child':(r.parent===x.id?'parent':'linked')} · ${money(x.cost)}/mo</span></label>`).join('') : `<div class="empty">No linked resources detected.</div>`;
+  modal(`<h3>Move “${esc(r.name)}”</h3>
+    <div class="kv" style="margin-bottom:12px;"><span class="k">Currently</span><span>${cur?esc(groupById(cur).name):'<span style="color:var(--warn)">'+a.status+'</span>'}</span><span class="k">Cost</span><span>${money(r.cost)}/mo</span></div>
+    <label class="f">Move to group</label>
+    <select id="move-target">${targetOpts}<option value="__unassign">— Unassign (back to rules) —</option></select>
+    <hr class="sk">
+    <p class="panel-label"><span class="t">Linked resources — bring them along?</span></p>
+    <p style="font-family:var(--mono); font-size:10.5px; color:var(--muted); margin:0 0 8px;">These share a cluster/parent with this resource. Moving them together keeps the dependency intact so cost doesn't split by accident.</p>
+    ${linkedHtml}
+    <hr class="sk">
+    <div class="btnrow" style="justify-content:flex-end;">
+      <div class="btn" data-action="closeModal">Cancel</div>
+      <div class="btn solid" data-action="confirmMove" data-id="${rid}">Move</div>
+    </div>`);
+}
+function confirmMove(rid){
+  const target=document.getElementById('move-target').value;
+  const alsoMove=[...document.querySelectorAll('.movelink:checked')].map(c=>c.value);
+  const ids=[rid,...alsoMove];
+  ids.forEach(id=>{
+    if(target==='__unassign'){ delete overrides[id]; }
+    else { overrides[id]=target; delete sharedResolutions[id]; }
+  });
+  closeModal(); render();
+}
+function addResourceModal(gid){
+  const g=groupById(gid);
+  const candidates=RESOURCES.filter(r=>{const a=assignmentFor(r); return a.status==='unassigned'||a.status==='orphaned'|| (a.status==='assigned'&&!a.groups.includes(gid));}).slice(0,80);
+  const rows=candidates.map(r=>{const a=assignmentFor(r); return `<label class="link-item"><input type="checkbox" class="addres" value="${r.id}"> <b>${esc(r.name)}</b> <span class="type-chip">${r.type}</span> <span class="lr">${a.status} · ${money(r.cost)}/mo</span></label>`;}).join('')||'<div class="empty">Nothing to add.</div>';
+  modal(`<h3>Add resources to “${esc(g.name)}”</h3>
+    <p style="font-family:var(--mono); font-size:10.5px; color:var(--muted);">Pick resources to pin into this group (a manual override on top of the rule).</p>
+    <div style="max-height:340px; overflow:auto; margin:10px 0;">${rows}</div>
+    <div class="btnrow" style="justify-content:flex-end;">
+      <div class="btn" data-action="closeModal">Cancel</div>
+      <div class="btn solid" data-action="confirmAdd" data-id="${gid}">Add selected</div>
+    </div>`);
+}
+function confirmAdd(gid){
+  [...document.querySelectorAll('.addres:checked')].forEach(c=>{ overrides[c.value]=gid; delete sharedResolutions[c.value]; });
+  closeModal(); render();
+}
+function newGroupModal(){
+  modal(`<h3>Create a group</h3>
+    <label class="f">Name</label><input type="text" id="ng-name" placeholder="e.g. Data Engineering, Acme Corp, Search feature">
+    <div style="display:flex; gap:10px; margin-top:10px;">
+      <div style="flex:1;"><label class="f">Kind</label><select id="ng-kind">${KINDS.map(k=>`<option>${k}</option>`).join('')}</select></div>
+      <div style="flex:1;"><label class="f">Environment / tag</label><select id="ng-env">${ENV_OPTS.map(e=>`<option>${e}</option>`).join('')}</select></div>
+    </div>
+    <p style="font-family:var(--mono); font-size:10.5px; color:var(--muted); margin-top:10px;">You'll add rules (or use the AI chat) after creating it.</p>
+    <div class="btnrow" style="justify-content:flex-end; margin-top:6px;">
+      <div class="btn" data-action="closeModal">Cancel</div>
+      <div class="btn solid" data-action="confirmNewGroup">Create</div>
+    </div>`);
+}
+function confirmNewGroup(){
+  const name=(document.getElementById('ng-name').value||'New group').trim();
+  const kind=document.getElementById('ng-kind').value, env=document.getElementById('ng-env').value;
+  const id='g'+Date.now();
+  groups.push({id,name,kind,env,conditions:[],connectors:[]});
+  route.page='setup'; route.editGroupId=id;
+  closeModal(); render();
+}
+
+/* ---------- downloads (real CSV) ---------- */
+function download(filename,content){
+  const blob=new Blob([content],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function downloadGroup(gid){
+  const g=groupById(gid); const res=resourcesInGroup(gid);
+  let csv='name,type,account,vpc,owner,team,cost_monthly,tags\n';
+  res.forEach(r=>{ csv+=`${r.name},${r.type},${r.account},${r.vpc},${r.owner},${r.team},${r.cost},"${Object.entries(r.tags).map(([k,v])=>k+'='+v).join(';')}"\n`; });
+  csv+=`\n# Group: ${g.name} (${g.kind}, ${g.env})\n# Rule: ${ruleText(g)}\n# Total monthly cost: ${money(groupCost(gid))}\n# Resources: ${res.length}\n`;
+  download(`compass-group-${g.name.replace(/\s+/g,'-').toLowerCase()}.csv`,csv);
+}
+function downloadResource(rid){
+  const r=byId(rid); const a=assignmentFor(r);
+  let txt=`Compass — Resource 360 report\n\nname: ${r.name}\ntype: ${r.type}\naccount: ${r.account} (${r.accountId})\nvpc: ${r.vpc}\nowner: ${r.owner}\ncreated_by: ${r.createdBy}\nmonthly_cost: ${money(r.cost)}\nannualised: ${money(r.cost*12)}\nstatus: ${a.status}\ngroups: ${a.groups.map(g=>groupById(g).name).join(', ')||'—'}\nparent: ${r.parent?byId(r.parent).name:'—'}\nlinked: ${(r.links||[]).map(id=>byId(id).name).join(', ')||'—'}\ntags: ${Object.entries(r.tags).map(([k,v])=>k+'='+v).join(', ')||'none'}\n`;
+  download(`compass-resource-${r.name}.txt`,txt);
+}
+
+/* =====================================================================
+   ROUTER + WIRING
+   ===================================================================== */
+function pageHtml(){
+  switch(route.page){
+    case 'setup': return pageSetup();
+    case 'overview': return pageOverview();
+    case 'group': return pageGroup();
+    case 'resources': return pageResources();
+    case 'r360': return pageR360();
+    default: return pageSetup();
+  }
+}
+function render(){
+  const active=document.activeElement;
+  const activeId=active&&active.id; const caret=active&&active.selectionStart;
+  document.getElementById('app').innerHTML=pageHtml();
+  renderStats();
+  if(activeId){ const e=document.getElementById(activeId); if(e){ e.focus(); if(caret!=null&&e.setSelectionRange){ try{e.setSelectionRange(caret,caret);}catch(_){}}} }
+}
+
+// central click handler
+document.addEventListener('click',e=>{
+  const stop=e.target.closest('[data-stop]');
+  const t=e.target.closest('[data-action]'); if(!t) return;
+  const A=t.dataset.action, id=t.dataset.id;
+  switch(A){
+    case 'nav': route.page=t.dataset.page; if(route.page==='setup'&&!groupById(route.editGroupId)) route.editGroupId=groups[0]&&groups[0].id; render(); break;
+    case 'editGroup': route.editGroupId=id; render(); break;
+    case 'newGroup': newGroupModal(); break;
+    case 'deleteGroup': { const g=groupById(route.editGroupId); if(g&&confirm('Delete group "'+g.name+'"? Removes the rule, not the AWS resources.')){ groups=groups.filter(x=>x.id!==g.id); route.editGroupId=groups[0]&&groups[0].id; render(); } break; }
+    case 'addCondition': { const g=groupById(route.editGroupId); if(g){ g.conditions.push({field:'name',op:'contains',value:''}); if(g.conditions.length>1) g.connectors.push('AND'); render(); } break; }
+    case 'removeCondition': { const g=groupById(route.editGroupId); const idx=+t.dataset.idx; g.conditions.splice(idx,1); if(idx>0) g.connectors.splice(idx-1,1); else if(g.connectors.length) g.connectors.splice(0,1); render(); break; }
+    case 'conn': { const g=groupById(route.editGroupId); g.connectors[+t.dataset.idx]=t.dataset.val; render(); break; }
+    case 'aiSend': aiSend(); break;
+    case 'resolve': { const mode=t.dataset.mode; sharedResolutions[id]=mode; render(); break; }
+    case 'scrollConflicts': { const p=document.getElementById('conflict-panel'); if(p) p.scrollIntoView({behavior:'smooth'}); break; }
+    case 'openGroup': route.page='group'; route.groupId=id; render(); window.scrollTo(0,0); break;
+    case 'openResource': route.page='r360'; route.resourceId=id; render(); window.scrollTo(0,0); break;
+    case 'editRules': route.page='setup'; route.editGroupId=id; render(); window.scrollTo(0,0); break;
+    case 'moveResource': moveModal(id); break;
+    case 'confirmMove': confirmMove(id); break;
+    case 'addResourceModal': addResourceModal(id); break;
+    case 'confirmAdd': confirmAdd(id); break;
+    case 'makeSubgroup': { const parent=groupById(t.dataset.parent); const tok=t.dataset.token; const base=resourcesInGroup(parent.id)[0]; const pre=base?base.name.split('-')[0]+'-'+tok:tok; const ng={id:'g'+Date.now(),name:parent.name+' · '+tok,kind:parent.kind,env:parent.env,conditions:[{field:'name',op:'contains',value:tok}],connectors:[]}; groups.push(ng); route.page='setup'; route.editGroupId=ng.id; render(); window.scrollTo(0,0); break; }
+    case 'downloadGroup': downloadGroup(id); break;
+    case 'downloadResource': downloadResource(id); break;
+    case 'closeModal': closeModal(); break;
+    case 'closeModalBg': if(!stop) closeModal(); break;
+  }
+});
+
+// inputs + selects (delegated)
+document.addEventListener('input',e=>{
+  const el=e.target; const A=el.dataset.action;
+  if(A==='renameGroup'){ const g=groupById(route.editGroupId); if(g){ g.name=el.value; renderRailAndStats(); } return; }
+  if(A==='filtQ'){ filt.q=el.value; renderResourcesBody(); return; }
+  if(el.dataset.cond!==undefined){ updateCond(el); return; }
+});
+document.addEventListener('change',e=>{
+  const el=e.target; const A=el.dataset.action;
+  if(A==='setKind'){ const g=groupById(route.editGroupId); g.kind=el.value; render(); return; }
+  if(A==='setEnv'){ const g=groupById(route.editGroupId); g.env=el.value; render(); return; }
+  if(A==='filtType'){ filt.type=el.value; render(); return; }
+  if(A==='filtStatus'){ filt.status=el.value; render(); return; }
+  if(A==='filtGroup'){ filt.group=el.value; render(); return; }
+  if(el.dataset.cond!==undefined){ updateCond(el,true); return; }
+});
+function updateCond(el,isSelectChange){
+  const g=groupById(route.editGroupId); if(!g) return;
+  const idx=+el.dataset.cond, part=el.dataset.part; const cond=g.conditions[idx]; if(!cond) return;
+  if(part==='field'){ cond.field=el.value; cond.op=cond.field==='tagExists'?'exists':'equals'; cond.value=''; cond.tagKey='Env'; render(); return; }
+  cond[part]=el.value;
+  if(isSelectChange) render(); else updateDerived();
+}
+// lightweight partial updates (keep focus while typing rule values / filter)
+function renderRailAndStats(){ const railEl=document.querySelector('.grid3 > .panel'); if(railEl) railEl.outerHTML=railHtml(); renderStats(); }
+function updateDerived(){
+  // re-render preview + conflict + rail counts without touching the builder inputs
+  const g=groupById(route.editGroupId);
+  const panels=document.querySelectorAll('.grid3 > .panel');
+  if(panels[2]) panels[2].outerHTML=previewHtml(g);
+  if(panels[0]) panels[0].outerHTML=railHtml();
+  const cp=document.getElementById('conflict-panel'); if(cp) cp.outerHTML=conflictHtml();
+  renderStats();
+}
+function renderResourcesBody(){
+  if(route.page!=='resources') return;
+  const rows=filteredResources();
+  const tb=document.querySelector('#app tbody');
+  if(tb) tb.innerHTML=rows.slice(0,400).map(r=>resRow(r,{context:'explorer'})).join('')||'<tr><td colspan="7"><div class="empty">Nothing matches.</div></td></tr>';
+  const cnt=document.querySelector('#app .panel .toolbar')?document.querySelectorAll('#app div')[0]:null;
+}
+
+render();
+</script>
+</body>
+</html>
