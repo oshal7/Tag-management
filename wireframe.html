@@ -338,6 +338,62 @@ ul.clean{margin:6px 0; padding-left:18px} ul.clean li{margin:4px 0; font-size:12
 .movepanel.open{display:block}
 .linkitem{display:flex; align-items:center; gap:8px; font-size:12px; padding:5px 0; border-bottom:1px solid var(--overhead-line)}
 .linkitem:last-child{border-bottom:none}
+
+/* ---------- list-organization iterations ---------- */
+.vswitch{display:inline-flex; flex-wrap:wrap; border:1px solid var(--line-strong); border-radius:var(--radius); overflow:hidden; margin-bottom:12px}
+.vswitch button{font:inherit; font-size:12px; background:var(--panel); color:var(--ink-soft); border:none; border-right:1px solid var(--line); padding:7px 13px; cursor:pointer}
+.vswitch button:last-child{border-right:none}
+.vswitch button.on{background:var(--ink); color:var(--paper)}
+.iterview{display:none} .iterview.on{display:block}
+.bestfor{font-family:var(--mono); font-size:10.5px; color:var(--ink-faint); border-left:2px solid var(--overhead-line); padding:3px 0 3px 8px; margin:0 0 12px}
+
+/* parent-child tree */
+.tree{font-size:12.5px; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
+.thead,.trow{display:grid; grid-template-columns:1fr 120px 90px 96px; gap:10px; align-items:center; padding:8px 12px}
+.thead{background:var(--panel); font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); border-bottom:1px solid var(--line)}
+.tnode{border-bottom:1px solid var(--line)} .tnode:last-child{border-bottom:none}
+.trow:hover{background:var(--fill)}
+.tlabel{display:flex; align-items:center; gap:7px; min-width:0}
+.caret{width:14px; color:var(--ink-faint); cursor:pointer; font-size:10px; display:inline-block; transition:transform .12s}
+.tnode.open>.trow .caret{transform:rotate(90deg)}
+.tchild{margin-left:20px; border-left:1px solid var(--line); display:none}
+.tnode.open>.tchild{display:block}
+.ticon{font-family:var(--mono); font-size:10px; color:var(--ink-faint)}
+.rollup{font-family:var(--mono); font-size:10px; color:var(--overhead)}
+
+/* dependency clusters */
+.clgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(268px,1fr)); gap:12px}
+.clcard{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:12px}
+.cl-h{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px}
+.cl-h b{font-size:13px}
+.clchip{display:inline-flex; align-items:center; gap:5px; font-family:var(--mono); font-size:10.5px; border:1px solid var(--line); border-radius:2px; padding:3px 7px; margin:4px 4px 0 0; background:var(--paper)}
+.clchip .role{color:var(--ink-faint)}
+
+/* facet rail + dense list */
+.facetwrap{display:grid; grid-template-columns:190px 1fr; gap:14px}
+@media(max-width:820px){ .facetwrap{grid-template-columns:1fr} }
+.facet h4{font-family:var(--mono); font-size:10px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-faint); margin:14px 0 6px}
+.facet label{display:flex; justify-content:space-between; gap:8px; padding:3px 0; color:var(--ink-soft); cursor:pointer; font-size:12px}
+.facet label .c{font-family:var(--mono); font-size:10.5px; color:var(--ink-faint)}
+.costcell{display:flex; align-items:center; gap:8px; justify-content:flex-end}
+.costbar{height:6px; width:70px; background:var(--fill); border-radius:4px; overflow:hidden}
+.costbar i{display:block;height:100%; background:var(--overhead-line)}
+
+/* packed cost map */
+.pack{display:flex; flex-wrap:wrap; gap:4px; align-content:flex-start}
+.pk{border:1px solid var(--line-strong); border-radius:2px; padding:8px; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden; background:var(--fill); min-height:56px}
+.pk b{font-size:12px} .pk small{font-family:var(--mono); font-size:9.5px; color:var(--ink-faint)}
+
+/* ownership ladder (resource 360) */
+.ladder{display:flex; flex-wrap:wrap; align-items:stretch; gap:6px; margin:2px 0}
+.ladder .lk{border:1px solid var(--line); background:var(--panel); border-radius:var(--radius); padding:6px 11px; display:flex; flex-direction:column; line-height:1.3; min-width:96px}
+.ladder .lk small{font-family:var(--mono); font-size:9px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.07em}
+.ladder .lk b{font-size:13px}
+.ladder .lk .src{font-family:var(--mono); font-size:9px; color:var(--overhead)}
+.ladder .sep{align-self:center; color:var(--ink-faint); font-size:14px}
+.kv{display:grid; grid-template-columns:118px 1fr; gap:4px 10px; font-size:12.5px}
+.kv .k{color:var(--ink-faint); font-family:var(--mono); font-size:11px}
+.shared-flag{border:1px solid var(--review-line); background:var(--review-bg); color:var(--review); border-radius:var(--radius); padding:8px 11px; font-size:12px; display:flex; gap:8px; align-items:center; margin-top:10px}
 </style>
 </head>
 <body>
@@ -372,6 +428,9 @@ ul.clean{margin:6px 0; padding-left:18px} ul.clean li{margin:4px 0; font-size:12
       <a data-screen="complete"><span class="n">15</span> Mapping Complete</a>
       <div class="navsec">Product workspace</div>
       <a data-screen="workspace"><span class="n">16</span> Product Workspace</a>
+      <div class="navsec">Explorations</div>
+      <a data-screen="details"><span class="n">17</span> Product Details · layouts</a>
+      <a data-screen="r360"><span class="n">18</span> Resource 360</a>
     </nav>
   </aside>
 
@@ -1191,6 +1250,239 @@ ul.clean{margin:6px 0; padding-left:18px} ul.clean li{margin:4px 0; font-size:12
         </div>
       </section>
 
+      <!-- ============ 17 PRODUCT DETAILS · LAYOUT ITERATIONS ============ -->
+      <section class="screen" id="s-details">
+        <div class="crumbs">Compass / Products / <b>Payments</b> · organise resources</div>
+        <div class="spread">
+          <h1 class="h1">Payments — Resource layouts</h1>
+          <span class="mono" style="font-size:11.5px; color:var(--ink-faint)">3,214 resources · 34 types · 9 services</span>
+        </div>
+        <p class="sub">The same 3,214 resources shown four ways. “Resource types” (in the workspace) is one lens; here are more, each better at a different question. Switch between them to compare.</p>
+
+        <div class="vswitch" id="iterswitch">
+          <button class="on" data-iter="hier">Parent → child</button>
+          <button data-iter="appsvc">Application / service</button>
+          <button data-iter="cluster">Dependency clusters</button>
+          <button data-iter="dense">Cost map + dense list</button>
+        </div>
+
+        <!-- (1) parent-child hierarchy -->
+        <div class="iterview on" id="i-hier">
+          <div class="bestfor">BEST FOR → seeing the infra structure: what owns what, and where cost rolls up from children.</div>
+          <div class="tree" id="tree">
+            <div class="thead"><span>Resource</span><span>Type</span><span>Children</span><span>Cost/mo ▾</span></div>
+
+            <div class="tnode open">
+              <div class="trow"><span class="tlabel"><span class="caret">▶</span><b>payments-eks-qa</b> <span class="ticon">eks:cluster</span></span><span class="mono">eks:cluster</span><span class="mono">14</span><span class="num" style="text-align:right">$18,200</span></div>
+              <div class="tchild">
+                <div class="tnode"><div class="trow"><span class="tlabel" style="padding-left:20px"><span class="caret" style="visibility:hidden">▶</span>eks-node-grp <span class="ticon">×12 ec2</span></span><span class="mono">ec2:instance</span><span class="mono">—</span><span class="num" style="text-align:right">$9,400</span></div></div>
+                <div class="tnode"><div class="trow"><span class="tlabel" style="padding-left:20px"><span class="caret" style="visibility:hidden">▶</span>vol-0f21e <span class="ticon">×12 ebs</span></span><span class="mono">ebs:volume</span><span class="mono">—</span><span class="num" style="text-align:right">$1,900</span></div></div>
+                <div class="tnode"><div class="trow"><span class="tlabel" style="padding-left:20px"><span class="caret" style="visibility:hidden">▶</span><span class="rowlink" data-goto="r360">payments-alb-qa</span> <span class="ticon">shared entry</span></span><span class="mono">elb</span><span class="mono">2</span><span class="num" style="text-align:right">$980</span></div></div>
+              </div>
+            </div>
+
+            <div class="tnode">
+              <div class="trow"><span class="tlabel"><span class="caret">▶</span><b>payments-asg-qa</b> <span class="ticon">autoscaling</span></span><span class="mono">asg</span><span class="mono">6</span><span class="num" style="text-align:right">$5,120</span></div>
+              <div class="tchild">
+                <div class="tnode"><div class="trow"><span class="tlabel" style="padding-left:20px"><span class="caret" style="visibility:hidden">▶</span><span class="rowlink" data-goto="r360">payments-api-qa-3</span> <span class="ticon">ec2</span></span><span class="mono">ec2:instance</span><span class="mono">1</span><span class="num" style="text-align:right">$1,240</span></div></div>
+                <div class="tnode"><div class="trow"><span class="tlabel" style="padding-left:20px"><span class="caret" style="visibility:hidden">▶</span>payments-worker-dev <span class="ticon">ec2</span></span><span class="mono">ec2:instance</span><span class="mono">1</span><span class="num" style="text-align:right">$860</span></div></div>
+              </div>
+            </div>
+
+            <div class="tnode">
+              <div class="trow"><span class="tlabel"><span class="caret">▶</span><b>payments-primary-rds</b> <span class="ticon">rds + 2 replicas</span></span><span class="mono">rds</span><span class="mono">2</span><span class="num" style="text-align:right">$12,900</span></div>
+              <div class="tchild">
+                <div class="tnode"><div class="trow"><span class="tlabel" style="padding-left:20px"><span class="caret" style="visibility:hidden">▶</span>payments-rds-replica-a <span class="ticon">read replica</span></span><span class="mono">rds</span><span class="mono">—</span><span class="num" style="text-align:right">$3,100</span></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="footnote">Carets expand/collapse. Parent cost includes children (rollup). Orphans — children whose parent is gone — surface as their own top-level rows.</div>
+        </div>
+
+        <!-- (2) application / service -->
+        <div class="iterview" id="i-appsvc">
+          <div class="bestfor">BEST FOR → how engineers think: their apps and services, not AWS resource types.</div>
+          <div class="tblwrap"><table>
+            <thead><tr><th>Application / Service / Resource</th><th>Type</th><th>Resources</th><th>Cost/mo</th></tr></thead>
+            <tbody>
+              <tr class="groupbar"><td colspan="4">▾ Payments API <span class="mono" style="color:var(--ink-faint)">· application · 1,240 res · $41.2k</span></td></tr>
+              <tr><td class="indent">authz-service</td><td>lambda · ec2</td><td class="num">380</td><td class="num">$8,900</td></tr>
+              <tr><td class="indent"><span class="rowlink" data-goto="r360">gateway-service</span></td><td>ec2 · elb</td><td class="num">210</td><td class="num">$12,400</td></tr>
+              <tr><td class="indent">ledger-service</td><td>rds · dynamodb</td><td class="num">140</td><td class="num">$14,300</td></tr>
+              <tr class="groupbar"><td colspan="4">▾ Settlement <span class="mono" style="color:var(--ink-faint)">· application · 640 res · $22.1k</span></td></tr>
+              <tr><td class="indent">batch-service</td><td>eks · s3</td><td class="num">420</td><td class="num">$18,200</td></tr>
+              <tr><td class="indent">reconciliation-service</td><td>lambda</td><td class="num">220</td><td class="num">$3,900</td></tr>
+              <tr class="groupbar"><td colspan="4">▾ Unassigned to an application <span class="mono" style="color:var(--ink-faint)">· 1,334 res · $29.1k</span></td></tr>
+              <tr><td class="indent">— resources with no app/service signal</td><td>mixed</td><td class="num">1,334</td><td class="num">$29,100</td></tr>
+            </tbody>
+          </table></div>
+          <div class="footnote">Application/service comes from tags, naming, or the runtime-role path. Phase 1 attributes to product; this grouping is a view, not a second attribution.</div>
+        </div>
+
+        <!-- (3) dependency clusters -->
+        <div class="iterview" id="i-cluster">
+          <div class="bestfor">BEST FOR → keeping linked things together: each card is one connected stack with a rolled-up cost.</div>
+          <div class="clgrid">
+            <div class="clcard">
+              <div class="cl-h"><b>EKS stack · qa</b><span class="rollup">$21.1k/mo</span></div>
+              <div class="mono" style="font-size:11px; color:var(--ink-soft)">15 resources · 1 cross-product link</div>
+              <div><span class="clchip"><span class="role">cluster</span> payments-eks-qa</span><span class="clchip"><span class="role">×12</span> nodes</span><span class="clchip"><span class="role">×12</span> ebs vols</span><span class="clchip" style="border-color:var(--review-line); color:var(--review)"><span class="role">shared→</span> alb</span></div>
+              <div class="btnrow" style="margin-top:10px"><button class="btn sm" data-goto="r360">Open</button><button class="btn sm ghost">Move stack</button></div>
+            </div>
+            <div class="clcard">
+              <div class="cl-h"><b>API + ASG</b><span class="rollup">$8.3k/mo</span></div>
+              <div class="mono" style="font-size:11px; color:var(--ink-soft)">6 resources · self-contained</div>
+              <div><span class="clchip"><span class="role">asg</span> payments-asg-qa</span><span class="clchip"><span class="role">ec2</span> api-qa-3</span><span class="clchip"><span class="role">ec2</span> worker-dev</span></div>
+              <div class="btnrow" style="margin-top:10px"><button class="btn sm" data-goto="r360">Open</button><button class="btn sm ghost">Move stack</button></div>
+            </div>
+            <div class="clcard">
+              <div class="cl-h"><b>Ledger data</b><span class="rollup">$16.0k/mo</span></div>
+              <div class="mono" style="font-size:11px; color:var(--ink-soft)">3 resources · primary + replicas</div>
+              <div><span class="clchip"><span class="role">rds</span> primary-rds</span><span class="clchip"><span class="role">replica</span> ×2</span><span class="clchip"><span class="role">ddb</span> ledger-qa</span></div>
+              <div class="btnrow" style="margin-top:10px"><button class="btn sm" data-goto="r360">Open</button><button class="btn sm ghost">Move stack</button></div>
+            </div>
+          </div>
+          <div class="footnote">Clusters = connected components in the relationship graph. Moving a cluster keeps its cost from splitting across products (same guardrail as the move flow).</div>
+        </div>
+
+        <!-- (4) cost map + dense list -->
+        <div class="iterview" id="i-dense">
+          <div class="bestfor">BEST FOR → thousands of rows: spot the money in the map, then filter the dense list with facets.</div>
+          <div class="panel" style="margin-bottom:14px">
+            <div class="ph-title">Cost map — sized by spend, one tile per resource (top 12 shown)</div>
+            <div class="pack" style="height:170px">
+              <div class="pk" style="flex:0 0 26%"><b>eks-qa</b><small>$18.2k</small></div>
+              <div class="pk" style="flex:0 0 20%"><b>primary-rds</b><small>$12.9k</small></div>
+              <div class="pk" style="flex:0 0 14%"><b>node-grp</b><small>$9.4k</small></div>
+              <div class="pk" style="flex:0 0 10%"><b>replica-a</b><small>$3.1k</small></div>
+              <div class="pk" style="flex:0 0 8%"><b>ebs×12</b><small>$1.9k</small></div>
+              <div class="pk" style="flex:0 0 7%"><b>api-3</b><small>$1.2k</small></div>
+              <div class="pk" style="flex:0 0 6%"><b>alb</b><small>$980</small></div>
+              <div class="pk" style="flex:0 0 5%"><b>worker</b><small>$860</small></div>
+              <div class="pk" style="flex:1 1 8%"><b>+3.2k more</b><small>tail</small></div>
+            </div>
+          </div>
+          <div class="facetwrap">
+            <div class="facet">
+              <h4>Type</h4>
+              <label><span><input type="checkbox" checked> ebs:volume</span><span class="c">900</span></label>
+              <label><span><input type="checkbox"> lambda</span><span class="c">640</span></label>
+              <label><span><input type="checkbox"> ec2:instance</span><span class="c">412</span></label>
+              <label><span><input type="checkbox"> s3:bucket</span><span class="c">120</span></label>
+              <h4>State</h4>
+              <label><span><input type="checkbox" checked> live</span><span class="c">3,001</span></label>
+              <label><span><input type="checkbox"> idle</span><span class="c">142</span></label>
+              <label><span><input type="checkbox"> deleted</span><span class="c">71</span></label>
+              <h4>Confidence</h4>
+              <label><span><input type="checkbox"> auto</span><span class="c">2,910</span></label>
+              <label><span><input type="checkbox"> inferred</span><span class="c">248</span></label>
+            </div>
+            <div class="tblwrap" style="max-height:320px; overflow:auto">
+              <table>
+                <thead><tr><th>Resource</th><th>Type</th><th>State</th><th style="text-align:right">Cost/mo</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="rowlink" data-goto="r360">payments-eks-qa</span></td><td>eks:cluster</td><td>live</td><td><div class="costcell"><div class="costbar"><i style="width:100%"></i></div><span class="mono">$18,200</span></div></td></tr>
+                  <tr><td><span class="rowlink" data-goto="r360">payments-primary-rds</span></td><td>rds</td><td>live</td><td><div class="costcell"><div class="costbar"><i style="width:71%"></i></div><span class="mono">$12,900</span></div></td></tr>
+                  <tr><td>eks-node-grp</td><td>ec2</td><td>live</td><td><div class="costcell"><div class="costbar"><i style="width:52%"></i></div><span class="mono">$9,400</span></div></td></tr>
+                  <tr><td>payments-rds-replica-a</td><td>rds</td><td>live</td><td><div class="costcell"><div class="costbar"><i style="width:17%"></i></div><span class="mono">$3,100</span></div></td></tr>
+                  <tr><td>payments-idle-rds-2</td><td>rds</td><td>idle 31d</td><td><div class="costcell"><div class="costbar"><i style="width:5%"></i></div><span class="mono">$980</span></div></td></tr>
+                  <tr><td colspan="4" class="mono" style="text-align:center; color:var(--ink-faint)">… 3,209 more rows (virtualized) …</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 18 RESOURCE 360 ============ -->
+      <section class="screen" id="s-r360">
+        <div class="crumbs">Compass / Resource 360 / <b>payments-api-qa-3</b></div>
+        <div class="spread">
+          <h1 class="h1">payments-api-qa-3 <span class="band b-auto" style="vertical-align:middle"><span class="dot"></span>0.96</span></h1>
+          <div class="btnrow"><button class="btn sm">Reassign</button><button class="btn sm">Pin</button><button class="btn sm" data-goto="rules">Apply as rule</button></div>
+        </div>
+        <p class="sub mono" style="font-size:12px">arn:aws:ec2:us-east-1:4471:instance/i-0a1f9c3d · EC2 t3.large · us-east-1 · acct 4471 · <b style="color:var(--auto)">● live</b> · $1,240/mo</p>
+
+        <div class="panel">
+          <div class="ph-title">Ownership — who this rolls up to</div>
+          <div class="ladder">
+            <div class="lk"><small>Dept</small><b>Engineering</b><span class="src">org chart</span></div>
+            <span class="sep">›</span>
+            <div class="lk"><small>Team</small><b>eng-payments</b><span class="src">S4 · idp group</span></div>
+            <span class="sep">›</span>
+            <div class="lk"><small>Product</small><b>Payments</b><span class="src">S1 · acct 4471</span></div>
+            <span class="sep">›</span>
+            <div class="lk"><small>Application</small><b>Payments API</b><span class="src">tag:app</span></div>
+            <span class="sep">›</span>
+            <div class="lk"><small>Service</small><b>gateway-service</b><span class="src">runtime role</span></div>
+            <span class="sep">›</span>
+            <div class="lk" style="border-color:var(--ink)"><small>Resource</small><b>api-qa-3</b><span class="src">this</span></div>
+          </div>
+          <div class="footnote">Each hop shows the signal that resolved it — the same evidence finance can audit. Missing hops (e.g. no app tag) show as “unresolved,” never guessed.</div>
+        </div>
+
+        <div class="grid g3">
+          <div>
+            <div class="panel">
+              <div class="ph-title">Attribution &amp; evidence</div>
+              <div class="ev-row"><span class="strat won">S1</span><span>Payments</span><span class="mono">0.95</span><span class="mono" style="color:var(--ink-soft)">acct 4471 dedicated</span><span class="won">✓</span></div>
+              <div class="ev-row"><span class="strat">S4</span><span>Payments</span><span class="mono">0.85</span><span class="mono" style="color:var(--ink-soft)">SSO jdoe → eng-payments</span><span></span></div>
+              <div class="ev-row"><span class="strat">S12</span><span>Payments</span><span class="mono">0.80</span><span class="mono" style="color:var(--ink-soft)">team=pmts alias</span><span></span></div>
+            </div>
+            <div class="panel">
+              <div class="ph-title">Tags &amp; metadata</div>
+              <div class="kv">
+                <span class="k">product</span><span><span class="tag">Payments</span> <span class="mono" style="font-size:10px; color:var(--ink-faint)">real</span></span>
+                <span class="k">managed-by</span><span><span class="tag">compass</span></span>
+                <span class="k">app</span><span><span class="tag">payments-api</span></span>
+                <span class="k">team</span><span><span class="tag">pmts</span> <span class="mono" style="font-size:10px; color:var(--ink-faint)">pre-existing</span></span>
+                <span class="k">env</span><span><span class="tag">qa</span></span>
+                <span class="k">cost-center</span><span><span class="tag">CC-4471</span></span>
+                <span class="k">virtual</span><span><span class="tag">compass:product=Payments</span></span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel">
+              <div class="ph-title">Cost insights</div>
+              <div class="rowflex" style="justify-content:space-between"><b style="font-size:20px">$1,240</b><span class="mono up" style="font-size:11px">▲ 12% MoM</span></div>
+              <div class="spark" style="height:70px; margin-top:8px"><i style="height:50%"></i><i style="height:58%"></i><i style="height:54%"></i><i style="height:70%"></i><i style="height:80%"></i><i style="height:86%"></i></div>
+              <div class="rowflex" style="margin-top:10px"><span class="tag">compute $980</span><span class="tag">storage $190</span><span class="tag">transfer $70</span></div>
+              <hr class="hr">
+              <div class="kv">
+                <span class="k">forecast</span><span>~$1,390 next month</span>
+                <span class="k">share of product</span><span>1.3% of Payments</span>
+                <span class="k">since inception</span><span>$8,140 (7 mo)</span>
+              </div>
+              <div class="footnote">From CUR line items joined on the attribution.</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel">
+              <div class="ph-title">Linked &amp; shared</div>
+              <ul class="clean" style="list-style:none; padding:0">
+                <li class="spread"><span><b>Parent</b> · payments-asg-qa</span><span class="band b-auto" style="font-size:10px"><span class="dot"></span>Payments</span></li>
+                <li class="spread"><span><b>Child</b> · vol-0f21e (EBS)</span><span class="band b-auto" style="font-size:10px"><span class="dot"></span>Payments</span></li>
+                <li class="spread"><span><b>References</b> · shared-alb-nonprod</span><span class="band b-review" style="font-size:10px"><span class="dot"></span>shared</span></li>
+                <li class="spread"><span><b>Same role</b> · gateway-svc ×4</span><span class="band b-auto" style="font-size:10px"><span class="dot"></span>Payments</span></li>
+              </ul>
+              <div class="shared-flag">⚠ Shared: routes through <b>shared-alb-nonprod</b>, used by Checkout too — that ALB’s cost is split via S14, not charged here.</div>
+              <div class="btnrow" style="margin-top:10px"><button class="btn sm" data-goto="visualization">View in graph →</button></div>
+            </div>
+            <div class="panel">
+              <div class="ph-title">History</div>
+              <ul class="clean">
+                <li><span class="mono">Jul 12</span> — tag written by rule R-118</li>
+                <li><span class="mono">Jul 03</span> — auto-assigned (0.96)</li>
+                <li><span class="mono">Jun 28</span> — first seen · by jdoe</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div><!-- /canvas -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -1273,6 +1565,27 @@ ul.clean{margin:6px 0; padding-left:18px} ul.clean li{margin:4px 0; font-size:12
   var movebtn=document.getElementById('movebtn'), movepanel=document.getElementById('movepanel'), movecancel=document.getElementById('movecancel');
   if(movebtn){ movebtn.addEventListener('click',function(){ movepanel.classList.toggle('open'); }); }
   if(movecancel){ movecancel.addEventListener('click',function(){ movepanel.classList.remove('open'); }); }
+
+  // layout-iteration switcher (product details)
+  var iterswitch=document.getElementById('iterswitch');
+  if(iterswitch){
+    iterswitch.addEventListener('click',function(e){
+      var b=e.target.closest('button[data-iter]'); if(!b) return;
+      iterswitch.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});
+      b.classList.add('on');
+      var v=b.getAttribute('data-iter');
+      document.querySelectorAll('#s-details .iterview').forEach(function(p){p.classList.remove('on')});
+      var pane=document.getElementById('i-'+v); if(pane) pane.classList.add('on');
+    });
+  }
+  // parent-child tree expand/collapse
+  var tree=document.getElementById('tree');
+  if(tree){
+    tree.addEventListener('click',function(e){
+      var c=e.target.closest('.caret'); if(!c) return;
+      var node=c.closest('.tnode'); if(node && node.querySelector('.tchild')) node.classList.toggle('open');
+    });
+  }
 
   // theme toggle: cycles auto → light → dark
   var order=['auto','light','dark'], idx=0, root=document.documentElement;

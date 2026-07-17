@@ -54,6 +54,18 @@ the left sidebar.
     resource-type cards, a flat resource list, and a relationships view where
     moving a resource suggests its linked neighbors come with it
 
+**Explorations (design iterations):**
+
+17. **Product Details · layouts** — the same 3,214 resources shown four ways to
+    compare how best to organize a huge list: a parent→child hierarchy tree,
+    an Application/Service grouping, dependency clusters, and a cost map paired
+    with a dense faceted list
+18. **Resource 360** — a deep resource page: the full ownership ladder
+    (Dept → Team → Product → Application → Service → Resource) with the signal
+    behind each hop, attribution evidence, all tags & metadata, cost insights
+    (run-rate, trend, breakdown, forecast, share), and a linked & shared panel
+    that flags cross-product sharing (S14)
+
 ## Design intent
 
 Deliberately lo-fi — grayscale boxes and monospace annotations keep attention on
