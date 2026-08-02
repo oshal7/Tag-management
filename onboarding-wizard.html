@@ -19,36 +19,53 @@
   .topbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);padding:12px 26px;display:flex;align-items:center;gap:14px;}
   .verchip{font-family:var(--mono);font-size:11px;color:var(--indigo-d);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:20px;padding:3px 10px;}
   .tsearch{margin-left:auto;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 12px;color:var(--faint);font-size:13px;width:260px;}
-  .wrap{max-width:940px;margin:0 auto;padding:30px 26px 90px;}
+  .wrap{max-width:1000px;margin:0 auto;padding:30px 26px 90px;}
   h1{font-size:24px;margin:0 0 4px;color:var(--indigo-d);} .sub{color:var(--muted);margin:0 0 22px;}
   .btn{font:inherit;font-size:13px;border-radius:9px;padding:9px 15px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink);display:inline-flex;align-items:center;gap:7px;} .btn:hover{border-color:var(--indigo);color:var(--indigo-d);}
-  .btn.primary{background:var(--indigo);border-color:var(--indigo);color:#fff;} .btn.primary:hover{background:var(--indigo-d);} .btn.sm{padding:6px 11px;font-size:12px;}
-  /* stepper */
-  .stepper{display:flex;align-items:center;gap:0;margin:0 auto 26px;justify-content:center;}
-  .st{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);}
-  .st .d{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-weight:700;background:#fff;}
-  .st.cur .d{background:var(--indigo);border-color:var(--indigo);color:#fff;} .st.done .d{background:var(--green-soft);border-color:var(--green);color:var(--green);}
-  .st.cur{color:var(--ink);font-weight:600;}
+  .btn.primary{background:var(--indigo);border-color:var(--indigo);color:#fff;} .btn.primary:hover{background:var(--indigo-d);} .btn.sm{padding:6px 11px;font-size:12px;} .btn.ghost-indigo{border-color:var(--indigo-line);color:var(--indigo-d);background:var(--indigo-soft);}
+  .stepper{display:flex;align-items:center;margin:0 auto 26px;justify-content:center;}
+  .st{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);} .st .d{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-weight:700;background:#fff;}
+  .st.cur .d{background:var(--indigo);border-color:var(--indigo);color:#fff;} .st.done .d{background:var(--green-soft);border-color:var(--green);color:var(--green);} .st.cur{color:var(--ink);font-weight:600;}
   .join{width:56px;height:2px;background:var(--line);margin:0 10px;}
-  .panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px;}
-  .kindbadge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;} .k-Product{background:var(--indigo-soft);color:var(--indigo-d);} .k-Feature{background:var(--violet-soft);color:var(--violet);} .k-Team{background:var(--blue-soft);color:var(--blue);} .k-Department{background:var(--amber-soft);color:var(--amber);}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;}
+  .kindbadge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;} .k-Product{background:var(--indigo-soft);color:var(--indigo-d);} .k-Feature{background:var(--violet-soft);color:var(--violet);} .k-Team{background:var(--blue-soft);color:var(--blue);} .k-Department{background:var(--amber-soft);color:var(--amber);} .k-Customer{background:var(--teal-soft);color:var(--teal);}
   .env{font-size:11px;padding:2px 8px;border-radius:6px;font-family:var(--mono);} .env-prod{background:var(--red-soft);color:var(--red);} .env-np{background:var(--blue-soft);color:var(--blue);}
-  .grow{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:16px;}
-  .grow.conf{border-left:4px solid var(--amber);}
-  .grow .chk{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;cursor:pointer;color:transparent;} .grow.acc .chk{background:var(--green);border-color:var(--green);color:#fff;}
-  .grow .gi{flex:1;} .grow .gn{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;}
+  .grow{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:16px;} .grow.conf{border-left:4px solid var(--amber);} .grow.rev{border-color:var(--green-soft);background:#fbfefb;}
+  .grow .chk{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;color:transparent;flex:none;} .grow.rev .chk{background:var(--green);border-color:var(--green);color:#fff;}
+  .grow .gi{flex:1;min-width:0;} .grow .gn{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .grow .rule{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:5px;}
-  .grow .cnt{text-align:center;} .grow .cnt .n{font-size:20px;font-weight:700;} .grow .cnt .l{font-size:11px;color:var(--muted);}
-  .why{background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:9px;padding:9px 12px;font-size:12px;color:#4b4f66;margin-top:10px;display:none;} .why.show{display:block;}
   .strat{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;} .stratchip{font-size:10.5px;background:var(--indigo-soft);color:var(--indigo-d);border-radius:6px;padding:2px 8px;}
+  .grow .cnt{text-align:center;} .grow .cnt .n{font-size:20px;font-weight:700;} .grow .cnt .l{font-size:11px;color:var(--muted);}
   .summ{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;} @media(max-width:700px){.summ{grid-template-columns:1fr 1fr;}}
   .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;} .stat.hero{background:linear-gradient(180deg,#f3f4ff,#fff);border-color:var(--indigo-line);} .stat .k{font-size:12px;color:var(--muted);} .stat .v{font-size:26px;font-weight:700;margin-top:3px;}
-  .navbtns{display:flex;justify-content:space-between;margin-top:24px;}
-  .conflict{background:var(--amber-soft);border:1px solid #f2d9a8;border-radius:12px;padding:16px;margin-bottom:12px;}
-  .conflict .cn{font-weight:700;font-family:var(--mono);} .opts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .navbtns{display:flex;justify-content:space-between;margin-top:24px;align-items:center;gap:10px;}
+  .conflict{background:var(--amber-soft);border:1px solid #f2d9a8;border-radius:12px;padding:16px;margin-bottom:12px;} .conflict .cn{font-weight:700;font-family:var(--mono);} .opts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
   .opts .o{font-size:12px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;cursor:pointer;} .opts .o:hover,.opts .o.sel{border-color:var(--indigo);color:var(--indigo-d);background:var(--indigo-soft);}
   .done-hero{text-align:center;padding:24px;} .done-hero .big{width:70px;height:70px;border-radius:50%;background:var(--green-soft);color:var(--green);display:grid;place-items:center;font-size:34px;margin:0 auto 14px;}
   .iter{display:none;} .iter.on{display:block;animation:fade .25s ease;} @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  /* review detail (reuses v2 detail) */
+  .detail{margin:6px 0 14px;animation:slideDown .3s cubic-bezier(.2,.7,.2,1);}
+  @keyframes slideDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:none;}}
+  .dpanel{background:#fff;border:1.5px solid var(--indigo);border-radius:16px;overflow:hidden;box-shadow:0 12px 40px rgba(79,70,229,.12);}
+  .dhead{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,var(--indigo-soft),#fff);flex-wrap:wrap;} .dhead .nm{font-size:17px;font-weight:700;} .dhead select{width:auto;} .dhead .close{margin-left:auto;cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:8px;width:32px;height:32px;display:grid;place-items:center;}
+  .dbody{display:grid;grid-template-columns:1fr 300px;} @media(max-width:820px){.dbody{grid-template-columns:1fr;}}
+  .dleft{padding:18px;border-right:1px solid var(--line);} .dright{padding:18px;background:#fbfbfe;}
+  .sec-h{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin:0 0 12px;display:flex;justify-content:space-between;}
+  select,input[type=text]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:13px;background:#fff;color:var(--ink);} select:focus,input:focus{outline:2px solid var(--indigo-soft);border-color:var(--indigo);}
+  .cond{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:#fcfcfe;} .cond-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;} .cond-grid.tag{grid-template-columns:1fr .8fr .8fr .9fr auto;}
+  label.f{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;} .rmv{width:38px;height:38px;border:1px solid var(--red-soft);color:var(--red);background:#fff;border-radius:8px;cursor:pointer;font-size:16px;}
+  .connector{display:flex;align-items:center;gap:8px;margin:2px 0 10px 8px;} .andor{display:inline-flex;border:1px solid var(--indigo-line);border-radius:16px;overflow:hidden;font-size:11px;} .andor span{padding:4px 14px;cursor:pointer;color:var(--indigo-d);} .andor span.on{background:var(--indigo);color:#fff;}
+  .addrow{display:flex;gap:10px;} .addcond{flex:1;border:1.5px dashed var(--line);border-radius:10px;padding:11px;text-align:center;color:var(--muted);cursor:pointer;font-size:13px;} .addcond:hover{border-color:var(--indigo);color:var(--indigo-d);} .addai{border:1.5px dashed var(--indigo-line);background:var(--indigo-soft);color:var(--indigo-d);border-radius:10px;padding:11px 16px;cursor:pointer;font-size:13px;}
+  .mtable{border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-top:6px;} .mrow{display:grid;grid-template-columns:1.6fr 1fr 1fr 1.1fr 1.3fr;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);align-items:center;font-size:12.5px;} .mrow.head{background:var(--bg);font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);} .mrow:last-child{border-bottom:none;}
+  .mres{display:flex;align-items:center;gap:9px;min-width:0;} .ricon{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:14px;flex:none;background:var(--indigo-soft);} .mres .rn{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .mres .rt{font-size:10px;color:var(--faint);font-family:var(--mono);}
+  .mcell{color:var(--muted);font-family:var(--mono);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .tags{display:flex;gap:4px;flex-wrap:wrap;} .tag{font-size:10px;background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-family:var(--mono);color:var(--muted);} .morerow{padding:9px;text-align:center;font-size:12px;color:var(--muted);background:var(--bg);}
+  .why-card{background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:10px;padding:13px;margin-bottom:14px;} .why-card h4{margin:0 0 7px;font-size:13px;color:var(--indigo-d);} .why-card p{margin:0;font-size:12.5px;color:#4b4f66;line-height:1.55;}
+  .typemap{margin-bottom:14px;} .tmrow{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12.5px;} .tmrow .ti{width:22px;text-align:center;} .tmrow .tn{width:96px;color:var(--muted);} .tmrow .tb{flex:1;height:8px;background:var(--line);border-radius:5px;overflow:hidden;} .tmrow .tb i{display:block;height:100%;background:var(--indigo);} .tmrow .tc{font-family:var(--mono);width:34px;text-align:right;font-weight:600;}
+  .dfoot{padding:14px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;background:#fff;}
+  /* mapping loader */
+  .maploader{text-align:center;padding:20px;} .spin{width:40px;height:40px;border:4px solid var(--line);border-top-color:var(--indigo);border-radius:50%;margin:0 auto 12px;animation:spin .9s linear infinite;} @keyframes spin{to{transform:rotate(360deg);}} @media(prefers-reduced-motion:reduce){.spin{animation:none;}}
+  .bigbar{height:20px;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;margin:14px auto 6px;max-width:520px;} .bigbar i{display:block;height:100%;width:0;background:var(--indigo);transition:width .2s linear;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--nav);color:#fff;padding:12px 20px;border-radius:11px;font-size:13px;z-index:95;opacity:0;transition:.25s;pointer-events:none;} .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
@@ -64,82 +81,160 @@
     <div class="topbar"><span class="verchip">approach · wizard</span><div class="tsearch" style="margin-left:auto;">🔍 Search resources…</div></div>
     <div class="wrap">
       <h1>Set up Tag Management</h1>
-      <p class="sub">A quick guided setup — review the groups we found, resolve overlaps, and you're done.</p>
+      <p class="sub">Review the groups we found, resolve overlaps, then start mapping.</p>
       <div class="stepper" id="stepper"></div>
 
-      <!-- STEP 1 -->
       <section class="iter on" id="s1">
         <div class="summ">
-          <div class="stat hero"><div class="k">Resources analysed</div><div class="v">2,480</div></div>
-          <div class="stat hero"><div class="k">Coverage</div><div class="v">84%</div></div>
-          <div class="stat"><div class="k">Groups found</div><div class="v" id="gcount">6</div></div>
-          <div class="stat"><div class="k">Conflicts</div><div class="v" style="color:var(--amber)">2</div></div>
+          <div class="stat hero"><div class="k">Resources analysed</div><div class="v" id="t-res">–</div></div>
+          <div class="stat hero"><div class="k">Coverage</div><div class="v" id="t-cov">–</div></div>
+          <div class="stat"><div class="k">Groups found</div><div class="v" id="t-grp">–</div></div>
+          <div class="stat"><div class="k">Conflicts</div><div class="v" style="color:var(--amber)" id="t-conf">–</div></div>
         </div>
         <div class="panel">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><b style="font-size:16px;">Review suggested groups</b><span style="font-size:12px;color:var(--muted);"><span id="accCount">0</span> of 6 accepted</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><b style="font-size:16px;">Review suggested groups</b><span style="font-size:12px;color:var(--muted);"><span id="revCount">0</span> of <span id="revTotal">6</span> reviewed</span></div>
           <div id="growlist"></div>
         </div>
-        <div class="navbtns"><span></span><button class="btn primary" data-go="2">Next: resolve conflicts →</button></div>
+        <div class="navbtns"><span style="font-size:12px;color:var(--muted);">Review each group, then continue.</span><button class="btn primary" data-go="2">Next: resolve conflicts →</button></div>
       </section>
 
-      <!-- STEP 2 -->
       <section class="iter" id="s2">
-        <div class="panel">
-          <b style="font-size:16px;">Resolve 2 conflicts</b>
-          <p style="color:var(--muted);font-size:13px;margin:6px 0 16px;">These resources match rules in more than one group. Choose an owner or mark as shared — the rule updates automatically.</p>
-          <div id="conflist"></div>
-        </div>
-        <div class="navbtns"><button class="btn" data-go="1">← Back</button><button class="btn primary" data-go="3">Finish setup →</button></div>
+        <div class="panel"><b style="font-size:16px;">Resolve conflicts</b>
+          <p style="color:var(--muted);font-size:13px;margin:6px 0 16px;">These resources match rules in more than one group. Choose an owner or mark shared — the rule updates automatically.</p>
+          <div id="conflist"></div></div>
+        <div class="navbtns"><button class="btn" data-go="1">← Back</button><button class="btn primary" data-go="3">Initiate mapping of all groups →</button></div>
       </section>
 
-      <!-- STEP 3 -->
       <section class="iter" id="s3">
-        <div class="panel done-hero">
-          <div class="big">✓</div>
-          <h2 style="margin:0 0 6px;">You're all set</h2>
-          <p style="color:var(--muted);max-width:52ch;margin:0 auto 18px;">6 groups are live and mapping <b>84%</b> of your non-prod spend. Compass will keep new resources tagged automatically. You can refine rules anytime.</p>
-          <button class="btn primary">Go to Tag Management dashboard →</button>
-        </div>
+        <div class="panel" id="mapPanel"></div>
       </section>
     </div>
   </div>
 </div>
+<div class="toast" id="toast"></div>
 <script>
-const GROUPS=[
- {id:'g1',name:'Payments Platform',kind:'Product',env:['prod','non-prod'],rule:'name starts with “pay-”',count:214,strat:['Naming convention','Account boundary'],why:'Shared “pay-” prefix + dedicated payments-prod account — two signals agree.',conf:false},
- {id:'g2',name:'Checkout Service',kind:'Product',env:['non-prod'],rule:'name starts with “chk-”',count:168,strat:['Naming convention'],why:'Consistent “chk-” naming across checkout resources.'},
- {id:'g3',name:'Marketing',kind:'Team',env:['non-prod'],rule:'name starts with “mkt-”',count:94,strat:['Naming convention','Creator identity'],why:'“mkt-” prefix + creator SSO group eng-marketing.'},
- {id:'g4',name:'Core Platform',kind:'Team',env:['prod'],rule:'name starts with “core-”',count:120,strat:['Naming convention','Runtime role'],why:'“core-” prefix + core-platform IAM roles.',conf:true},
- {id:'g5',name:'Data Engineering',kind:'Department',env:['prod'],rule:'name starts with “data-”',count:110,strat:['Naming convention','IaC / Terraform'],why:'“data-” prefix + Terraform default_tags.'},
- {id:'g6',name:'Audit & Compliance',kind:'Feature',env:['prod'],rule:'name contains “audit”',count:8,strat:['Naming convention'],why:'Weak single signal — the word “audit”. Overlaps products (conflicts).',conf:true},
+/* ---------- engine ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const rng=mulberry32(7); const rint=(a,b)=>Math.floor(rng()*(b-a+1))+a;
+const ACCOUNTS=['payments-prod','marketing-prod','shared-dev','data-eng-prod'],VPCS=['vpc-0aa111','vpc-0bb222','vpc-0cc333','vpc-0dd444'],OWNERS=['jsmith','arao','mchen','tolawale','pgarcia'],TEAMS=['Payments','Checkout','Marketing','Core-Platform','Data-Eng'];
+const TEMPLATES=[['pay-checkout-svc','EC2'],['pay-checkout-svc','SecurityGroup'],['pay-api-gw','Lambda'],['pay-ledger-db','RDS'],['pay-events','SNS'],['pay-audit-logs','S3'],['chk-cart-lambda','Lambda'],['chk-cart-cache','ElastiCache'],['chk-session-store','DynamoDB'],['chk-web-frontend','EC2'],['chk-assets','S3'],['mkt-campaign-assets','S3'],['mkt-analytics-db','RDS'],['mkt-email-worker','Lambda'],['mkt-cdn-origin','S3'],['mkt-crm-sync','Lambda'],['core-auth-svc','EC2'],['core-auth-sg','SecurityGroup'],['core-idp','Cognito'],['core-shared-vpc-nat','EC2'],['core-config-store','S3'],['core-audit-trail','S3'],['data-lake-raw','S3'],['data-lake-curated','S3'],['data-etl-job','Lambda'],['data-warehouse','Redshift']];
+const ENVS=['prod','dev','staging']; const RESOURCES=[]; let n=1;
+TEMPLATES.forEach((t,i)=>ENVS.forEach((env,ei)=>{ if(ei===2&&i%3!==0)return; const team=TEAMS[Math.floor(i/(TEMPLATES.length/TEAMS.length))]||TEAMS[i%TEAMS.length]; RESOURCES.push({id:'r'+n,name:`${t[0]}-${env}-${String(n).padStart(2,'0')}`,type:t[1],account:ACCOUNTS[i%4],vpc:VPCS[i%4],owner:OWNERS[(i+ei)%5],team,env,tags:{Env:env,Team:team,Owner:OWNERS[(i+ei)%5]}}); n++; }));
+['i-0a91f','vol-0f2e','eni-04b7','i-07c3d','s3-legacy-7742','i-0b52a'].forEach((nm,i)=>{RESOURCES.push({id:'r'+n,name:nm,type:['EC2','EBS','ENI','EC2','S3','EC2'][i],account:ACCOUNTS[i%4],vpc:'—',owner:'—',team:'—',env:'unknown',tags:{}});n++;});
+const FIELD_OPTIONS=[['name','Resource name'],['type','Resource type'],['account','Account'],['vpc','VPC'],['owner','Owner / Created by'],['team','Team / Group'],['tagValue','Tag (key = value)']];
+const OPS=[['startsWith','starts with'],['contains','contains'],['equals','equals'],['endsWith','ends with'],['notEquals','not equals']];
+const TYPE_VALUES=['EC2','S3','RDS','Lambda','SecurityGroup','DynamoDB','ElastiCache','SNS','Cognito','Redshift','EBS','ENI'];
+const TYPE_ICON={EC2:'🖥',S3:'🪣',RDS:'🗄',Lambda:'ƛ',SecurityGroup:'🛡',DynamoDB:'⬡',ElastiCache:'⚡',SNS:'📣',Cognito:'👤',Redshift:'🔺',EBS:'💽',ENI:'🔌'};
+function evalC(r,c){let L;if(c.field==='tagValue')L=(r.tags[c.tagKey||'Env']||'');else L=String(r[c.field]??'');const v=(c.value||'').toLowerCase();L=L.toLowerCase();switch(c.op){case 'startsWith':return L.startsWith(v);case 'contains':return L.includes(v);case 'equals':return L===v;case 'endsWith':return L.endsWith(v);case 'notEquals':return L!==v;default:return false;}}
+function evalG(r,g){if(!g.cond.length)return false;let res=evalC(r,g.cond[0]);for(let i=1;i<g.cond.length;i++){res=(g.connectors[i-1]||'AND')==='AND'?(res&&evalC(r,g.cond[i])):(res||evalC(r,g.cond[i]));}return res;}
+const matches=g=>RESOURCES.filter(r=>evalG(r,g));
+const groupsFor=r=>GROUPS.filter(g=>evalG(r,g));
+let GROUPS=[
+ {id:'g1',name:'Payments Platform',kind:'Product',cond:[{field:'name',op:'startsWith',value:'pay-'}],connectors:[],strategies:['Naming convention','Account boundary'],why:'These resources share the “pay-” name prefix and mostly live in the payments-prod account — two strong ownership signals that agree.'},
+ {id:'g2',name:'Checkout Service',kind:'Product',cond:[{field:'name',op:'startsWith',value:'chk-'}],connectors:[],strategies:['Naming convention'],why:'Consistent “chk-” prefix across checkout resources.'},
+ {id:'g3',name:'Marketing',kind:'Team',cond:[{field:'name',op:'startsWith',value:'mkt-'}],connectors:[],strategies:['Naming convention','Creator identity'],why:'“mkt-” prefix plus creator SSO group eng-marketing.'},
+ {id:'g4',name:'Core Platform',kind:'Team',cond:[{field:'name',op:'startsWith',value:'core-'}],connectors:[],strategies:['Naming convention','Runtime role'],why:'Named with “core-” and running under core-platform IAM roles — shared platform infrastructure.'},
+ {id:'g5',name:'Data Engineering',kind:'Department',cond:[{field:'name',op:'startsWith',value:'data-'}],connectors:[],strategies:['Naming convention','IaC / Terraform'],why:'“data-” prefix and Terraform default_tags attribute these to Data Engineering.'},
+ {id:'g6',name:'Audit & Compliance',kind:'Feature',cond:[{field:'name',op:'contains',value:'audit'}],connectors:[],strategies:['Naming convention'],why:'A single weak signal — the word “audit”. It cuts across products, so it overlaps other groups.'},
 ];
-const CONFLICTS=[{res:'pay-audit-logs-prod-13',groups:['Payments Platform','Audit & Compliance']},{res:'core-audit-trail-prod-50',groups:['Core Platform','Audit & Compliance']}];
-let step=1, accepted={}, resolved={};
-function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
-function renderStepper(){document.getElementById('stepper').innerHTML=[['Review groups'],['Resolve conflicts'],['Confirm']].map((s,i)=>{const n=i+1;const cls=step===n?'cur':(step>n?'done':'');return `<div class="st ${cls}"><div class="d">${step>n?'✓':n}</div>${s[0]}</div>${n<3?'<div class="join"></div>':''}`;}).join('');}
-function renderGrows(){document.getElementById('growlist').innerHTML=GROUPS.map(g=>`
-  <div class="grow ${g.conf?'conf':''} ${accepted[g.id]?'acc':''}">
-    <div class="chk" data-acc="${g.id}">✓</div>
-    <div class="gi"><div class="gn">${esc(g.name)} <span class="kindbadge k-${g.kind}">${g.kind}</span> ${g.env.map(e=>`<span class="env ${e==='prod'?'env-prod':'env-np'}">${e}</span>`).join('')} ${g.conf?'<span style="color:var(--amber);font-size:11.5px;">⚠ conflict</span>':''}</div>
-      <div class="rule">${g.rule}</div>
-      <div class="strat">${g.strat.map(s=>`<span class="stratchip">${s}</span>`).join('')} <a style="font-size:11.5px;color:var(--indigo-d);cursor:pointer;" data-why="${g.id}">why? ▾</a></div>
-      <div class="why" id="why-${g.id}">${esc(g.why)}</div></div>
-    <div class="cnt"><div class="n">${g.count}</div><div class="l">resources</div></div>
-    <button class="btn sm" data-acc="${g.id}">${accepted[g.id]?'Accepted':'Accept'}</button>
-  </div>`).join('');
-  document.getElementById('accCount').textContent=Object.keys(accepted).length;}
-function renderConf(){document.getElementById('conflist').innerHTML=CONFLICTS.map((c,i)=>`
-  <div class="conflict"><div class="cn">${esc(c.res)}</div><div style="font-size:12.5px;color:#7a5a1e;margin-top:3px;">claimed by ${c.groups.join(' & ')}</div>
-    <div class="opts">${c.groups.map(g=>`<div class="o ${resolved[i]===g?'sel':''}" data-res="${i}" data-val="${esc(g)}">→ ${esc(g)}</div>`).join('')}<div class="o ${resolved[i]==='shared'?'sel':''}" data-res="${i}" data-val="shared">◒ Shared</div></div>
-    ${resolved[i]?`<div style="font-size:12px;color:var(--indigo-d);margin-top:8px;">✓ ${resolved[i]==='shared'?'Marked shared — cost split, no rule change.':'Assigned to '+resolved[i]+' — other rule narrowed.'}</div>`:''}
-  </div>`).join('');}
-function show(n){step=n;document.querySelectorAll('.iter').forEach(s=>s.classList.remove('on'));document.getElementById('s'+n).classList.add('on');renderStepper();window.scrollTo(0,0);}
+const byId=id=>GROUPS.find(g=>g.id===id);
+function computeConflicts(){return RESOURCES.filter(r=>groupsFor(r).length>1).map(r=>({res:r.name,groups:groupsFor(r).map(g=>g.name)}));}
+let CONFLICTS=computeConflicts();
+let step=1, reviewed={}, resolved={}, openReviewId=null;
+
+/* ---------- helpers ---------- */
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ruleText=g=>g.cond.length?g.cond.map((c,i)=>(i?` ${g.connectors[i-1]||'AND'} `:'')+`${FIELD_OPTIONS.find(f=>f[0]===c.field)[1]} ${OPS.find(o=>o[0]===c.op)[1]} “${c.value}”`).join(''):'(no conditions)';
+const envMix=g=>{const e=[...new Set(matches(g).map(r=>r.env))].filter(x=>x!=='unknown'&&x!=='staging').map(x=>x==='prod'?'prod':'non-prod');return[...new Set(e)];};
+const envHtml=g=>envMix(g).map(e=>`<span class="env ${e==='prod'?'env-prod':'env-np'}">${e}</span>`).join('')||'';
+const stratHtml=s=>s.map(x=>`<span class="stratchip">${x}</span>`).join('');
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>t.classList.remove('show'),1900);}
+
+/* ---------- tiles ---------- */
+function renderTiles(){const cov=Math.round(RESOURCES.filter(r=>groupsFor(r).length>0).length/RESOURCES.length*100);
+  document.getElementById('t-res').textContent=RESOURCES.length; document.getElementById('t-cov').textContent=cov+'%';
+  document.getElementById('t-grp').textContent=GROUPS.length; document.getElementById('t-conf').textContent=CONFLICTS.length;
+  document.getElementById('revTotal').textContent=GROUPS.length; document.getElementById('revCount').textContent=Object.keys(reviewed).length;}
+
+/* ---------- step 1: group rows + inline review detail ---------- */
+function renderGrows(){
+  document.getElementById('growlist').innerHTML=GROUPS.map(g=>{
+    const conf=matches(g).filter(r=>groupsFor(r).length>1).length;
+    const row=`<div class="grow ${conf?'conf':''} ${reviewed[g.id]?'rev':''}">
+      <div class="chk">✓</div>
+      <div class="gi"><div class="gn">${esc(g.name)} <span class="kindbadge k-${g.kind}">${g.kind}</span> ${envHtml(g)} ${conf?'<span style="color:var(--amber);font-size:11.5px;">⚠ '+conf+' conflict'+(conf>1?'s':'')+'</span>':''}</div>
+        <div class="rule">${esc(ruleText(g))}</div>
+        <div class="strat">${stratHtml(g.strategies)}</div></div>
+      <div class="cnt"><div class="n">${matches(g).length}</div><div class="l">resources</div></div>
+      <button class="btn ${reviewed[g.id]?'':'primary'} sm" data-review="${g.id}">${openReviewId===g.id?'Close ▴':(reviewed[g.id]?'Reviewed ✓':'Review ▾')}</button>
+    </div>`;
+    return row + (openReviewId===g.id? `<div class="detail">${detailHtml(g)}</div>` : '');
+  }).join('');
+  renderTiles();
+}
+function detailHtml(g){
+  const m=matches(g); const types={}; m.forEach(r=>types[r.type]=(types[r.type]||0)+1); const maxT=Math.max(...Object.values(types),1);
+  const typeMap=Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([t,c])=>`<div class="tmrow"><span class="ti">${TYPE_ICON[t]||'▪'}</span><span class="tn">${t}</span><span class="tb"><i style="width:${c/maxT*100}%"></i></span><span class="tc">${c}</span></div>`).join('')||'<div style="font-size:12px;color:var(--muted)">No matches.</div>';
+  let conds=''; g.cond.forEach((c,i)=>{if(i)conds+=`<div class="connector"><div class="andor"><span class="${(g.connectors[i-1]||'AND')==='AND'?'on':''}" data-conn="${i-1}" data-val="AND">AND</span><span class="${g.connectors[i-1]==='OR'?'on':''}" data-conn="${i-1}" data-val="OR">OR</span></div></div>`; conds+=condRow(c,i);});
+  if(!g.cond.length)conds='<div style="font-size:12.5px;color:var(--muted);padding:8px 0;">No conditions.</div>';
+  const mrows=m.slice(0,5).map(r=>`<div class="mrow"><div class="mres"><div class="ricon">${TYPE_ICON[r.type]||'▪'}</div><div style="min-width:0;"><div class="rn">${esc(r.name)}</div><div class="rt">${r.type}</div></div></div><div class="mcell">${esc(r.account)}</div><div class="mcell">${esc(r.vpc)}</div><div class="mcell">${esc(r.owner)} · ${esc(r.team)}</div><div class="tags">${Object.entries(r.tags).slice(0,2).map(([k,v])=>`<span class="tag">${k}=${v}</span>`).join('')||'<span class="tag">no tags</span>'}</div></div>`).join('');
+  return `<div class="dpanel">
+    <div class="dhead"><span class="nm">${esc(g.name)}</span><select data-kind="${g.id}">${['Product','Feature','Customer','Team','Department'].map(k=>`<option ${k===g.kind?'selected':''}>${k}</option>`).join('')}</select>${envHtml(g)}<div class="close" data-review="${g.id}">✕</div></div>
+    <div class="dbody">
+      <div class="dleft"><p class="sec-h">Rules &amp; conditions <span class="mcell">${m.length} matches</span></p>${conds}
+        <div class="addrow"><div class="addcond" data-add="${g.id}">＋ add condition</div><div class="addai" data-ai="${g.id}">✦ add via AI</div></div>
+        <p class="sec-h" style="margin-top:18px;">Matched resources</p>
+        <div class="mtable"><div class="mrow head"><div>Resource</div><div>Account</div><div>VPC</div><div>Owner / Team</div><div>Tags</div></div>${mrows||'<div class="morerow">No matches.</div>'}${m.length>5?`<div class="morerow">+ ${m.length-5} more matched resources</div>`:''}</div>
+      </div>
+      <div class="dright"><div class="why-card"><h4>✦ How this group was formed</h4><p>${esc(g.why)}</p><div class="strat" style="margin-top:10px;">${stratHtml(g.strategies)}</div></div>
+        <p class="sec-h">Resource-type mapping</p><div class="typemap">${typeMap}</div>
+        <p class="sec-h" style="margin-top:14px;">Ask AI about this group</p><p style="font-size:12px;color:var(--muted);margin:0 0 10px;">“why is X here?”, “add all RDS”, “split dev out”.</p></div>
+    </div>
+    <div class="dfoot"><button class="btn" data-review="${g.id}">Close</button><button class="btn primary" data-accept="${g.id}">✓ Looks good — mark reviewed</button></div>
+  </div>`;
+}
+function condRow(c,i){
+  const isTV=c.field==='tagValue';
+  const fieldSel=`<div><label class="f">Field</label><select data-cond="${i}" data-part="field">${FIELD_OPTIONS.map(f=>`<option value="${f[0]}" ${f[0]===c.field?'selected':''}>${f[1]}</option>`).join('')}</select></div>`;
+  let mid;
+  if(isTV){mid=`<div><label class="f">Tag key</label><input type="text" data-cond="${i}" data-part="tagKey" value="${esc(c.tagKey||'Env')}"></div><div><label class="f">Op</label><select data-cond="${i}" data-part="op">${OPS.slice(0,3).map(o=>`<option value="${o[0]}" ${o[0]===c.op?'selected':''}>${o[1]}</option>`).join('')}</select></div><div><label class="f">Value</label><input type="text" data-cond="${i}" data-part="value" value="${esc(c.value||'')}"></div>`;}
+  else{const opSel=`<div><label class="f">Operator</label><select data-cond="${i}" data-part="op">${OPS.map(o=>`<option value="${o[0]}" ${o[0]===c.op?'selected':''}>${o[1]}</option>`).join('')}</select></div>`;const sel=(arr,v)=>`<div><label class="f">Value</label><select data-cond="${i}" data-part="value">${arr.map(x=>`<option ${x===v?'selected':''}>${x}</option>`).join('')}</select></div>`;let val;if(c.field==='type')val=sel(TYPE_VALUES,c.value||TYPE_VALUES[0]);else if(c.field==='account')val=sel(ACCOUNTS,c.value||ACCOUNTS[0]);else if(c.field==='vpc')val=sel(VPCS,c.value||VPCS[0]);else if(c.field==='team')val=sel(TEAMS,c.value||TEAMS[0]);else val=`<div><label class="f">Value</label><input type="text" data-cond="${i}" data-part="value" value="${esc(c.value||'')}" placeholder="value…"></div>`;mid=opSel+val;}
+  return `<div class="cond"><div class="cond-grid ${isTV?'tag':''}">${fieldSel}${mid}<div><label class="f">&nbsp;</label><button class="rmv" data-remove="${i}">×</button></div></div></div>`;
+}
+function refreshReview(){ CONFLICTS=computeConflicts(); const g=byId(openReviewId); const d=document.querySelector('.detail'); if(g&&d){const sc=window.scrollY; d.innerHTML=detailHtml(g); window.scrollTo(0,sc);} renderTiles(); }
+
+/* ---------- conflicts ---------- */
+function renderConf(){document.getElementById('conflist').innerHTML=(CONFLICTS.length?CONFLICTS:[]).map((c,i)=>`<div class="conflict"><div class="cn">${esc(c.res)}</div><div style="font-size:12.5px;color:#7a5a1e;margin-top:3px;">claimed by ${c.groups.join(' & ')}</div><div class="opts">${c.groups.map(g=>`<div class="o ${resolved[i]===g?'sel':''}" data-res="${i}" data-val="${esc(g)}">→ ${esc(g)}</div>`).join('')}<div class="o ${resolved[i]==='shared'?'sel':''}" data-res="${i}" data-val="shared">◒ Shared</div></div>${resolved[i]?`<div style="font-size:12px;color:var(--indigo-d);margin-top:8px;">✓ ${resolved[i]==='shared'?'Marked shared — cost split, no rule change.':'Assigned to '+resolved[i]+' — other rule narrowed.'}</div>`:''}</div>`).join('')||'<div style="font-size:13px;color:var(--muted);padding:12px;">No conflicts 🎉</div>';}
+
+/* ---------- mapping ---------- */
+function runMapping(){
+  const p=document.getElementById('mapPanel');
+  p.innerHTML=`<div class="maploader"><div class="spin"></div><b style="font-size:16px;">Mapping ${RESOURCES.length} resources to ${GROUPS.length} groups…</b><div class="bigbar"><i id="mf"></i></div><div style="font-family:var(--mono);font-size:12px;color:var(--muted);" id="mtxt">0%</div></div>`;
+  let v=0; const fill=document.getElementById('mf'),txt=document.getElementById('mtxt');
+  const reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const done=()=>{p.innerHTML=`<div class="done-hero"><div class="big">✓</div><h2 style="margin:0 0 6px;">You're all set</h2><p style="color:var(--muted);max-width:52ch;margin:0 auto 18px;">${GROUPS.length} groups are live and mapping <b>${Math.round(RESOURCES.filter(r=>groupsFor(r).length>0).length/RESOURCES.length*100)}%</b> of your resources. Compass will keep new resources tagged automatically.</p><button class="btn primary">Go to Tag Management dashboard →</button></div>`;};
+  if(reduce){done();return;}
+  const t=setInterval(()=>{v+=Math.random()*10+5; if(v>=100){clearInterval(t); fill.style.width='100%'; txt.textContent='100%'; setTimeout(done,350); return;} fill.style.width=v+'%'; txt.textContent=Math.round(v)+'%';},150);
+}
+
+/* ---------- steps ---------- */
+function renderStepper(){document.getElementById('stepper').innerHTML=[['Review groups'],['Resolve conflicts'],['Map & finish']].map((s,i)=>{const nn=i+1,cls=step===nn?'cur':(step>nn?'done':'');return `<div class="st ${cls}"><div class="d">${step>nn?'✓':nn}</div>${s[0]}</div>${nn<3?'<div class="join"></div>':''}`;}).join('');}
+function show(nn){step=nn;document.querySelectorAll('.iter').forEach(s=>s.classList.remove('on'));document.getElementById('s'+nn).classList.add('on');renderStepper();window.scrollTo(0,0);if(nn===2){CONFLICTS=computeConflicts();renderConf();}if(nn===3)runMapping();}
+
+/* ---------- events ---------- */
 document.addEventListener('click',e=>{
-  const acc=e.target.closest('[data-acc]'); if(acc){const id=acc.dataset.acc; accepted[id]=!accepted[id]; if(!accepted[id])delete accepted[id]; renderGrows(); return;}
-  const why=e.target.closest('[data-why]'); if(why){document.getElementById('why-'+why.dataset.why).classList.toggle('show'); return;}
+  const rv=e.target.closest('[data-review]'); if(rv){openReviewId=openReviewId===rv.dataset.review?null:rv.dataset.review; renderGrows(); if(openReviewId){const el=[...document.querySelectorAll('.grow')].find(x=>x.querySelector(`[data-review="${openReviewId}"]`)); } return;}
+  const ac=e.target.closest('[data-accept]'); if(ac){reviewed[ac.dataset.accept]=true; openReviewId=null; renderGrows(); toast('Group marked reviewed'); return;}
+  const add=e.target.closest('[data-add]'); if(add){const g=byId(add.dataset.add); g.cond.push({field:'name',op:'contains',value:''}); if(g.cond.length>1)g.connectors.push('AND'); refreshReview(); return;}
+  const ai=e.target.closest('[data-ai]'); if(ai){const g=byId(ai.dataset.ai); g.cond.push({field:'type',op:'equals',value:'RDS'}); g.connectors.push('OR'); refreshReview(); toast('AI added: type = RDS (OR)'); return;}
+  const rm=e.target.closest('[data-remove]'); if(rm){const g=byId(openReviewId),idx=+rm.dataset.remove; g.cond.splice(idx,1); if(idx>0)g.connectors.splice(idx-1,1); else if(g.connectors.length)g.connectors.splice(0,1); refreshReview(); return;}
+  const cn=e.target.closest('[data-conn]'); if(cn){byId(openReviewId).connectors[+cn.dataset.conn]=cn.dataset.val; refreshReview(); return;}
   const res=e.target.closest('[data-res]'); if(res){resolved[res.dataset.res]=res.dataset.val; renderConf(); return;}
   const go=e.target.closest('[data-go]'); if(go){show(+go.dataset.go);}
 });
+document.addEventListener('input',e=>{const el=e.target; if(el.dataset.cond!==undefined&&el.tagName==='INPUT'){const g=byId(openReviewId);const c=g.cond[+el.dataset.cond];if(!c)return;c[el.dataset.part]=el.value;CONFLICTS=computeConflicts();const d=document.querySelector('.detail');const sc=window.scrollY;d.innerHTML=detailHtml(g);window.scrollTo(0,sc);renderTiles();const inp=d.querySelector(`[data-cond="${el.dataset.cond}"][data-part="${el.dataset.part}"]`);if(inp){inp.focus();if(inp.setSelectionRange){try{inp.setSelectionRange(inp.value.length,inp.value.length);}catch(_){}}}}});
+document.addEventListener('change',e=>{const el=e.target; if(el.dataset.kind!==undefined){byId(el.dataset.kind).kind=el.value;refreshReview();return;} if(el.dataset.cond!==undefined&&el.tagName==='SELECT'){const g=byId(openReviewId);const c=g.cond[+el.dataset.cond];if(!c)return;if(el.dataset.part==='field'){c.field=el.value;c.op=c.field==='tagValue'?'equals':'startsWith';c.value='';c.tagKey='Env';}else c[el.dataset.part]=el.value;refreshReview();}});
+
 renderStepper();renderGrows();renderConf();
 </script>
 </body>

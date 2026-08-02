@@ -22,29 +22,43 @@
   .head{padding:18px 26px 6px;} h1{font-size:22px;margin:0 0 3px;color:var(--indigo-d);} .sub{color:var(--muted);font-size:13px;margin:0;}
   .toolbar{display:flex;gap:10px;align-items:center;padding:12px 26px;flex-wrap:wrap;}
   .seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:9px;padding:3px;} .seg button{border:none;background:none;font:inherit;font-size:12.5px;color:var(--muted);padding:6px 12px;border-radius:6px;cursor:pointer;} .seg button.on{background:var(--indigo);color:#fff;}
-  .btn{font:inherit;font-size:13px;border-radius:9px;padding:8px 14px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink);} .btn:hover{border-color:var(--indigo);color:var(--indigo-d);} .btn.primary{background:var(--indigo);border-color:var(--indigo);color:#fff;}
-  /* board */
+  .btn{font:inherit;font-size:13px;border-radius:9px;padding:8px 14px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink);display:inline-flex;gap:7px;align-items:center;} .btn:hover{border-color:var(--indigo);color:var(--indigo-d);} .btn.primary{background:var(--indigo);border-color:var(--indigo);color:#fff;} .btn.primary:hover{background:var(--indigo-d);} .btn.sm{padding:5px 10px;font-size:11.5px;}
   .board{flex:1;overflow-x:auto;overflow-y:hidden;padding:8px 26px 26px;display:flex;gap:16px;align-items:flex-start;}
-  .col{flex:0 0 280px;background:#eef0f6;border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;max-height:100%;}
+  .col{flex:0 0 288px;background:#eef0f6;border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;max-height:100%;}
   .col.special{background:#fbf1e4;border-color:#f0d6ac;} .col.orph{background:#eef0f2;border-style:dashed;}
   .colh{padding:14px 15px;border-bottom:1px solid rgba(0,0,0,.06);}
-  .colh .t{font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;}
+  .colh .t{font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .kindbadge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;} .k-Product{background:var(--indigo-soft);color:var(--indigo-d);} .k-Feature{background:var(--violet-soft);color:var(--violet);} .k-Team{background:var(--blue-soft);color:var(--blue);} .k-Department{background:var(--amber-soft);color:var(--amber);}
   .colh .m{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11.5px;color:var(--muted);}
   .colh .rule{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:8px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px 7px;}
+  .colh .revbtn{margin-top:10px;width:100%;justify-content:center;}
   .cards{padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
-  .rc{background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 10px;cursor:grab;}
-  .rc:hover{border-color:var(--indigo-line);box-shadow:0 3px 10px rgba(79,70,229,.08);}
-  .rc .rn{font-weight:600;font-size:12.5px;display:flex;align-items:center;gap:7px;}
-  .rc .ic{width:22px;height:22px;border-radius:6px;background:var(--indigo-soft);display:grid;place-items:center;font-size:12px;}
-  .rc .rm{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px;}
-  .rc.conf{border-left:3px solid var(--amber);}
-  .rc .cflag{font-size:10px;color:var(--amber);margin-top:3px;}
-  .colf{padding:8px 12px;border-top:1px solid rgba(0,0,0,.06);font-size:11.5px;color:var(--muted);cursor:pointer;}
-  .colf:hover{color:var(--indigo-d);}
+  .rc{background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 10px;cursor:grab;} .rc:hover{border-color:var(--indigo-line);box-shadow:0 3px 10px rgba(79,70,229,.08);}
+  .rc .rn{font-weight:600;font-size:12.5px;display:flex;align-items:center;gap:7px;} .rc .ic{width:22px;height:22px;border-radius:6px;background:var(--indigo-soft);display:grid;place-items:center;font-size:12px;} .rc .rm{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px;}
+  .rc.conf{border-left:3px solid var(--amber);} .rc .cflag{font-size:10px;color:var(--amber);margin-top:3px;}
+  .colf{padding:8px 12px;border-top:1px solid rgba(0,0,0,.06);font-size:11.5px;color:var(--muted);cursor:pointer;} .colf:hover{color:var(--indigo-d);}
   .env{font-size:10px;padding:1px 6px;border-radius:5px;font-family:var(--mono);} .env-prod{background:var(--red-soft);color:var(--red);} .env-np{background:var(--blue-soft);color:var(--blue);}
   .addcol{flex:0 0 220px;border:1.5px dashed var(--indigo-line);background:var(--indigo-soft);border-radius:14px;display:grid;place-items:center;color:var(--indigo-d);font-weight:600;cursor:pointer;min-height:120px;text-align:center;}
   .hint{font-size:11px;color:var(--faint);padding:0 26px 8px;}
+  /* review drawer (board-styled details page) */
+  .drawer-bg{position:fixed;inset:0;background:rgba(15,26,46,.4);z-index:80;opacity:0;pointer-events:none;transition:opacity .2s;} .drawer-bg.open{opacity:1;pointer-events:auto;}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:560px;max-width:96vw;background:#fff;z-index:81;transform:translateX(100%);transition:transform .28s cubic-bezier(.2,.7,.2,1);display:flex;flex-direction:column;} .drawer.open{transform:none;}
+  .dh{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,var(--indigo-soft),#fff);flex-wrap:wrap;} .dh .nm{font-size:17px;font-weight:700;} .dh select{width:auto;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff;} .dh .x{margin-left:auto;cursor:pointer;color:var(--muted);font-size:18px;border:1px solid var(--line);border-radius:8px;width:32px;height:32px;display:grid;place-items:center;}
+  .dbody{flex:1;overflow-y:auto;padding:18px 20px;}
+  .sec-h{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin:0 0 12px;display:flex;justify-content:space-between;}
+  .why-card{background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:10px;padding:13px;margin-bottom:16px;} .why-card h4{margin:0 0 7px;font-size:13px;color:var(--indigo-d);} .why-card p{margin:0;font-size:12.5px;color:#4b4f66;line-height:1.55;}
+  .strat{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;} .stratchip{font-size:10.5px;background:var(--indigo-soft);color:var(--indigo-d);border-radius:6px;padding:2px 8px;}
+  select,input[type=text]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:13px;background:#fff;color:var(--ink);} select:focus,input:focus{outline:2px solid var(--indigo-soft);border-color:var(--indigo);}
+  .cond{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:#fcfcfe;} .cond-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;} .cond-grid.tag{grid-template-columns:1fr .8fr .8fr .9fr auto;}
+  label.f{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;} .rmv{width:38px;height:38px;border:1px solid var(--red-soft);color:var(--red);background:#fff;border-radius:8px;cursor:pointer;font-size:16px;}
+  .connector{display:flex;align-items:center;gap:8px;margin:2px 0 10px 8px;} .andor{display:inline-flex;border:1px solid var(--indigo-line);border-radius:16px;overflow:hidden;font-size:11px;} .andor span{padding:4px 14px;cursor:pointer;color:var(--indigo-d);} .andor span.on{background:var(--indigo);color:#fff;}
+  .addrow{display:flex;gap:10px;} .addcond{flex:1;border:1.5px dashed var(--line);border-radius:10px;padding:11px;text-align:center;color:var(--muted);cursor:pointer;font-size:13px;} .addcond:hover{border-color:var(--indigo);color:var(--indigo-d);} .addai{border:1.5px dashed var(--indigo-line);background:var(--indigo-soft);color:var(--indigo-d);border-radius:10px;padding:11px 16px;cursor:pointer;font-size:13px;}
+  .mtable{border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-top:6px;} .mrow{display:grid;grid-template-columns:1.5fr .9fr 1fr 1.2fr;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);align-items:center;font-size:12px;} .mrow.head{background:var(--bg);font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);} .mrow:last-child{border-bottom:none;}
+  .mres{display:flex;align-items:center;gap:9px;min-width:0;} .ricon{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:14px;flex:none;background:var(--indigo-soft);} .mres .rn{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .mres .rt{font-size:10px;color:var(--faint);font-family:var(--mono);}
+  .mcell{color:var(--muted);font-family:var(--mono);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .tags{display:flex;gap:4px;flex-wrap:wrap;} .tag{font-size:10px;background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-family:var(--mono);color:var(--muted);} .morerow{padding:9px;text-align:center;font-size:12px;color:var(--muted);background:var(--bg);}
+  .typemap{margin-top:6px;} .tmrow{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12.5px;} .tmrow .ti{width:22px;text-align:center;} .tmrow .tn{width:96px;color:var(--muted);} .tmrow .tb{flex:1;height:8px;background:var(--line);border-radius:5px;overflow:hidden;} .tmrow .tb i{display:block;height:100%;background:var(--indigo);} .tmrow .tc{font-family:var(--mono);width:34px;text-align:right;font-weight:600;}
+  .dfoot{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--nav);color:#fff;padding:12px 20px;border-radius:11px;font-size:13px;z-index:95;opacity:0;transition:.25s;pointer-events:none;} .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
@@ -58,42 +72,130 @@
   </aside>
   <div class="main">
     <div class="topbar"><span class="verchip">approach · board</span><div class="tsearch" style="margin-left:auto;">🔍 Search resources…</div></div>
-    <div class="head"><h1>Tag Management — group board</h1><p class="sub">Every suggested group is a column. Drag a resource between columns to re-assign it (the rule updates). Unassigned &amp; conflicts sit at the end.</p></div>
+    <div class="head"><h1>Tag Management — group board</h1><p class="sub">Each suggested group is a column. Review a group to see its rules &amp; resources, drag a resource to re-assign it, then start mapping.</p></div>
     <div class="toolbar">
       <div class="seg"><button class="on" data-grp="kind">Group by kind</button><button data-grp="env">Group by environment</button></div>
-      <span style="font-size:12.5px;color:var(--muted);">2,480 resources · 84% grouped · <b style="color:var(--amber)">2 conflicts</b></span>
-      <button class="btn primary" style="margin-left:auto;">✦ Ask AI to build a group</button>
+      <span style="font-size:12.5px;color:var(--muted);" id="topstats"></span>
+      <div style="margin-left:auto;display:flex;gap:10px;"><button class="btn">✦ Ask AI to build a group</button><button class="btn primary" data-action="startMap">▶ Start mapping</button></div>
     </div>
-    <div class="hint">Lo-fi board concept · drag affordance shown (grab cursor); columns scroll horizontally.</div>
+    <div class="hint">Lo-fi board concept · click <b>Review</b> on a column for its details page · columns scroll horizontally.</div>
     <div class="board" id="board"></div>
   </div>
 </div>
+
+<div class="drawer-bg" id="drawer-bg" data-action="closeReview"></div>
+<div class="drawer" id="drawer"></div>
+<div class="toast" id="toast"></div>
+
 <script>
-const GROUPS=[
- {name:'Payments Platform',kind:'Product',env:['prod','non-prod'],rule:'name starts with “pay-”',count:214,samples:[['pay-ledger-db-prod-04','RDS','🗄','payments-prod'],['pay-api-gw-prod-06','Lambda','ƛ','shared-dev'],['pay-audit-logs-prod-13','S3','🪣','payments-prod','⚠ also in Audit & Compliance']]},
- {name:'Checkout Service',kind:'Product',env:['non-prod'],rule:'name starts with “chk-”',count:168,samples:[['chk-web-frontend-dev-10','EC2','🖥','shared-dev'],['chk-cart-cache-prod-08','ElastiCache','⚡','shared-dev'],['chk-session-store-prod-09','DynamoDB','⬡','shared-dev']]},
- {name:'Marketing',kind:'Team',env:['non-prod'],rule:'name starts with “mkt-”',count:94,samples:[['mkt-campaign-assets-prod-12','S3','🪣','marketing-prod'],['mkt-analytics-db-prod-13','RDS','🗄','marketing-prod']]},
- {name:'Core Platform',kind:'Team',env:['prod'],rule:'name starts with “core-”',count:120,samples:[['core-auth-svc-prod-17','EC2','🖥','shared-dev'],['core-audit-trail-prod-50','S3','🪣','data-eng-prod','⚠ also in Audit & Compliance']]},
- {name:'Data Engineering',kind:'Department',env:['prod'],rule:'name starts with “data-”',count:110,samples:[['data-warehouse-prod-26','Redshift','🔺','data-eng-prod'],['data-lake-raw-prod-23','S3','🪣','data-eng-prod']]},
- {name:'Audit & Compliance',kind:'Feature',env:['prod'],rule:'name contains “audit”',count:8,samples:[['pay-audit-logs-prod-13','S3','🪣','payments-prod','⚠ also in Payments'],['core-audit-trail-prod-50','S3','🪣','data-eng-prod','⚠ also in Core']]},
+/* ---------- engine ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const rng=mulberry32(7);
+const ACCOUNTS=['payments-prod','marketing-prod','shared-dev','data-eng-prod'],VPCS=['vpc-0aa111','vpc-0bb222','vpc-0cc333','vpc-0dd444'],OWNERS=['jsmith','arao','mchen','tolawale','pgarcia'],TEAMS=['Payments','Checkout','Marketing','Core-Platform','Data-Eng'];
+const TEMPLATES=[['pay-checkout-svc','EC2'],['pay-checkout-svc','SecurityGroup'],['pay-api-gw','Lambda'],['pay-ledger-db','RDS'],['pay-events','SNS'],['pay-audit-logs','S3'],['chk-cart-lambda','Lambda'],['chk-cart-cache','ElastiCache'],['chk-session-store','DynamoDB'],['chk-web-frontend','EC2'],['chk-assets','S3'],['mkt-campaign-assets','S3'],['mkt-analytics-db','RDS'],['mkt-email-worker','Lambda'],['mkt-cdn-origin','S3'],['mkt-crm-sync','Lambda'],['core-auth-svc','EC2'],['core-auth-sg','SecurityGroup'],['core-idp','Cognito'],['core-shared-vpc-nat','EC2'],['core-config-store','S3'],['core-audit-trail','S3'],['data-lake-raw','S3'],['data-lake-curated','S3'],['data-etl-job','Lambda'],['data-warehouse','Redshift']];
+const ENVS=['prod','dev','staging']; const RESOURCES=[]; let n=1;
+TEMPLATES.forEach((t,i)=>ENVS.forEach((env,ei)=>{ if(ei===2&&i%3!==0)return; const team=TEAMS[Math.floor(i/(TEMPLATES.length/TEAMS.length))]||TEAMS[i%TEAMS.length]; RESOURCES.push({id:'r'+n,name:`${t[0]}-${env}-${String(n).padStart(2,'0')}`,type:t[1],account:ACCOUNTS[i%4],vpc:VPCS[i%4],owner:OWNERS[(i+ei)%5],team,env,tags:{Env:env,Team:team,Owner:OWNERS[(i+ei)%5]}}); n++; }));
+['i-0a91f','vol-0f2e','eni-04b7','i-07c3d','s3-legacy-7742','i-0b52a'].forEach((nm,i)=>{RESOURCES.push({id:'r'+n,name:nm,type:['EC2','EBS','ENI','EC2','S3','EC2'][i],account:ACCOUNTS[i%4],vpc:'—',owner:'—',team:'—',env:'unknown',tags:{}});n++;});
+const FIELD_OPTIONS=[['name','Resource name'],['type','Resource type'],['account','Account'],['vpc','VPC'],['owner','Owner / Created by'],['team','Team / Group'],['tagValue','Tag (key = value)']];
+const OPS=[['startsWith','starts with'],['contains','contains'],['equals','equals'],['endsWith','ends with'],['notEquals','not equals']];
+const TYPE_VALUES=['EC2','S3','RDS','Lambda','SecurityGroup','DynamoDB','ElastiCache','SNS','Cognito','Redshift','EBS','ENI'];
+const TYPE_ICON={EC2:'🖥',S3:'🪣',RDS:'🗄',Lambda:'ƛ',SecurityGroup:'🛡',DynamoDB:'⬡',ElastiCache:'⚡',SNS:'📣',Cognito:'👤',Redshift:'🔺',EBS:'💽',ENI:'🔌'};
+function evalC(r,c){let L;if(c.field==='tagValue')L=(r.tags[c.tagKey||'Env']||'');else L=String(r[c.field]??'');const v=(c.value||'').toLowerCase();L=L.toLowerCase();switch(c.op){case 'startsWith':return L.startsWith(v);case 'contains':return L.includes(v);case 'equals':return L===v;case 'endsWith':return L.endsWith(v);case 'notEquals':return L!==v;default:return false;}}
+function evalG(r,g){if(!g.cond.length)return false;let res=evalC(r,g.cond[0]);for(let i=1;i<g.cond.length;i++){res=(g.connectors[i-1]||'AND')==='AND'?(res&&evalC(r,g.cond[i])):(res||evalC(r,g.cond[i]));}return res;}
+const matches=g=>RESOURCES.filter(r=>evalG(r,g));
+const groupsFor=r=>GROUPS.filter(g=>evalG(r,g));
+let GROUPS=[
+ {id:'g1',name:'Payments Platform',kind:'Product',cond:[{field:'name',op:'startsWith',value:'pay-'}],connectors:[],strategies:['Naming convention','Account boundary'],why:'Shared “pay-” prefix and dedicated payments-prod account — two signals agree.'},
+ {id:'g2',name:'Checkout Service',kind:'Product',cond:[{field:'name',op:'startsWith',value:'chk-'}],connectors:[],strategies:['Naming convention'],why:'Consistent “chk-” prefix across checkout resources.'},
+ {id:'g3',name:'Marketing',kind:'Team',cond:[{field:'name',op:'startsWith',value:'mkt-'}],connectors:[],strategies:['Naming convention','Creator identity'],why:'“mkt-” prefix plus creator SSO group eng-marketing.'},
+ {id:'g4',name:'Core Platform',kind:'Team',cond:[{field:'name',op:'startsWith',value:'core-'}],connectors:[],strategies:['Naming convention','Runtime role'],why:'“core-” prefix and core-platform IAM roles — shared platform infrastructure.'},
+ {id:'g5',name:'Data Engineering',kind:'Department',cond:[{field:'name',op:'startsWith',value:'data-'}],connectors:[],strategies:['Naming convention','IaC / Terraform'],why:'“data-” prefix and Terraform default_tags.'},
+ {id:'g6',name:'Audit & Compliance',kind:'Feature',cond:[{field:'name',op:'contains',value:'audit'}],connectors:[],strategies:['Naming convention'],why:'Weak single signal — the word “audit”. Overlaps products (conflicts).'},
 ];
-const UNASSIGNED={name:'⚠ Unassigned',special:true,count:63,rule:'no rule matched',samples:[['search-index-prod-27','EC2','🖥','shared-dev'],['search-api-dev-28','Lambda','ƛ','shared-dev']]};
-const ORPHAN={name:'◌ Orphaned',orph:true,count:6,rule:'no metadata',samples:[['i-0a91f','EC2','🖥','—'],['vol-0f2e','EBS','💽','—']]};
-function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
-function col(g){
-  const cls=g.orph?'col orph':(g.special?'col special':'col');
-  const badge=g.kind?`<span class="kindbadge k-${g.kind}">${g.kind}</span>`:'';
-  const envs=(g.env||[]).map(e=>`<span class="env ${e==='prod'?'env-prod':'env-np'}">${e}</span>`).join(' ');
-  const cards=g.samples.map(s=>`<div class="rc ${s[4]?'conf':''}"><div class="rn"><span class="ic">${s[2]}</span>${esc(s[0])}</div><div class="rm">${s[1]} · ${s[3]}</div>${s[4]?`<div class="cflag">${esc(s[4])}</div>`:''}</div>`).join('');
-  return `<div class="${cls}"><div class="colh"><div class="t">${esc(g.name)} ${badge}</div>
-    <div class="m"><span>${envs}</span><span><b>${g.count}</b> resources</span></div>
-    <div class="rule">${esc(g.rule)}</div></div>
+const byId=id=>GROUPS.find(g=>g.id===id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ruleText=g=>g.cond.length?g.cond.map((c,i)=>(i?` ${g.connectors[i-1]||'AND'} `:'')+`${FIELD_OPTIONS.find(f=>f[0]===c.field)[1]} ${OPS.find(o=>o[0]===c.op)[1]} “${c.value}”`).join(''):'(no conditions)';
+const envMix=g=>[...new Set(matches(g).map(r=>r.env).filter(x=>x!=='unknown'&&x!=='staging').map(x=>x==='prod'?'prod':'non-prod'))];
+const envHtml=g=>envMix(g).map(e=>`<span class="env ${e==='prod'?'env-prod':'env-np'}">${e}</span>`).join('');
+const stratHtml=s=>s.map(x=>`<span class="stratchip">${x}</span>`).join('');
+let openReviewId=null;
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>t.classList.remove('show'),1900);}
+
+/* ---------- board ---------- */
+function colHtml(g){
+  const m=matches(g); const cards=m.slice(0,4).map(r=>{const conf=groupsFor(r).length>1; const other=conf?groupsFor(r).map(x=>x.name).filter(x=>x!==g.name)[0]:null;
+    return `<div class="rc ${conf?'conf':''}"><div class="rn"><span class="ic">${TYPE_ICON[r.type]||'▪'}</span>${esc(r.name)}</div><div class="rm">${r.type} · ${r.account}</div>${other?`<div class="cflag">⚠ also in ${esc(other)}</div>`:''}</div>`;}).join('');
+  return `<div class="col"><div class="colh"><div class="t">${esc(g.name)} <span class="kindbadge k-${g.kind}">${g.kind}</span></div>
+    <div class="m"><span>${envHtml(g)}</span><span><b>${m.length}</b> resources</span></div>
+    <div class="rule">${esc(ruleText(g))}</div>
+    <button class="btn primary sm revbtn" data-review="${g.id}">Review group →</button></div>
     <div class="cards">${cards}</div>
-    <div class="colf">+ ${g.count-g.samples.length} more · view all</div></div>`;
+    <div class="colf" data-review="${g.id}">+ ${Math.max(m.length-4,0)} more · view all</div></div>`;
 }
-function render(){document.getElementById('board').innerHTML=GROUPS.map(col).join('')+col(UNASSIGNED)+col(ORPHAN)+`<div class="addcol">＋<br>New group<br><span style="font-weight:400;font-size:11px;">or ask AI</span></div>`;}
-document.querySelector('.seg').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b)return; document.querySelectorAll('.seg button').forEach(x=>x.classList.remove('on')); b.classList.add('on');});
-render();
+function specialCol(title,cls,list,rule){const cards=list.slice(0,3).map(r=>`<div class="rc"><div class="rn"><span class="ic">${TYPE_ICON[r.type]||'▪'}</span>${esc(r.name)}</div><div class="rm">${r.type} · ${r.account}</div></div>`).join('');
+  return `<div class="col ${cls}"><div class="colh"><div class="t">${title}</div><div class="m"><span>${rule}</span><span><b>${list.length}</b></span></div></div><div class="cards">${cards}</div><div class="colf">+ ${Math.max(list.length-3,0)} more</div></div>`;}
+function renderBoard(){
+  const unassigned=RESOURCES.filter(r=>groupsFor(r).length===0&&r.env!=='unknown'&&r.owner!=='—');
+  const orphan=RESOURCES.filter(r=>r.owner==='—');
+  document.getElementById('board').innerHTML=GROUPS.map(colHtml).join('')
+    + specialCol('⚠ Unassigned','special',unassigned,'no rule matched')
+    + specialCol('◌ Orphaned','orph',orphan,'no metadata')
+    + `<div class="addcol">＋<br>New group<br><span style="font-weight:400;font-size:11px;">or ask AI</span></div>`;
+  const cov=Math.round(RESOURCES.filter(r=>groupsFor(r).length>0).length/RESOURCES.length*100);
+  const conf=RESOURCES.filter(r=>groupsFor(r).length>1).length;
+  document.getElementById('topstats').innerHTML=`${RESOURCES.length} resources · ${cov}% grouped · <b style="color:var(--amber)">${conf} conflicts</b>`;
+}
+
+/* ---------- review drawer (board-styled details page) ---------- */
+function openReview(id){ openReviewId=id; renderDrawer(); document.getElementById('drawer').classList.add('open'); document.getElementById('drawer-bg').classList.add('open'); }
+function closeReview(){ openReviewId=null; document.getElementById('drawer').classList.remove('open'); document.getElementById('drawer-bg').classList.remove('open'); }
+function renderDrawer(){
+  const g=byId(openReviewId); if(!g) return; const m=matches(g);
+  const types={}; m.forEach(r=>types[r.type]=(types[r.type]||0)+1); const maxT=Math.max(...Object.values(types),1);
+  const typeMap=Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([t,c])=>`<div class="tmrow"><span class="ti">${TYPE_ICON[t]||'▪'}</span><span class="tn">${t}</span><span class="tb"><i style="width:${c/maxT*100}%"></i></span><span class="tc">${c}</span></div>`).join('')||'<div style="font-size:12px;color:var(--muted)">No matches.</div>';
+  let conds=''; g.cond.forEach((c,i)=>{if(i)conds+=`<div class="connector"><div class="andor"><span class="${(g.connectors[i-1]||'AND')==='AND'?'on':''}" data-conn="${i-1}" data-val="AND">AND</span><span class="${g.connectors[i-1]==='OR'?'on':''}" data-conn="${i-1}" data-val="OR">OR</span></div></div>`; conds+=condRow(c,i);});
+  if(!g.cond.length)conds='<div style="font-size:12.5px;color:var(--muted);padding:8px 0;">No conditions.</div>';
+  const mrows=m.slice(0,6).map(r=>`<div class="mrow"><div class="mres"><div class="ricon">${TYPE_ICON[r.type]||'▪'}</div><div style="min-width:0;"><div class="rn">${esc(r.name)}</div><div class="rt">${r.type}</div></div></div><div class="mcell">${esc(r.account)}</div><div class="mcell">${esc(r.owner)} · ${esc(r.team)}</div><div class="tags">${Object.entries(r.tags).slice(0,2).map(([k,v])=>`<span class="tag">${k}=${v}</span>`).join('')||'<span class="tag">—</span>'}</div></div>`).join('');
+  document.getElementById('drawer').innerHTML=`
+    <div class="dh"><span class="nm">${esc(g.name)}</span><select data-kind><option ${g.kind==='Product'?'selected':''}>Product</option><option ${g.kind==='Feature'?'selected':''}>Feature</option><option ${g.kind==='Customer'?'selected':''}>Customer</option><option ${g.kind==='Team'?'selected':''}>Team</option><option ${g.kind==='Department'?'selected':''}>Department</option></select>${envHtml(g)}<span class="x" data-action="closeReview">✕</span></div>
+    <div class="dbody">
+      <div class="why-card"><h4>✦ How this group was formed</h4><p>${esc(g.why)}</p><div class="strat">${stratHtml(g.strategies)}</div></div>
+      <p class="sec-h">Rules &amp; conditions <span style="font-family:var(--mono);color:var(--muted);">${m.length} matches</span></p>
+      ${conds}
+      <div class="addrow"><div class="addcond" data-add>＋ add condition</div><div class="addai" data-ai>✦ add via AI</div></div>
+      <p class="sec-h" style="margin-top:18px;">Resource-type mapping</p><div class="typemap">${typeMap}</div>
+      <p class="sec-h" style="margin-top:18px;">Matched resources</p>
+      <div class="mtable"><div class="mrow head"><div>Resource</div><div>Account</div><div>Owner / Team</div><div>Tags</div></div>${mrows||'<div class="morerow">No matches.</div>'}${m.length>6?`<div class="morerow">+ ${m.length-6} more</div>`:''}</div>
+    </div>
+    <div class="dfoot"><button class="btn" data-action="closeReview">Close</button><button class="btn primary" data-action="startMap">✓ Looks good — start mapping</button></div>`;
+}
+function condRow(c,i){
+  const isTV=c.field==='tagValue';
+  const fieldSel=`<div><label class="f">Field</label><select data-cond="${i}" data-part="field">${FIELD_OPTIONS.map(f=>`<option value="${f[0]}" ${f[0]===c.field?'selected':''}>${f[1]}</option>`).join('')}</select></div>`;
+  let mid;
+  if(isTV){mid=`<div><label class="f">Tag key</label><input type="text" data-cond="${i}" data-part="tagKey" value="${esc(c.tagKey||'Env')}"></div><div><label class="f">Op</label><select data-cond="${i}" data-part="op">${OPS.slice(0,3).map(o=>`<option value="${o[0]}" ${o[0]===c.op?'selected':''}>${o[1]}</option>`).join('')}</select></div><div><label class="f">Value</label><input type="text" data-cond="${i}" data-part="value" value="${esc(c.value||'')}"></div>`;}
+  else{const opSel=`<div><label class="f">Operator</label><select data-cond="${i}" data-part="op">${OPS.map(o=>`<option value="${o[0]}" ${o[0]===c.op?'selected':''}>${o[1]}</option>`).join('')}</select></div>`;const sel=(arr,v)=>`<div><label class="f">Value</label><select data-cond="${i}" data-part="value">${arr.map(x=>`<option ${x===v?'selected':''}>${x}</option>`).join('')}</select></div>`;let val;if(c.field==='type')val=sel(TYPE_VALUES,c.value||TYPE_VALUES[0]);else if(c.field==='account')val=sel(ACCOUNTS,c.value||ACCOUNTS[0]);else if(c.field==='vpc')val=sel(VPCS,c.value||VPCS[0]);else if(c.field==='team')val=sel(TEAMS,c.value||TEAMS[0]);else val=`<div><label class="f">Value</label><input type="text" data-cond="${i}" data-part="value" value="${esc(c.value||'')}" placeholder="value…"></div>`;mid=opSel+val;}
+  return `<div class="cond"><div class="cond-grid ${isTV?'tag':''}">${fieldSel}${mid}<div><label class="f">&nbsp;</label><button class="rmv" data-remove="${i}">×</button></div></div></div>`;
+}
+function refreshDrawer(){const sc=document.querySelector('.dbody')?document.querySelector('.dbody').scrollTop:0; renderDrawer(); renderBoard(); const db=document.querySelector('.dbody'); if(db)db.scrollTop=sc;}
+
+/* ---------- events ---------- */
+document.querySelector('.seg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;document.querySelectorAll('.seg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');toast('View: '+b.textContent);});
+document.addEventListener('click',e=>{
+  const rv=e.target.closest('[data-review]'); if(rv){openReview(rv.dataset.review); return;}
+  const t=e.target.closest('[data-action]'); if(t){const A=t.dataset.action;
+    if(A==='closeReview')closeReview();
+    else if(A==='startMap'){closeReview(); toast('Mapping started for all groups…'); setTimeout(()=>toast('✓ Mapping complete — groups are live'),1400);}
+    return;}
+  const add=e.target.closest('[data-add]'); if(add){const g=byId(openReviewId);g.cond.push({field:'name',op:'contains',value:''});if(g.cond.length>1)g.connectors.push('AND');refreshDrawer();return;}
+  const ai=e.target.closest('[data-ai]'); if(ai){const g=byId(openReviewId);g.cond.push({field:'type',op:'equals',value:'RDS'});g.connectors.push('OR');refreshDrawer();toast('AI added: type = RDS (OR)');return;}
+  const rm=e.target.closest('[data-remove]'); if(rm){const g=byId(openReviewId),idx=+rm.dataset.remove;g.cond.splice(idx,1);if(idx>0)g.connectors.splice(idx-1,1);else if(g.connectors.length)g.connectors.splice(0,1);refreshDrawer();return;}
+  const cn=e.target.closest('[data-conn]'); if(cn){byId(openReviewId).connectors[+cn.dataset.conn]=cn.dataset.val;refreshDrawer();return;}
+});
+document.addEventListener('input',e=>{const el=e.target; if(el.dataset.cond!==undefined&&el.tagName==='INPUT'){const g=byId(openReviewId);const c=g.cond[+el.dataset.cond];if(!c)return;c[el.dataset.part]=el.value;const sc=document.querySelector('.dbody').scrollTop;renderDrawer();renderBoard();const db=document.querySelector('.dbody');db.scrollTop=sc;const inp=document.querySelector(`.drawer [data-cond="${el.dataset.cond}"][data-part="${el.dataset.part}"]`);if(inp){inp.focus();if(inp.setSelectionRange){try{inp.setSelectionRange(inp.value.length,inp.value.length);}catch(_){}}}}});
+document.addEventListener('change',e=>{const el=e.target; if(el.dataset.kind!==undefined){byId(openReviewId).kind=el.value;refreshDrawer();return;} if(el.dataset.cond!==undefined&&el.tagName==='SELECT'){const g=byId(openReviewId);const c=g.cond[+el.dataset.cond];if(!c)return;if(el.dataset.part==='field'){c.field=el.value;c.op=c.field==='tagValue'?'equals':'startsWith';c.value='';c.tagKey='Env';}else c[el.dataset.part]=el.value;refreshDrawer();}});
+
+renderBoard();
 </script>
 </body>
 </html>
