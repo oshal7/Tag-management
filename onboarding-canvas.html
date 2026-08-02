@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tag Management — Onboarding (Board approach)</title>
+<style>
+  :root{--bg:#f4f6fb;--panel:#fff;--ink:#1c2333;--muted:#6b7280;--faint:#9aa1af;--line:#e9ebf2;--nav:#0e1a2e;--nav-2:#17233b;--nav-line:#22304a;--nav-muted:#8fa1bd;--nav-text:#dbe3f0;--indigo:#6366f1;--indigo-d:#4f46e5;--indigo-soft:#eef1ff;--indigo-line:#d7dcfb;--green:#15803d;--green-soft:#dcfce7;--amber:#b45309;--amber-soft:#fdf0d5;--red:#dc2626;--red-soft:#fde8e8;--violet:#7c3aed;--violet-soft:#f3e8ff;--teal:#0d9488;--teal-soft:#ccfbf1;--blue:#2563eb;--blue-soft:#dbeafe;--mono:ui-monospace,Menlo,Consolas,monospace;}
+  *{box-sizing:border-box;} html,body{margin:0;height:100%;} body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;}
+  .app{display:grid;grid-template-columns:250px 1fr;height:100vh;} @media(max-width:900px){.app{grid-template-columns:1fr;}.sidebar{display:none;}}
+  .sidebar{background:var(--nav);color:var(--nav-text);overflow-y:auto;}
+  .logo{display:flex;align-items:center;gap:10px;padding:20px;font-size:20px;font-weight:700;}
+  .navgroup{padding:8px 12px 2px;} .navgroup>.gh{display:flex;align-items:center;gap:9px;padding:9px 10px;font-weight:600;font-size:13.5px;} .gh .chev{margin-left:auto;opacity:.5;font-size:10px;}
+  .navitem{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 34px;color:var(--nav-muted);font-size:13px;border-radius:8px;cursor:pointer;position:relative;} .navitem:hover{color:#fff;background:var(--nav-2);}
+  .navitem.active{color:#fff;background:linear-gradient(90deg,rgba(99,102,241,.22),transparent);} .navitem.active::before{content:'';position:absolute;left:14px;top:8px;bottom:8px;width:3px;background:var(--indigo);border-radius:3px;}
+  .newpill{margin-left:auto;font-size:9px;background:var(--indigo);color:#fff;padding:1px 6px;border-radius:10px;}
+  .profile{margin:16px 14px;padding-top:14px;border-top:1px solid var(--nav-line);display:flex;align-items:center;gap:10px;} .profile .av{width:34px;height:34px;border-radius:50%;background:var(--indigo);display:grid;place-items:center;color:#fff;font-weight:700;} .profile .em{font-size:11px;color:var(--nav-muted);}
+  .main{overflow:hidden;height:100vh;display:flex;flex-direction:column;}
+  .topbar{background:#fff;border-bottom:1px solid var(--line);padding:12px 26px;display:flex;align-items:center;gap:14px;}
+  .verchip{font-family:var(--mono);font-size:11px;color:var(--indigo-d);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:20px;padding:3px 10px;}
+  .tsearch{margin-left:auto;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 12px;color:var(--faint);font-size:13px;width:260px;}
+  .head{padding:18px 26px 6px;} h1{font-size:22px;margin:0 0 3px;color:var(--indigo-d);} .sub{color:var(--muted);font-size:13px;margin:0;}
+  .toolbar{display:flex;gap:10px;align-items:center;padding:12px 26px;flex-wrap:wrap;}
+  .seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:9px;padding:3px;} .seg button{border:none;background:none;font:inherit;font-size:12.5px;color:var(--muted);padding:6px 12px;border-radius:6px;cursor:pointer;} .seg button.on{background:var(--indigo);color:#fff;}
+  .btn{font:inherit;font-size:13px;border-radius:9px;padding:8px 14px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink);} .btn:hover{border-color:var(--indigo);color:var(--indigo-d);} .btn.primary{background:var(--indigo);border-color:var(--indigo);color:#fff;}
+  /* board */
+  .board{flex:1;overflow-x:auto;overflow-y:hidden;padding:8px 26px 26px;display:flex;gap:16px;align-items:flex-start;}
+  .col{flex:0 0 280px;background:#eef0f6;border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;max-height:100%;}
+  .col.special{background:#fbf1e4;border-color:#f0d6ac;} .col.orph{background:#eef0f2;border-style:dashed;}
+  .colh{padding:14px 15px;border-bottom:1px solid rgba(0,0,0,.06);}
+  .colh .t{font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;}
+  .kindbadge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;} .k-Product{background:var(--indigo-soft);color:var(--indigo-d);} .k-Feature{background:var(--violet-soft);color:var(--violet);} .k-Team{background:var(--blue-soft);color:var(--blue);} .k-Department{background:var(--amber-soft);color:var(--amber);}
+  .colh .m{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11.5px;color:var(--muted);}
+  .colh .rule{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:8px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px 7px;}
+  .cards{padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+  .rc{background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 10px;cursor:grab;}
+  .rc:hover{border-color:var(--indigo-line);box-shadow:0 3px 10px rgba(79,70,229,.08);}
+  .rc .rn{font-weight:600;font-size:12.5px;display:flex;align-items:center;gap:7px;}
+  .rc .ic{width:22px;height:22px;border-radius:6px;background:var(--indigo-soft);display:grid;place-items:center;font-size:12px;}
+  .rc .rm{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px;}
+  .rc.conf{border-left:3px solid var(--amber);}
+  .rc .cflag{font-size:10px;color:var(--amber);margin-top:3px;}
+  .colf{padding:8px 12px;border-top:1px solid rgba(0,0,0,.06);font-size:11.5px;color:var(--muted);cursor:pointer;}
+  .colf:hover{color:var(--indigo-d);}
+  .env{font-size:10px;padding:1px 6px;border-radius:5px;font-family:var(--mono);} .env-prod{background:var(--red-soft);color:var(--red);} .env-np{background:var(--blue-soft);color:var(--blue);}
+  .addcol{flex:0 0 220px;border:1.5px dashed var(--indigo-line);background:var(--indigo-soft);border-radius:14px;display:grid;place-items:center;color:var(--indigo-d);font-weight:600;cursor:pointer;min-height:120px;text-align:center;}
+  .hint{font-size:11px;color:var(--faint);padding:0 26px 8px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo"><svg width="28" height="28" viewBox="0 0 30 30" fill="none"><path d="M8 19c-3 0-5-2-5-4.5S5 10 8 10c.4-3 3-5 6-5s5.6 2 6 5c3 0 5 2 5 4.5S29 19 26 19H8z" stroke="#818cf8" stroke-width="2"/></svg> Opsolute</div>
+    <div class="navgroup"><div class="gh">☁ Cloud Management <span class="chev">▾</span></div><div class="navitem">Dashboard</div><div class="navitem">Resources Inventory</div><div class="navitem">Heatmap</div></div>
+    <div class="navgroup"><div class="gh">$ FinOps <span class="chev">▾</span></div><div class="navitem">FinOps Dashboard</div><div class="navitem active">🏷 Tag Management <span class="newpill">NEW</span></div><div class="navitem">Chargeback</div></div>
+    <div class="navgroup"><div class="gh">🛡 Security <span class="chev">▾</span></div><div class="navitem">Security Posture</div><div class="navitem">Compliance</div></div>
+    <div class="profile"><div class="av">O</div><div><div style="font-size:13px;font-weight:600;">oshalurade</div><div class="em">oshalurade@gmail.com</div></div></div>
+  </aside>
+  <div class="main">
+    <div class="topbar"><span class="verchip">approach · board</span><div class="tsearch" style="margin-left:auto;">🔍 Search resources…</div></div>
+    <div class="head"><h1>Tag Management — group board</h1><p class="sub">Every suggested group is a column. Drag a resource between columns to re-assign it (the rule updates). Unassigned &amp; conflicts sit at the end.</p></div>
+    <div class="toolbar">
+      <div class="seg"><button class="on" data-grp="kind">Group by kind</button><button data-grp="env">Group by environment</button></div>
+      <span style="font-size:12.5px;color:var(--muted);">2,480 resources · 84% grouped · <b style="color:var(--amber)">2 conflicts</b></span>
+      <button class="btn primary" style="margin-left:auto;">✦ Ask AI to build a group</button>
+    </div>
+    <div class="hint">Lo-fi board concept · drag affordance shown (grab cursor); columns scroll horizontally.</div>
+    <div class="board" id="board"></div>
+  </div>
+</div>
+<script>
+const GROUPS=[
+ {name:'Payments Platform',kind:'Product',env:['prod','non-prod'],rule:'name starts with “pay-”',count:214,samples:[['pay-ledger-db-prod-04','RDS','🗄','payments-prod'],['pay-api-gw-prod-06','Lambda','ƛ','shared-dev'],['pay-audit-logs-prod-13','S3','🪣','payments-prod','⚠ also in Audit & Compliance']]},
+ {name:'Checkout Service',kind:'Product',env:['non-prod'],rule:'name starts with “chk-”',count:168,samples:[['chk-web-frontend-dev-10','EC2','🖥','shared-dev'],['chk-cart-cache-prod-08','ElastiCache','⚡','shared-dev'],['chk-session-store-prod-09','DynamoDB','⬡','shared-dev']]},
+ {name:'Marketing',kind:'Team',env:['non-prod'],rule:'name starts with “mkt-”',count:94,samples:[['mkt-campaign-assets-prod-12','S3','🪣','marketing-prod'],['mkt-analytics-db-prod-13','RDS','🗄','marketing-prod']]},
+ {name:'Core Platform',kind:'Team',env:['prod'],rule:'name starts with “core-”',count:120,samples:[['core-auth-svc-prod-17','EC2','🖥','shared-dev'],['core-audit-trail-prod-50','S3','🪣','data-eng-prod','⚠ also in Audit & Compliance']]},
+ {name:'Data Engineering',kind:'Department',env:['prod'],rule:'name starts with “data-”',count:110,samples:[['data-warehouse-prod-26','Redshift','🔺','data-eng-prod'],['data-lake-raw-prod-23','S3','🪣','data-eng-prod']]},
+ {name:'Audit & Compliance',kind:'Feature',env:['prod'],rule:'name contains “audit”',count:8,samples:[['pay-audit-logs-prod-13','S3','🪣','payments-prod','⚠ also in Payments'],['core-audit-trail-prod-50','S3','🪣','data-eng-prod','⚠ also in Core']]},
+];
+const UNASSIGNED={name:'⚠ Unassigned',special:true,count:63,rule:'no rule matched',samples:[['search-index-prod-27','EC2','🖥','shared-dev'],['search-api-dev-28','Lambda','ƛ','shared-dev']]};
+const ORPHAN={name:'◌ Orphaned',orph:true,count:6,rule:'no metadata',samples:[['i-0a91f','EC2','🖥','—'],['vol-0f2e','EBS','💽','—']]};
+function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function col(g){
+  const cls=g.orph?'col orph':(g.special?'col special':'col');
+  const badge=g.kind?`<span class="kindbadge k-${g.kind}">${g.kind}</span>`:'';
+  const envs=(g.env||[]).map(e=>`<span class="env ${e==='prod'?'env-prod':'env-np'}">${e}</span>`).join(' ');
+  const cards=g.samples.map(s=>`<div class="rc ${s[4]?'conf':''}"><div class="rn"><span class="ic">${s[2]}</span>${esc(s[0])}</div><div class="rm">${s[1]} · ${s[3]}</div>${s[4]?`<div class="cflag">${esc(s[4])}</div>`:''}</div>`).join('');
+  return `<div class="${cls}"><div class="colh"><div class="t">${esc(g.name)} ${badge}</div>
+    <div class="m"><span>${envs}</span><span><b>${g.count}</b> resources</span></div>
+    <div class="rule">${esc(g.rule)}</div></div>
+    <div class="cards">${cards}</div>
+    <div class="colf">+ ${g.count-g.samples.length} more · view all</div></div>`;
+}
+function render(){document.getElementById('board').innerHTML=GROUPS.map(col).join('')+col(UNASSIGNED)+col(ORPHAN)+`<div class="addcol">＋<br>New group<br><span style="font-weight:400;font-size:11px;">or ask AI</span></div>`;}
+document.querySelector('.seg').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b)return; document.querySelectorAll('.seg button').forEach(x=>x.classList.remove('on')); b.classList.add('on');});
+render();
+</script>
+</body>
+</html>
