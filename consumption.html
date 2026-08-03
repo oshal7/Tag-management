@@ -78,6 +78,19 @@
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--nav);color:#fff;padding:12px 20px;border-radius:11px;font-size:13px;z-index:95;opacity:0;transition:.25s;pointer-events:none;} .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   .view{display:none;} .view.on{display:block;animation:fade .22s ease;} @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}} @media(prefers-reduced-motion:reduce){.view.on{animation:none;}}
   .firstcut{font-size:11px;color:var(--amber);background:var(--amber-soft);border:1px solid #f0d6ac;border-radius:8px;padding:6px 10px;}
+  /* tabs */
+  .tabbar{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:16px;}
+  .tabbar button{border:none;background:none;font:inherit;font-size:13.5px;color:var(--muted);padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;} .tabbar button.on{color:var(--indigo-d);border-bottom-color:var(--indigo);font-weight:600;}
+  .gtab{display:none;} .gtab.on{display:block;}
+  /* filters + explorer */
+  .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;} .filters input,.filters select{width:auto;min-width:132px;} .filters .search{min-width:230px;}
+  .bulkbar{background:var(--indigo);color:#fff;border-radius:11px;padding:11px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;} .bulkbar b{font-weight:700;} .bulkbar .lbl{font-size:12.5px;opacity:.9;}
+  .grouppill{display:inline-flex;align-items:center;gap:5px;font-size:12px;border:1px solid rgba(255,255,255,.5);border-radius:16px;padding:4px 11px;background:rgba(255,255,255,.12);color:#fff;cursor:pointer;} .grouppill:hover{background:#fff;color:var(--indigo-d);}
+  .rescards{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:12px;} .rcard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;position:relative;} .rcard.sel{border-color:var(--indigo);box-shadow:0 0 0 2px var(--indigo-soft);} .rcard .rc-top{display:flex;align-items:flex-start;gap:8px;} .rcard .rc-name{font-weight:600;font-size:13px;cursor:pointer;} .rcard .rc-meta{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:4px;}
+  .status-chip{font-size:10px;font-family:var(--mono);border-radius:10px;padding:1px 7px;border:1px solid;} .sc-assigned{background:var(--green-soft);color:var(--green);border-color:var(--green);} .sc-unassigned{background:var(--amber-soft);color:var(--amber);border-color:var(--amber);} .sc-unnamed{background:var(--violet-soft);color:var(--violet);border-color:var(--violet);} .sc-orphaned{background:#eee;color:var(--muted);border-color:var(--muted);}
+  /* smart-move suggestions */
+  .sugg-group{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:#fbfbff;} .sugg-group .sh{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;margin-bottom:2px;} .sugg-group .svia{font-size:11px;color:var(--muted);margin:0 0 6px 24px;} .sugg-item{display:flex;align-items:center;gap:9px;padding:6px 0 6px 24px;font-size:12.5px;border-top:1px dashed var(--line);} .relchip{font-family:var(--mono);font-size:10px;color:var(--indigo-d);background:var(--indigo-soft);border-radius:5px;padding:1px 6px;margin-left:auto;}
+  .modal.wide{width:600px;} .modal .mbody{max-height:52vh;overflow-y:auto;margin:10px 0;}
 </style>
 </head>
 <body>
@@ -87,7 +100,7 @@
     <div class="navgroup"><div class="gh">☁ Cloud Management <span class="chev">▾</span></div><div class="navitem">Dashboard</div><div class="navitem">Resources Inventory</div><div class="navitem">Heatmap</div></div>
     <div class="navgroup"><div class="gh">$ FinOps <span class="chev">▾</span></div><div class="navitem">FinOps Dashboard</div>
       <div class="navitem active">🏷 Tag Management <span class="newpill">NEW</span></div>
-      <div class="navitem subitem">Onboarding</div><div class="navitem subitem active" style="color:#fff">Consumption</div>
+      <div class="navitem subitem">Onboarding</div><div class="navitem subitem active" style="color:#fff" data-nav="landing">Consumption</div><div class="navitem subitem" data-nav="explorer">Resource Explorer</div>
       <div class="navitem">Chargeback</div></div>
     <div class="navgroup"><div class="gh">🛡 Security <span class="chev">▾</span></div><div class="navitem">Security Posture</div><div class="navitem">Compliance</div></div>
     <div class="profile"><div class="av">O</div><div><div style="font-size:13px;font-weight:600;">oshalurade</div><div class="em">oshalurade@gmail.com</div></div></div>
@@ -122,6 +135,9 @@
 
       <!-- RESOURCE 360 -->
       <div class="view" id="v-resource"></div>
+
+      <!-- RESOURCE EXPLORER -->
+      <div class="view" id="v-explorer"></div>
     </div>
   </div>
 </div>
@@ -142,6 +158,7 @@ const ACCOUNTS=['payments-prod','marketing-prod','shared-dev','data-eng-prod'],V
 const COST={EC2:[220,1400],RDS:[600,3200],Redshift:[1800,5200],ElastiCache:[180,900],Lambda:[15,240],S3:[25,520],DynamoDB:[40,600],SNS:[4,45],Cognito:[15,120],SecurityGroup:[0,0],EBS:[20,180],ENI:[2,15]};
 const TEMPLATES=[['pay-checkout-svc','EC2'],['pay-checkout-svc','SecurityGroup'],['pay-api-gw','Lambda'],['pay-ledger-db','RDS'],['pay-events','SNS'],['pay-audit-logs','S3'],['chk-cart-lambda','Lambda'],['chk-cart-cache','ElastiCache'],['chk-session-store','DynamoDB'],['chk-web-frontend','EC2'],['chk-assets','S3'],['mkt-campaign-assets','S3'],['mkt-analytics-db','RDS'],['mkt-email-worker','Lambda'],['mkt-cdn-origin','S3'],['mkt-crm-sync','Lambda'],['core-auth-svc','EC2'],['core-auth-sg','SecurityGroup'],['core-idp','Cognito'],['core-shared-vpc-nat','EC2'],['core-config-store','S3'],['core-audit-trail','S3'],['data-lake-raw','S3'],['data-lake-curated','S3'],['data-etl-job','Lambda'],['data-warehouse','Redshift'],['search-index','EC2'],['search-api','Lambda']];
 const ENVS=['prod','dev','staging']; const TYPE_ICON={EC2:'🖥',S3:'🪣',RDS:'🗄',Lambda:'ƛ',SecurityGroup:'🛡',DynamoDB:'⬡',ElastiCache:'⚡',SNS:'📣',Cognito:'👤',Redshift:'🔺',EBS:'💽',ENI:'🔌'};
+const TYPE_VALUES=Object.keys(COST);
 const costFor=t=>{const c=COST[t]||[20,200];return rint(c[0],c[1]);};
 const RESOURCES=[]; let n=1;
 TEMPLATES.forEach((t,i)=>ENVS.forEach((env,ei)=>{ if(ei===2&&i%3!==0)return; const team=TEAMS[Math.floor(i/(TEMPLATES.length/TEAMS.length))]||TEAMS[i%TEAMS.length]; RESOURCES.push({id:'r'+n,name:`${t[0]}-${env}-${String(n).padStart(2,'0')}`,app:t[0],type:t[1],account:ACCOUNTS[i%4],vpc:VPCS[i%4],owner:OWNERS[(i+ei)%5],team,env,cost:costFor(t[1]),cluster:t[0]+'|'+env,parent:null,links:[],tags:{Env:env,Team:team,Owner:OWNERS[(i+ei)%5]}}); n++; }));
@@ -238,6 +255,14 @@ function renderTreemap(){
 function renderLanding(){ renderTiles(); if(iteration==='cards'){renderCards();document.getElementById('iter-cards').style.display='';document.getElementById('iter-treemap').style.display='none';} else {renderTreemap();document.getElementById('iter-treemap').style.display='';document.getElementById('iter-cards').style.display='none';} }
 
 /* ---------- group details ---------- */
+let groupTab='overview', gFilt={q:'',type:'',account:'',env:''}, gSel=new Set();
+function bulkBarHtml(count){ return `<div class="bulkbar"><b>${count} selected</b><span class="lbl">Map to group:</span>${GROUPS.map(g=>`<span class="grouppill" data-movesel="${g.id}">${esc(g.name)}</span>`).join('')}<span class="grouppill" data-movesel="__new">+ New group</span><button class="btn sm" data-action="clearSel" style="margin-left:auto;color:var(--indigo-d)">Clear</button></div>`; }
+function groupResFiltered(gid){ return resInGroup(gid).filter(r=>{ if(gFilt.type&&r.type!==gFilt.type)return false; if(gFilt.account&&r.account!==gFilt.account)return false; if(gFilt.env&&(r.env==='prod'?'prod':r.env==='unknown'?'other':'non-prod')!==gFilt.env)return false; if(gFilt.q){const h=[r.name,r.type,r.account,r.owner].join(' ').toLowerCase();if(!h.includes(gFilt.q.toLowerCase()))return false;} return true;}); }
+function groupResPaneHtml(gid){
+  const list=groupResFiltered(gid);
+  const rows=list.map(r=>`<tr><td><input type="checkbox" class="gsel" value="${r.id}" ${gSel.has(r.id)?'checked':''}></td><td><span class="rowlink" data-res="${r.id}">${esc(r.name)}</span></td><td><span class="type-chip">${r.type}</span></td><td>${esc(r.account)}</td><td>${r.env}</td><td class="num">${money(r.cost)}</td><td><button class="btn sm" data-move="${r.id}">Move</button></td></tr>`).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:16px">No resources match.</td></tr>';
+  return `<div class="filters"><input class="search" id="gd-q" placeholder="Search resources…" value="${esc(gFilt.q)}" data-gf="q"><select data-gf="type"><option value="">all types</option>${TYPE_VALUES.map(t=>`<option ${gFilt.type===t?'selected':''}>${t}</option>`).join('')}</select><select data-gf="account"><option value="">all accounts</option>${ACCOUNTS.map(a=>`<option ${gFilt.account===a?'selected':''}>${a}</option>`).join('')}</select><select data-gf="env"><option value="">all envs</option>${['prod','non-prod','other'].map(e=>`<option ${gFilt.env===e?'selected':''}>${e}</option>`).join('')}</select><span style="font-size:12px;color:var(--muted)">${list.length} of ${resInGroup(gid).length}</span></div>${gSel.size?bulkBarHtml(gSel.size):''}<div class="card" style="padding:0"><table><thead><tr><th style="width:34px"></th><th>Resource</th><th>Type</th><th>Account</th><th>Env</th><th class="num">Cost/mo</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
 function renderGroup(gid){
   const g=gById(gid); if(!g){show('landing');return;} curGroup=gid;
   const list=resInGroup(gid); const total=gCost(gid);
@@ -253,14 +278,29 @@ function renderGroup(gid){
   const series=trendSeries(total,gid.length+5); const maxS=Math.max(...series); const pts=series.map((v,i)=>`${i/(series.length-1)*100},${40-v/maxS*36}`).join(' ');
   const topRes=list.slice().sort((a,b)=>b.cost-a.cost).slice(0,8).map(r=>`<tr><td><span class="rowlink" data-res="${r.id}">${esc(r.name)}</span></td><td><span class="type-chip">${r.type}</span></td><td>${esc(r.account)}</td><td class="num">${money(r.cost)}</td><td><button class="btn sm" data-move="${r.id}">Move</button></td></tr>`).join('');
   const subgs=g.subgroups.length?g.subgroups.map(s=>`<div class="subg"><div style="flex:1"><div class="sn">${esc(s.name)}</div><div class="sm2">${esc(s.rule)} · ${s.count} resources</div></div><div style="font-weight:700">${money(s.cost)}</div></div>`).join(''):'<div style="font-size:12.5px;color:var(--muted)">No sub-groups yet.</div>';
-  // subgroup recommendations by 2nd name token
   const tok={}; list.forEach(r=>{const p=r.name.split('-');if(p.length>1)tok[p[1]]=(tok[p[1]]||0)+1;});
-  const recs=Object.entries(tok).filter(([k,v])=>v>=2&&k.length>1).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([t,v])=>`<div class="rec"><span>Split out <b>${esc(list[0].name.split('-')[0])}-${esc(t)}-*</b> — ${v} resources</span><button class="btn sm" data-sub="${gid}" data-tok="${esc(t)}">Create sub-group</button></div>`).join('')||'';
+  const recs=Object.entries(tok).filter(([k,v])=>v>=2&&k.length>1).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([t,v])=>`<div class="rec"><span>Split <b>${esc(list[0].name.split('-')[0])}-${esc(t)}-*</b> · ${v}</span><button class="btn sm" data-sub="${gid}" data-tok="${esc(t)}">Create</button></div>`).join('')||'';
   const aiItems=[
     `<b>${topTypes[0]?topTypes[0][0]:'—'}</b> is ${topTypes[0]?Math.round(topTypes[0][1]/total*100):0}% of this group's cost (${topTypes[0]?money(topTypes[0][1]):'$0'}/mo).`,
     `Cost is up <b>▲ 8% MoM</b>, driven by new ${topTypes[0]?topTypes[0][0]:''} resources in ${Object.keys(byAcct)[0]||'—'}.`,
-    `${list.filter(r=>r.env!=='prod').length} resources are non-prod — <b>${money(list.filter(r=>r.env!=='prod').reduce((s,r)=>s+r.cost,0))}/mo</b> could be scheduled off out of hours.`,
+    `${list.filter(r=>r.env!=='prod').length} resources are non-prod — <b>${money(list.filter(r=>r.env!=='prod').reduce((s,r)=>s+r.cost,0))}/mo</b> could be scheduled off.`,
   ].map(t=>`<div class="ai-item">✦ ${t}</div>`).join('');
+  const overview=`<div class="gd-grid">
+      <div>
+        <div class="card"><div class="card-h">Cost trend · 6 months</div><svg viewBox="0 0 100 42" preserveAspectRatio="none" style="width:100%;height:120px"><polyline points="${pts}" fill="none" stroke="var(--indigo)" stroke-width="1.5"/><polyline points="0,42 ${pts} 100,42" fill="rgba(99,102,241,.12)" stroke="none"/></svg></div>
+        <div class="viz2">
+          <div class="card"><div class="card-h">Cost by service</div><div class="donut-wrap"><div class="donut" style="background:conic-gradient(${stops.join(',')})"><div class="donut-hole"><div><div style="font-weight:800">${moneyK(total)}</div><div style="font-size:10px;color:var(--muted)">total</div></div></div></div><div class="legend">${legend}</div></div></div>
+          <div class="card"><div class="card-h">Cost by account</div><div class="bars">${acctBars}</div><div class="card-h" style="margin-top:14px">Cost by environment</div><div class="bars">${envBars}</div></div>
+        </div>
+        <div class="card"><div class="card-h">Top resources by cost <span style="font-family:var(--mono);color:var(--muted);text-transform:none">see all → Resources tab</span></div><table><thead><tr><th>Resource</th><th>Type</th><th>Account</th><th class="num">Cost/mo</th><th></th></tr></thead><tbody>${topRes}</tbody></table></div>
+      </div>
+      <div class="ai-rail">
+        <div class="card"><div class="card-h">Sub-groups <button class="btn sm" data-sub-open="${gid}">+ Create</button></div>${recs}${subgs}</div>
+        <div class="card"><div class="card-h">✦ AI insights</div>${aiItems}</div>
+        <div class="card"><div class="card-h">How this group was formed</div><p style="font-size:12.5px;color:#4b4f66;margin:0 0 8px">${esc(g.why)}</p>${g.strategies.map(s=>`<span class="type-chip" style="margin:2px">${s}</span>`).join('')}</div>
+        <div class="card"><div class="card-h">Rule</div><div style="font-family:var(--mono);font-size:11.5px;color:var(--muted)">name ${g.cond[0].op==='sw'?'starts with':'contains'} “${esc(g.cond[0].v)}”</div></div>
+      </div>
+    </div>`;
   document.getElementById('v-group').innerHTML=`
     <span class="back" data-action="toLanding">← all groups</span>
     <div class="gd-head"><div><h1>${esc(g.name)} <span class="kindbadge k-${g.kind}" style="vertical-align:middle">${g.kind}</span></h1><div class="envrow" style="margin-top:6px">${envHtml(list)}</div></div>
@@ -271,22 +311,9 @@ function renderGroup(gid){
       <div class="kpi"><div class="k">Avg / resource</div><div class="v">${money(total/Math.max(list.length,1))}</div></div>
       <div class="kpi"><div class="k">MoM change</div><div class="v up">▲ 8%</div></div>
     </div>
-    <div class="gd-grid">
-      <div>
-        <div class="card"><div class="card-h">Cost trend · 6 months</div><svg viewBox="0 0 100 42" preserveAspectRatio="none" style="width:100%;height:120px"><polyline points="${pts}" fill="none" stroke="var(--indigo)" stroke-width="1.5"/><polyline points="0,42 ${pts} 100,42" fill="rgba(99,102,241,.12)" stroke="none"/></svg></div>
-        <div class="viz2">
-          <div class="card"><div class="card-h">Cost by service</div><div class="donut-wrap"><div class="donut" style="background:conic-gradient(${stops.join(',')})"><div class="donut-hole"><div><div style="font-weight:800">${moneyK(total)}</div><div style="font-size:10px;color:var(--muted)">total</div></div></div></div><div class="legend">${legend}</div></div></div>
-          <div class="card"><div class="card-h">Cost by account</div><div class="bars">${acctBars}</div><div class="card-h" style="margin-top:14px">Cost by environment</div><div class="bars">${envBars}</div></div>
-        </div>
-        <div class="card"><div class="card-h">Top resources by cost</div><table><thead><tr><th>Resource</th><th>Type</th><th>Account</th><th class="num">Cost/mo</th><th></th></tr></thead><tbody>${topRes}</tbody></table></div>
-        <div class="card"><div class="card-h">Sub-groups <button class="btn sm" data-sub-open="${gid}">+ Create sub-group</button></div>${recs}${subgs}</div>
-      </div>
-      <div class="ai-rail">
-        <div class="card"><div class="card-h">✦ AI insights</div>${aiItems}</div>
-        <div class="card"><div class="card-h">How this group was formed</div><p style="font-size:12.5px;color:#4b4f66;margin:0 0 8px">${esc(g.why)}</p>${g.strategies.map(s=>`<span class="type-chip" style="margin:2px">${s}</span>`).join('')}</div>
-        <div class="card"><div class="card-h">Rule</div><div style="font-family:var(--mono);font-size:11.5px;color:var(--muted)">name ${g.cond[0].op==='sw'?'starts with':'contains'} “${esc(g.cond[0].v)}”</div></div>
-      </div>
-    </div>`;
+    <div class="tabbar"><button class="${groupTab==='overview'?'on':''}" data-gtab="overview">Overview</button><button class="${groupTab==='resources'?'on':''}" data-gtab="resources">Resources <span style="color:var(--muted);font-weight:400">${list.length}</span></button></div>
+    <div class="gtab ${groupTab==='overview'?'on':''}" id="gd-overview">${overview}</div>
+    <div class="gtab ${groupTab==='resources'?'on':''}" id="gd-resources">${groupResPaneHtml(gid)}</div>`;
   show('group');
 }
 
@@ -384,17 +411,83 @@ function applyAssign(){
 }
 const closeDrawer=()=>{document.getElementById('drawer').classList.remove('open');document.getElementById('drawer-bg').classList.remove('open');};
 
-/* ---------- move modal ---------- */
-function openMove(rid){
-  const r=byId(rid); const cur=assignFor(r);
-  document.getElementById('modal').innerHTML=`<h3>Move “${esc(r.name)}”</h3>
-    <div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Currently: ${cur.status==='assigned'?esc(gById(cur.g).name):cur.status}</div>
-    <label style="font-size:12px;color:var(--muted)">Move to group</label>
-    <select id="move-target" style="margin:6px 0 14px">${GROUPS.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select>
-    <div style="display:flex;justify-content:flex-end;gap:10px"><button class="btn" data-action="closeModal">Cancel</button><button class="btn primary" data-action="applyMove" data-res="${rid}">Move</button></div>`;
-  document.getElementById('modal-bg').classList.add('open');
+/* ---------- smart move flow (with linked-resource recommendations) ---------- */
+let moveIds=[], moveTarget=null;
+function openMoveFlow(ids,preset){ if(!ids||!ids.length){toast('Select resources first');return;} moveIds=ids.slice(); moveTarget=preset||GROUPS[0].id; renderMoveModal(); document.getElementById('modal-bg').classList.add('open'); }
+function suggestLinked(ids,target){
+  const sel=new Set(ids); const cand={};
+  ids.forEach(sid=>{ const r=byId(sid); (r.links||[]).forEach(lid=>{ if(sel.has(lid))return; const lr=byId(lid); const a=assignFor(lr); if(a.status==='assigned'&&a.g===target)return; if(!cand[lid])cand[lid]={res:lr,via:new Set()}; cand[lid].via.add(sid); }); });
+  // group candidates by cluster (natural relationship grouping)
+  const byCl={}; Object.values(cand).forEach(c=>{ const k=c.res.cluster; (byCl[k]=byCl[k]||[]).push(c); });
+  const groups=Object.entries(byCl).map(([cl,items])=>({cluster:cl, items, via:[...new Set(items.flatMap(i=>[...i.via]))]}));
+  return {groups, total:Object.keys(cand).length};
 }
-function applyMove(rid){const gid=document.getElementById('move-target').value;overrides[rid]=gid;document.getElementById('modal-bg').classList.remove('open');if(view==='group')renderGroup(curGroup);else if(view==='resource')renderResource(rid);toast('Moved to '+gById(gid).name);}
+function relOf(cand){ const lr=cand.res; for(const sid of cand.via){ const s=byId(sid); if(lr.parent===sid) return 'child of '+shortName(s.name); if(s.parent===lr.id) return 'parent of '+shortName(s.name); } return 'linked to '+shortName(byId([...cand.via][0]).name); }
+const shortName=s=>s.length>18?s.slice(0,17)+'…':s;
+function clusterLabel(grp){ const parts=grp.cluster.split('|'); return parts.length>1?`${parts[0]} · ${parts[1]}`:grp.cluster; }
+function renderMoveModal(){
+  const sel=moveIds.map(byId); const sugg=suggestLinked(moveIds,moveTarget);
+  const names=sel.slice(0,3).map(r=>esc(r.name)).join(', ')+(sel.length>3?` +${sel.length-3} more`:'');
+  const newGroupInput = moveTarget==='__new'?`<div style="margin-top:8px"><input id="new-group-name" placeholder="New group name" style="width:100%"></div>`:'';
+  const suggHtml = sugg.total? `
+    <div style="margin-top:16px"><div style="font-weight:600;font-size:13px;display:flex;align-items:center;gap:8px">🔗 ${sugg.total} linked resource${sugg.total>1?'s are':' is'} not selected</div>
+      <div style="font-size:12px;color:var(--muted);margin:4px 0 10px">These share infrastructure with what you're moving. Bringing them along keeps the dependency — and its cost — together. Grouped by the stack they belong to.</div>
+      ${sugg.groups.map(grp=>`<div class="sugg-group"><div class="sh"><input type="checkbox" class="sugg-all" data-cluster="${esc(grp.cluster)}" checked> ${esc(clusterLabel(grp))} <span style="color:var(--muted);font-weight:400">· ${grp.items.length} resource${grp.items.length>1?'s':''}</span></div>
+        <div class="svia">linked to ${grp.via.map(id=>esc(shortName(byId(id).name))).join(', ')}</div>
+        ${grp.items.map(it=>`<label class="sugg-item"><input type="checkbox" class="sugg-item-cb" data-cluster="${esc(grp.cluster)}" value="${it.res.id}" checked><span style="flex:1">${esc(it.res.name)} <span class="type-chip">${it.res.type}</span> <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">${money(it.res.cost)}/mo</span></span><span class="relchip">${esc(relOf(it))}</span></label>`).join('')}
+      </div>`).join('')}
+    </div>` : `<div style="margin-top:14px;font-size:12.5px;color:var(--muted)">No linked resources outside your selection — clean move.</div>`;
+  document.getElementById('modal').className='modal wide';
+  document.getElementById('modal').innerHTML=`<h3>Move ${moveIds.length} resource${moveIds.length>1?'s':''}</h3>
+    <div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">${names}</div>
+    <label style="font-size:12px;color:var(--muted)">Move to group</label>
+    <select id="move-target" data-movetarget style="margin:6px 0 0">${GROUPS.map(g=>`<option value="${g.id}" ${moveTarget===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}<option value="__new" ${moveTarget==='__new'?'selected':''}>+ New group…</option></select>${newGroupInput}
+    <div class="mbody">${suggHtml}</div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap"><button class="btn" data-action="closeModal">Cancel</button>${sugg.total?`<button class="btn" data-action="applyMove" data-mode="only">Move only these ${moveIds.length}</button>`:''}<button class="btn primary" data-action="applyMove" data-mode="all">Move ${sugg.total?'selected + linked':moveIds.length}</button></div>`;
+}
+function applyMove(mode){
+  let target=document.getElementById('move-target').value;
+  if(target==='__new'){ const nm=(document.getElementById('new-group-name')||{}).value||'New group'; const id='g'+Date.now(); GROUPS.push({id,name:nm.trim()||'New group',kind:'Product',cond:[{f:'name',op:'ct',v:'__pin__'+id}],strategies:['Manual'],why:'Created manually while moving resources.',subgroups:[]}); target=id; }
+  const extra = mode==='all'? [...document.querySelectorAll('.sugg-item-cb:checked')].map(c=>c.value) : [];
+  const all=[...new Set([...moveIds,...extra])]; all.forEach(id=>overrides[id]=target);
+  document.getElementById('modal-bg').classList.remove('open'); document.getElementById('modal').className='modal';
+  gSel.clear(); xSel.clear();
+  if(view==='group')renderGroup(curGroup); else if(view==='resource')renderResource(curRes); else if(view==='explorer')renderExplorer(); else renderLanding();
+  toast(`Moved ${all.length} resource${all.length>1?'s':''} to ${gById(target).name}`);
+}
+
+/* ---------- resource explorer ---------- */
+let xFilt={q:'',type:'',account:'',env:'',group:''}, xSel=new Set(), xView='table';
+function filteredX(){ return RESOURCES.filter(r=>{ const a=assignFor(r);
+  if(xFilt.type&&r.type!==xFilt.type)return false;
+  if(xFilt.account&&r.account!==xFilt.account)return false;
+  if(xFilt.env&&(r.env==='prod'?'prod':r.env==='unknown'?'other':'non-prod')!==xFilt.env)return false;
+  if(xFilt.group){ if(/^g/.test(xFilt.group)){ if(!(a.status==='assigned'&&a.g===xFilt.group))return false; } else { if(a.status!==xFilt.group)return false; } }
+  if(xFilt.q){const h=[r.name,r.type,r.account,r.owner,r.team].join(' ').toLowerCase();if(!h.includes(xFilt.q.toLowerCase()))return false;}
+  return true; }); }
+function statusChip(r){ const a=assignFor(r); return a.status==='assigned'?`<span class="status-chip sc-assigned">${esc(gById(a.g).name)}</span>`:`<span class="status-chip sc-${a.status}">${a.status}</span>`; }
+function xTableHtml(list){
+  const rows=list.slice(0,400).map(r=>`<tr><td><input type="checkbox" class="xsel" value="${r.id}" ${xSel.has(r.id)?'checked':''}></td><td><span class="rowlink" data-res="${r.id}">${esc(r.name)}</span></td><td><span class="type-chip">${r.type}</span></td><td>${esc(r.account)}</td><td style="font-family:var(--mono);font-size:11px">${esc(r.owner)} · ${esc(r.team)}</td><td>${statusChip(r)}</td><td class="num">${money(r.cost)}</td><td><button class="btn sm" data-move="${r.id}">Move</button></td></tr>`).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:16px">Nothing matches.</td></tr>';
+  return `<div style="font-size:12px;color:var(--muted);margin-bottom:8px">${list.length} of ${RESOURCES.length} resources${list.length>400?' (first 400)':''}</div><div class="card" style="padding:0;max-height:620px;overflow:auto"><table><thead><tr><th style="width:34px"></th><th>Resource</th><th>Type</th><th>Account</th><th>Owner / Team</th><th>Group / status</th><th class="num">Cost/mo</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function xCardsHtml(list){
+  return `<div style="font-size:12px;color:var(--muted);margin-bottom:8px">${list.length} of ${RESOURCES.length} resources</div><div class="rescards">${list.slice(0,150).map(r=>`<div class="rcard ${xSel.has(r.id)?'sel':''}"><div class="rc-top"><input type="checkbox" class="xsel" value="${r.id}" ${xSel.has(r.id)?'checked':''}><div style="flex:1;min-width:0"><div class="rc-name rowlink" data-res="${r.id}">${esc(r.name)}</div><div class="rc-meta">${r.type} · ${esc(r.account)} · ${money(r.cost)}/mo</div></div></div><div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px">${statusChip(r)}<button class="btn sm" data-move="${r.id}">Move</button></div></div>`).join('')}</div>`;
+}
+function updateExplorerBody(){ document.getElementById('x-bulk').innerHTML=xSel.size?bulkBarHtml(xSel.size):''; document.getElementById('x-body').innerHTML=xView==='table'?xTableHtml(filteredX()):xCardsHtml(filteredX()); }
+function renderExplorer(){
+  document.getElementById('v-explorer').innerHTML=`
+    <div class="page-head"><div><h1>Resource Explorer</h1><p class="sub">Every resource across all groups. Filter, search, select, and map resources into a group in one click. Moving linked resources suggests their neighbours too.</p></div>
+      <div class="seg" id="xview-seg"><button class="${xView==='table'?'on':''}" data-xview="table">Table</button><button class="${xView==='cards'?'on':''}" data-xview="cards">Cards</button></div></div>
+    <div class="filters">
+      <input class="search" id="x-q" placeholder="Search name, type, account, owner…" value="${esc(xFilt.q)}" data-xf="q">
+      <select data-xf="type"><option value="">all types</option>${TYPE_VALUES.map(t=>`<option ${xFilt.type===t?'selected':''}>${t}</option>`).join('')}</select>
+      <select data-xf="account"><option value="">all accounts</option>${ACCOUNTS.map(a=>`<option ${xFilt.account===a?'selected':''}>${a}</option>`).join('')}</select>
+      <select data-xf="env"><option value="">all envs</option>${['prod','non-prod','other'].map(e=>`<option ${xFilt.env===e?'selected':''}>${e}</option>`).join('')}</select>
+      <select data-xf="group"><option value="">any group / status</option>${GROUPS.map(g=>`<option value="${g.id}" ${xFilt.group===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}<option value="unassigned" ${xFilt.group==='unassigned'?'selected':''}>⚠ Unassigned</option><option value="unnamed" ${xFilt.group==='unnamed'?'selected':''}>Unnamed</option><option value="orphaned" ${xFilt.group==='orphaned'?'selected':''}>Orphaned</option></select>
+    </div>
+    <div id="x-bulk"></div><div id="x-body"></div>`;
+  updateExplorerBody(); show('explorer');
+}
 
 /* ---------- subgroups ---------- */
 function makeSub(gid,tok){const g=gById(gid);const list=resInGroup(gid).filter(r=>r.name.split('-')[1]===tok);g.subgroups.push({name:g.name+' · '+tok,rule:`name contains “${tok}”`,count:list.length,cost:bCost(list)});renderGroup(gid);toast('Sub-group created');}
@@ -409,10 +502,14 @@ document.addEventListener('click',e=>{
   const cg=e.target.closest('[data-action="closeDrawerGo"]'); if(cg){closeDrawer();renderResource(cg.dataset.res);return;}
   const lk=e.target.closest('[data-linked]'); if(lk){openLinked(lk.dataset.linked,lk.dataset.mode);return;}
   const lm=e.target.closest('[data-lmode]'); if(lm){linkedMode=lm.dataset.lmode;renderLinkedDrawer();return;}
+  const nv=e.target.closest('[data-nav]'); if(nv){ if(nv.dataset.nav==='explorer'){renderExplorer();} else {show('landing');renderLanding();} return; }
+  const gt=e.target.closest('[data-gtab]'); if(gt){ groupTab=gt.dataset.gtab; document.querySelectorAll('#v-group .tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.gtab===groupTab)); document.querySelectorAll('#v-group .gtab').forEach(p=>p.classList.remove('on')); document.getElementById('gd-'+groupTab).classList.add('on'); return; }
+  const xv=e.target.closest('[data-xview]'); if(xv){ xView=xv.dataset.xview; document.querySelectorAll('#xview-seg button').forEach(b=>b.classList.toggle('on',b.dataset.xview===xView)); updateExplorerBody(); return; }
+  const msel=e.target.closest('[data-movesel]'); if(msel){ const ids=view==='group'?[...gSel]:[...xSel]; openMoveFlow(ids, msel.dataset.movesel==='__new'?'__new':msel.dataset.movesel); return; }
   const gb=e.target.closest('[data-group]'); if(gb){renderGroup(gb.dataset.group);return;}
   const bk=e.target.closest('[data-bucket]'); if(bk){openAssign(bk.dataset.bucket);return;}
   const rs=e.target.closest('[data-res]'); if(rs){renderResource(rs.dataset.res);return;}
-  const mv=e.target.closest('[data-move]'); if(mv){openMove(mv.dataset.move);return;}
+  const mv=e.target.closest('[data-move]'); if(mv){openMoveFlow([mv.dataset.move]);return;}
   const sub=e.target.closest('[data-sub]'); if(sub){makeSub(sub.dataset.sub,sub.dataset.tok);return;}
   const subo=e.target.closest('[data-sub-open]'); if(subo){toast('Pick a suggested split, or use AI to define one');return;}
   const t=e.target.closest('[data-action]'); if(!t)return;
@@ -422,9 +519,23 @@ document.addEventListener('click',e=>{
     case 'openAI': toast('AI assistant — wired in the full build'); break;
     case 'closeDrawer': closeDrawer(); break;
     case 'applyAssign': applyAssign(); break;
-    case 'closeModal': document.getElementById('modal-bg').classList.remove('open'); break;
-    case 'applyMove': applyMove(t.dataset.res); break;
+    case 'closeModal': document.getElementById('modal-bg').classList.remove('open'); document.getElementById('modal').className='modal'; break;
+    case 'applyMove': applyMove(t.dataset.mode); break;
+    case 'clearSel': if(view==='group'){gSel.clear(); document.getElementById('gd-resources').innerHTML=groupResPaneHtml(curGroup);} else {xSel.clear(); updateExplorerBody();} break;
   }
+});
+// filters + selections (input + change)
+document.addEventListener('input',e=>{ const el=e.target;
+  if(el.dataset.gf!==undefined){ gFilt[el.dataset.gf]=el.value; const pane=document.getElementById('gd-resources'); pane.innerHTML=groupResPaneHtml(curGroup); if(el.dataset.gf==='q'){const q=document.getElementById('gd-q'); q.focus(); try{q.setSelectionRange(q.value.length,q.value.length);}catch(_){}} return; }
+  if(el.dataset.xf!==undefined){ xFilt[el.dataset.xf]=el.value; updateExplorerBody(); if(el.dataset.xf==='q'){const q=document.getElementById('x-q'); q.focus(); try{q.setSelectionRange(q.value.length,q.value.length);}catch(_){}} return; }
+});
+document.addEventListener('change',e=>{ const el=e.target;
+  if(el.dataset.gf!==undefined){ gFilt[el.dataset.gf]=el.value; document.getElementById('gd-resources').innerHTML=groupResPaneHtml(curGroup); return; }
+  if(el.dataset.xf!==undefined){ xFilt[el.dataset.xf]=el.value; updateExplorerBody(); return; }
+  if(el.dataset.movetarget!==undefined){ moveTarget=el.value; renderMoveModal(); return; }
+  if(el.classList.contains('gsel')){ el.checked?gSel.add(el.value):gSel.delete(el.value); document.getElementById('gd-resources').innerHTML=groupResPaneHtml(curGroup); return; }
+  if(el.classList.contains('xsel')){ el.checked?xSel.add(el.value):xSel.delete(el.value); updateExplorerBody(); return; }
+  if(el.classList.contains('sugg-all')){ document.querySelectorAll(`.sugg-item-cb[data-cluster="${el.dataset.cluster}"]`).forEach(cb=>cb.checked=el.checked); return; }
 });
 
 renderLanding();
