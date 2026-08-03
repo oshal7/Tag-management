@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tag Management — Consumption (first cut)</title>
+<style>
+  :root{--bg:#f4f6fb;--panel:#fff;--ink:#1c2333;--muted:#6b7280;--faint:#9aa1af;--line:#e9ebf2;--nav:#0e1a2e;--nav-2:#17233b;--nav-line:#22304a;--nav-muted:#8fa1bd;--nav-text:#dbe3f0;--indigo:#6366f1;--indigo-d:#4f46e5;--indigo-soft:#eef1ff;--indigo-line:#d7dcfb;--green:#15803d;--green-soft:#dcfce7;--amber:#b45309;--amber-soft:#fdf0d5;--red:#dc2626;--red-soft:#fde8e8;--violet:#7c3aed;--violet-soft:#f3e8ff;--teal:#0d9488;--teal-soft:#ccfbf1;--blue:#2563eb;--blue-soft:#dbeafe;--r:12px;--mono:ui-monospace,Menlo,Consolas,monospace;}
+  *{box-sizing:border-box;} html,body{margin:0;height:100%;} body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;}
+  .app{display:grid;grid-template-columns:250px 1fr;height:100vh;} @media(max-width:900px){.app{grid-template-columns:1fr;}.sidebar{display:none;}}
+  .sidebar{background:var(--nav);color:var(--nav-text);overflow-y:auto;}
+  .logo{display:flex;align-items:center;gap:10px;padding:20px;font-size:20px;font-weight:700;}
+  .navgroup{padding:8px 12px 2px;} .navgroup>.gh{display:flex;align-items:center;gap:9px;padding:9px 10px;font-weight:600;font-size:13.5px;} .gh .chev{margin-left:auto;opacity:.5;font-size:10px;}
+  .navitem{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 34px;color:var(--nav-muted);font-size:13px;border-radius:8px;cursor:pointer;position:relative;} .navitem:hover{color:#fff;background:var(--nav-2);}
+  .navitem.active{color:#fff;background:linear-gradient(90deg,rgba(99,102,241,.22),transparent);} .navitem.active::before{content:'';position:absolute;left:14px;top:8px;bottom:8px;width:3px;background:var(--indigo);border-radius:3px;}
+  .subitem{padding-left:48px;font-size:12.5px;} .newpill{margin-left:auto;font-size:9px;background:var(--indigo);color:#fff;padding:1px 6px;border-radius:10px;}
+  .profile{margin:16px 14px;padding-top:14px;border-top:1px solid var(--nav-line);display:flex;align-items:center;gap:10px;} .profile .av{width:34px;height:34px;border-radius:50%;background:var(--indigo);display:grid;place-items:center;color:#fff;font-weight:700;} .profile .em{font-size:11px;color:var(--nav-muted);}
+  .main{overflow-y:auto;height:100vh;}
+  .topbar{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);padding:12px 26px;display:flex;align-items:center;gap:14px;}
+  .verchip{font-family:var(--mono);font-size:11px;color:var(--indigo-d);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:20px;padding:3px 10px;}
+  .tsearch{margin-left:auto;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 12px;color:var(--faint);font-size:13px;width:260px;}
+  .wrap{padding:22px 26px 90px;max-width:1340px;}
+  .page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+  h1{font-size:23px;margin:0;color:var(--indigo-d);} .sub{color:var(--muted);font-size:13.5px;margin:4px 0 0;max-width:72ch;}
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px;}
+  .seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:10px;padding:4px;} .seg button{border:none;background:none;font:inherit;font-size:12.5px;color:var(--muted);padding:7px 13px;border-radius:7px;cursor:pointer;display:flex;gap:7px;align-items:center;} .seg button.on{background:var(--indigo);color:#fff;} .seg .k{font-family:var(--mono);font-size:10px;opacity:.7;}
+  .metric-toggle{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:10px;padding:4px;margin-left:auto;} .metric-toggle button{border:none;background:none;font:inherit;font-size:12.5px;color:var(--muted);padding:7px 14px;border-radius:7px;cursor:pointer;font-weight:600;} .metric-toggle button.on{background:var(--ink);color:#fff;}
+  .btn{font:inherit;font-size:13px;border-radius:9px;padding:9px 14px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink);display:inline-flex;align-items:center;gap:7px;} .btn:hover{border-color:var(--indigo);color:var(--indigo-d);} .btn.primary{background:var(--indigo);border-color:var(--indigo);color:#fff;} .btn.primary:hover{background:var(--indigo-d);} .btn.sm{padding:6px 11px;font-size:12px;} .btn.ghost-indigo{border-color:var(--indigo-line);color:var(--indigo-d);background:var(--indigo-soft);}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:18px;}
+  .tile{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:15px;} .tile.hero{background:linear-gradient(180deg,#f3f4ff,#fff);border-color:var(--indigo-line);}
+  .tile .k{font-size:12px;color:var(--muted);} .tile .v{font-size:24px;font-weight:700;margin-top:3px;} .tile .d{font-size:11.5px;color:var(--faint);margin-top:2px;}
+  .up{color:var(--red);} .down{color:var(--green);}
+  /* cards */
+  .cardgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+  .gcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px;cursor:pointer;transition:box-shadow .15s,border-color .15s;display:flex;flex-direction:column;gap:12px;} .gcard:hover{border-color:var(--indigo-line);box-shadow:0 6px 22px rgba(79,70,229,.08);}
+  .gcard .top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;} .gcard .gname{font-size:16px;font-weight:700;}
+  .kindbadge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;} .k-Product{background:var(--indigo-soft);color:var(--indigo-d);} .k-Feature{background:var(--violet-soft);color:var(--violet);} .k-Customer{background:var(--teal-soft);color:var(--teal);} .k-Team{background:var(--blue-soft);color:var(--blue);} .k-Department{background:var(--amber-soft);color:var(--amber);}
+  .envrow{display:flex;gap:6px;flex-wrap:wrap;} .env{font-size:11px;padding:2px 8px;border-radius:6px;font-family:var(--mono);} .env-prod{background:var(--red-soft);color:var(--red);} .env-np{background:var(--blue-soft);color:var(--blue);}
+  .bigmetric{display:flex;align-items:baseline;gap:8px;} .bigmetric .n{font-size:26px;font-weight:800;} .bigmetric .u{font-size:12px;color:var(--muted);}
+  .spark{display:flex;align-items:flex-end;gap:3px;height:38px;} .spark i{flex:1;background:var(--indigo-soft);border-top:2px solid var(--indigo);border-radius:2px 2px 0 0;}
+  .gcard .foot{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:auto;} .gcard .foot b{color:var(--ink);}
+  .mom{font-family:var(--mono);font-size:11px;}
+  .special{border-style:dashed;} .special.unassigned{border-color:var(--amber);background:linear-gradient(180deg,#fffdf7,#fff);} .special.unnamed{border-color:var(--violet);} .special.orphaned{border-color:var(--muted);background:repeating-linear-gradient(45deg,#fff,#fff 8px,#f6f6f8 8px,#f6f6f8 16px);}
+  .special .assignbtn{margin-top:auto;}
+  /* treemap */
+  .treemap{display:flex;flex-wrap:wrap;gap:6px;} .tm{border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;min-height:96px;color:#fff;transition:transform .12s;} .tm:hover{transform:translateY(-2px);} .tm .tmn{font-weight:700;font-size:14px;} .tm .tmsub{font-size:11px;opacity:.85;font-family:var(--mono);} .tm .tmv{font-size:20px;font-weight:800;} .tm.special-tm{color:var(--ink);background:#fff!important;border-style:dashed;}
+  /* group details */
+  .back{font-family:var(--mono);font-size:12px;color:var(--indigo-d);cursor:pointer;display:inline-flex;gap:6px;margin-bottom:10px;}
+  .gd-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px;}
+  .gd-grid{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start;} @media(max-width:1000px){.gd-grid{grid-template-columns:1fr;}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:16px;}
+  .card-h{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin:0 0 14px;display:flex;justify-content:space-between;align-items:center;}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;} @media(max-width:640px){.kpis{grid-template-columns:1fr 1fr;}}
+  .kpi{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;} .kpi .k{font-size:11px;color:var(--muted);} .kpi .v{font-size:20px;font-weight:700;margin-top:2px;}
+  .viz2{display:grid;grid-template-columns:1fr 1fr;gap:16px;} @media(max-width:760px){.viz2{grid-template-columns:1fr;}}
+  .donut-wrap{display:flex;align-items:center;gap:16px;} .donut{width:130px;height:130px;border-radius:50%;flex:none;} .donut-hole{width:130px;height:130px;border-radius:50%;display:grid;place-items:center;} .donut-hole > div{width:86px;height:86px;background:#fff;border-radius:50%;display:grid;place-items:center;text-align:center;} .legend{font-size:12px;} .legend .li{display:flex;align-items:center;gap:8px;margin-bottom:6px;} .legend .sw{width:11px;height:11px;border-radius:3px;} .legend .lc{margin-left:auto;font-family:var(--mono);color:var(--muted);}
+  .bars .barrow{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:12.5px;} .bars .bn{width:110px;color:var(--muted);font-family:var(--mono);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .bars .bt{flex:1;height:9px;background:var(--line);border-radius:5px;overflow:hidden;} .bars .bt i{display:block;height:100%;} .bars .bc{width:64px;text-align:right;font-family:var(--mono);font-weight:600;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;} th{font-family:var(--mono);font-size:10px;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:2px solid var(--line);} td{padding:8px 10px;border-bottom:1px solid var(--line);} tbody tr:hover td{background:#fbfbff;} .num{text-align:right;font-family:var(--mono);}
+  .type-chip{font-family:var(--mono);font-size:10px;border:1px solid var(--line);border-radius:5px;padding:1px 6px;} .rowlink{color:var(--indigo-d);cursor:pointer;font-weight:600;}
+  .ai-rail .ai-item{border:1px solid var(--indigo-line);background:var(--indigo-soft);border-radius:10px;padding:12px;margin-bottom:10px;font-size:12.5px;color:#3a3f57;} .ai-item b{color:var(--indigo-d);}
+  .subg{border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:9px;display:flex;align-items:center;gap:12px;} .subg .sn{font-weight:600;} .subg .sm2{font-size:11px;color:var(--muted);font-family:var(--mono);}
+  .rec{border:1px dashed var(--indigo-line);background:var(--indigo-soft);border-radius:9px;padding:10px 12px;margin-bottom:9px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  /* resource 360 */
+  .kv{display:grid;grid-template-columns:130px 1fr;gap:6px 10px;font-size:12.5px;} .kv .k{color:var(--muted);font-family:var(--mono);font-size:11px;} .tag{font-size:10px;background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-family:var(--mono);}
+  .tree-row{padding:6px 0;font-size:12.5px;display:flex;align-items:center;gap:8px;} .dot{width:8px;height:8px;border-radius:50%;background:var(--indigo);} .dot.child{background:var(--muted);}
+  .linkitem{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:7px 0;border-bottom:1px dashed var(--line);} .linkitem:last-child{border-bottom:none;} .lr{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--muted);}
+  /* drawer / modal */
+  .drawer-bg{position:fixed;inset:0;background:rgba(15,26,46,.4);z-index:80;opacity:0;pointer-events:none;transition:opacity .2s;} .drawer-bg.open{opacity:1;pointer-events:auto;}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:460px;max-width:96vw;background:#fff;z-index:81;transform:translateX(100%);transition:transform .26s cubic-bezier(.2,.7,.2,1);display:flex;flex-direction:column;} .drawer.open{transform:none;}
+  .dh{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;} .dh b{font-size:15px;} .dh .x{margin-left:auto;cursor:pointer;color:var(--muted);font-size:18px;}
+  .dbody{flex:1;overflow-y:auto;padding:16px 18px;} .dfoot{padding:14px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;}
+  .arow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px;} .arow:last-child{border-bottom:none;} select,input[type=text]{padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:13px;background:#fff;width:100%;}
+  .modal-bg{position:fixed;inset:0;background:rgba(15,26,46,.45);z-index:90;display:none;align-items:flex-start;justify-content:center;padding:60px 16px;} .modal-bg.open{display:flex;} .modal{background:#fff;border-radius:14px;width:480px;max-width:100%;padding:18px;box-shadow:0 24px 60px rgba(0,0,0,.25);} .modal h3{margin:0 0 12px;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--nav);color:#fff;padding:12px 20px;border-radius:11px;font-size:13px;z-index:95;opacity:0;transition:.25s;pointer-events:none;} .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .view{display:none;} .view.on{display:block;animation:fade .22s ease;} @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}} @media(prefers-reduced-motion:reduce){.view.on{animation:none;}}
+  .firstcut{font-size:11px;color:var(--amber);background:var(--amber-soft);border:1px solid #f0d6ac;border-radius:8px;padding:6px 10px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo"><svg width="28" height="28" viewBox="0 0 30 30" fill="none"><path d="M8 19c-3 0-5-2-5-4.5S5 10 8 10c.4-3 3-5 6-5s5.6 2 6 5c3 0 5 2 5 4.5S29 19 26 19H8z" stroke="#818cf8" stroke-width="2"/></svg> Opsolute</div>
+    <div class="navgroup"><div class="gh">☁ Cloud Management <span class="chev">▾</span></div><div class="navitem">Dashboard</div><div class="navitem">Resources Inventory</div><div class="navitem">Heatmap</div></div>
+    <div class="navgroup"><div class="gh">$ FinOps <span class="chev">▾</span></div><div class="navitem">FinOps Dashboard</div>
+      <div class="navitem active">🏷 Tag Management <span class="newpill">NEW</span></div>
+      <div class="navitem subitem">Onboarding</div><div class="navitem subitem active" style="color:#fff">Consumption</div>
+      <div class="navitem">Chargeback</div></div>
+    <div class="navgroup"><div class="gh">🛡 Security <span class="chev">▾</span></div><div class="navitem">Security Posture</div><div class="navitem">Compliance</div></div>
+    <div class="profile"><div class="av">O</div><div><div style="font-size:13px;font-weight:600;">oshalurade</div><div class="em">oshalurade@gmail.com</div></div></div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar"><span class="verchip">consumption · first cut</span><span class="firstcut">2 of 4 iterations · details = first pass</span><div class="tsearch" style="margin-left:auto;">🔍 Search resources…</div></div>
+    <div class="wrap">
+
+      <!-- LANDING -->
+      <div class="view on" id="v-landing">
+        <div class="page-head">
+          <div><h1>Consumption</h1><p class="sub">Every group mapped on one page. Switch between resource counts and cost (showback). Unassigned, Unnamed &amp; Orphaned resources are groupable buckets — open one to assign.</p></div>
+          <div style="display:flex;gap:10px;"><button class="btn ghost-indigo" data-action="openAI">✦ Ask AI</button><button class="btn primary">Export</button></div>
+        </div>
+        <div class="tiles" id="tiles"></div>
+        <div class="controls">
+          <div class="seg" id="iter-seg">
+            <button class="on" data-iter="cards"><span class="k">A</span> Cards</button>
+            <button data-iter="treemap"><span class="k">B</span> Cost treemap</button>
+            <button data-iter="table" title="coming next" style="opacity:.5"><span class="k">C</span> Table (next)</button>
+            <button data-iter="dash" title="coming next" style="opacity:.5"><span class="k">D</span> Dashboard (next)</button>
+          </div>
+          <div class="metric-toggle" id="metric-seg"><button class="on" data-metric="cost">$ Cost</button><button data-metric="res"># Resources</button></div>
+        </div>
+        <div id="iter-cards"></div>
+        <div id="iter-treemap" style="display:none"></div>
+      </div>
+
+      <!-- GROUP DETAILS -->
+      <div class="view" id="v-group"></div>
+
+      <!-- RESOURCE 360 -->
+      <div class="view" id="v-resource"></div>
+    </div>
+  </div>
+</div>
+
+<!-- assign drawer -->
+<div class="drawer-bg" id="drawer-bg" data-action="closeDrawer"></div>
+<div class="drawer" id="drawer"></div>
+
+<!-- move modal -->
+<div class="modal-bg" id="modal-bg"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- engine + cost ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const rng=mulberry32(11); const rint=(a,b)=>Math.floor(rng()*(b-a+1))+a;
+const ACCOUNTS=['payments-prod','marketing-prod','shared-dev','data-eng-prod'],VPCS=['vpc-0aa111','vpc-0bb222','vpc-0cc333','vpc-0dd444'],OWNERS=['jsmith','arao','mchen','tolawale','pgarcia'],TEAMS=['Payments','Checkout','Marketing','Core-Platform','Data-Eng'];
+const COST={EC2:[220,1400],RDS:[600,3200],Redshift:[1800,5200],ElastiCache:[180,900],Lambda:[15,240],S3:[25,520],DynamoDB:[40,600],SNS:[4,45],Cognito:[15,120],SecurityGroup:[0,0],EBS:[20,180],ENI:[2,15]};
+const TEMPLATES=[['pay-checkout-svc','EC2'],['pay-checkout-svc','SecurityGroup'],['pay-api-gw','Lambda'],['pay-ledger-db','RDS'],['pay-events','SNS'],['pay-audit-logs','S3'],['chk-cart-lambda','Lambda'],['chk-cart-cache','ElastiCache'],['chk-session-store','DynamoDB'],['chk-web-frontend','EC2'],['chk-assets','S3'],['mkt-campaign-assets','S3'],['mkt-analytics-db','RDS'],['mkt-email-worker','Lambda'],['mkt-cdn-origin','S3'],['mkt-crm-sync','Lambda'],['core-auth-svc','EC2'],['core-auth-sg','SecurityGroup'],['core-idp','Cognito'],['core-shared-vpc-nat','EC2'],['core-config-store','S3'],['core-audit-trail','S3'],['data-lake-raw','S3'],['data-lake-curated','S3'],['data-etl-job','Lambda'],['data-warehouse','Redshift'],['search-index','EC2'],['search-api','Lambda']];
+const ENVS=['prod','dev','staging']; const TYPE_ICON={EC2:'🖥',S3:'🪣',RDS:'🗄',Lambda:'ƛ',SecurityGroup:'🛡',DynamoDB:'⬡',ElastiCache:'⚡',SNS:'📣',Cognito:'👤',Redshift:'🔺',EBS:'💽',ENI:'🔌'};
+const costFor=t=>{const c=COST[t]||[20,200];return rint(c[0],c[1]);};
+const RESOURCES=[]; let n=1;
+TEMPLATES.forEach((t,i)=>ENVS.forEach((env,ei)=>{ if(ei===2&&i%3!==0)return; const team=TEAMS[Math.floor(i/(TEMPLATES.length/TEAMS.length))]||TEAMS[i%TEAMS.length]; RESOURCES.push({id:'r'+n,name:`${t[0]}-${env}-${String(n).padStart(2,'0')}`,app:t[0],type:t[1],account:ACCOUNTS[i%4],vpc:VPCS[i%4],owner:OWNERS[(i+ei)%5],team,env,cost:costFor(t[1]),cluster:t[0]+'|'+env,parent:null,links:[],tags:{Env:env,Team:team,Owner:OWNERS[(i+ei)%5]}}); n++; }));
+// unnamed (generic ids, has account, no tags) + orphaned (no account)
+[['i-0a91f','EC2','shared-dev'],['vol-0f2e','EBS','payments-prod'],['eni-04b7','ENI','shared-dev'],['i-07c3d','EC2','marketing-prod']].forEach(o=>{RESOURCES.push({id:'r'+n,name:o[0],app:'(none)',type:o[1],account:o[2],vpc:VPCS[rint(0,3)],owner:'—',team:'—',env:'unknown',cost:costFor(o[1]),cluster:'x'+n,parent:null,links:[],tags:{},unnamed:true});n++;});
+[['orphan-vol-9c04','EBS'],['orphan-eni-0aa2','ENI']].forEach(o=>{RESOURCES.push({id:'r'+n,name:o[0],app:'(none)',type:o[1],account:'—',vpc:'—',owner:'—',team:'—',env:'unknown',cost:costFor(o[1]),cluster:'y'+n,parent:null,links:[],tags:{},orphaned:true});n++;});
+// wire cluster parent/links
+const byC={}; RESOURCES.forEach(r=>{(byC[r.cluster]=byC[r.cluster]||[]).push(r);});
+Object.values(byC).forEach(list=>{if(list.length<2)return;const prio={EC2:4,RDS:3,Redshift:3,Lambda:2};const parent=list.slice().sort((a,b)=>(prio[b.type]||1)-(prio[a.type]||1))[0];list.forEach(r=>{r.links=list.filter(x=>x.id!==r.id).map(x=>x.id);if(r!==parent)r.parent=parent.id;});});
+const byId=id=>RESOURCES.find(r=>r.id===id);
+
+let GROUPS=[
+ {id:'g1',name:'Payments Platform',kind:'Product',cond:[{f:'name',op:'sw',v:'pay-'}],strategies:['Naming convention','Account boundary'],why:'Shared “pay-” prefix + dedicated payments-prod account.',subgroups:[]},
+ {id:'g2',name:'Checkout Service',kind:'Product',cond:[{f:'name',op:'sw',v:'chk-'}],strategies:['Naming convention'],why:'Consistent “chk-” prefix.',subgroups:[]},
+ {id:'g3',name:'Marketing',kind:'Team',cond:[{f:'name',op:'sw',v:'mkt-'}],strategies:['Naming convention','Creator identity'],why:'“mkt-” prefix + eng-marketing SSO group.',subgroups:[]},
+ {id:'g4',name:'Core Platform',kind:'Team',cond:[{f:'name',op:'sw',v:'core-'}],strategies:['Naming convention','Runtime role'],why:'“core-” prefix + core-platform IAM roles.',subgroups:[]},
+ {id:'g5',name:'Data Engineering',kind:'Department',cond:[{f:'name',op:'sw',v:'data-'}],strategies:['Naming convention','IaC / Terraform'],why:'“data-” prefix + Terraform default_tags.',subgroups:[]},
+];
+const gById=id=>GROUPS.find(g=>g.id===id);
+const KHUE={Product:'#6366f1',Team:'#2563eb',Department:'#b45309',Feature:'#7c3aed',Customer:'#0d9488'};
+let overrides={};
+function ruleMatch(r,g){ return g.cond.every(c=>{const L=String(r[c.f]??'').toLowerCase(),v=c.v.toLowerCase(); return c.op==='sw'?L.startsWith(v):c.op==='ct'?L.includes(v):L===v;}); }
+function assignFor(r){
+  if(overrides[r.id]) return {status:'assigned',g:overrides[r.id]};
+  if(r.orphaned) return {status:'orphaned'};
+  if(r.unnamed) return {status:'unnamed'};
+  const m=GROUPS.filter(g=>ruleMatch(r,g));
+  if(m.length===0) return {status:'unassigned'};
+  return {status:'assigned',g:m[0].id};
+}
+const resInGroup=gid=>RESOURCES.filter(r=>{const a=assignFor(r);return a.status==='assigned'&&a.g===gid;});
+const bucket=st=>RESOURCES.filter(r=>assignFor(r).status===st);
+const gCost=gid=>resInGroup(gid).reduce((s,r)=>s+r.cost,0);
+const bCost=list=>list.reduce((s,r)=>s+r.cost,0);
+
+/* ---------- format + state ---------- */
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>'$'+Math.round(n).toLocaleString();
+const moneyK=n=>n>=1000?'$'+(n/1000).toFixed(1)+'k':'$'+Math.round(n);
+const envMix=list=>[...new Set(list.map(r=>r.env).filter(e=>e!=='unknown'&&e!=='staging').map(e=>e==='prod'?'prod':'non-prod'))];
+const envHtml=list=>envMix(list).map(e=>`<span class="env ${e==='prod'?'env-prod':'env-np'}">${e}</span>`).join('');
+function sparkline(seed){const r=mulberry32(seed);let h='';for(let i=0;i<10;i++)h+=`<i style="height:${25+Math.floor(r()*75)}%"></i>`;return h;}
+function trendSeries(total,seed){const r=mulberry32(seed);const arr=[];let base=total*0.8;for(let i=0;i<6;i++){base=base*(0.94+r()*0.14);arr.push(base);}arr[5]=total;return arr;}
+let metric='cost', iteration='cards', view='landing', curGroup=null, curRes=null;
+const gVal=gid=>metric==='cost'?gCost(gid):resInGroup(gid).length;
+const bVal=list=>metric==='cost'?bCost(list):list.length;
+const fmtVal=v=>metric==='cost'?moneyK(v):v+'';
+let toastT; function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1900);}
+
+/* ---------- landing tiles ---------- */
+function renderTiles(){
+  const total=RESOURCES.reduce((s,r)=>s+r.cost,0);
+  const mapped=RESOURCES.filter(r=>assignFor(r).status==='assigned').length;
+  document.getElementById('tiles').innerHTML=`
+    <div class="tile hero"><div class="k">Total non-prod cost</div><div class="v">${money(total)}</div><div class="d up">▲ 6.2% MoM</div></div>
+    <div class="tile hero"><div class="k">Mapped</div><div class="v">${Math.round(mapped/RESOURCES.length*100)}%</div><div class="d">${mapped} of ${RESOURCES.length} resources</div></div>
+    <div class="tile"><div class="k">Groups</div><div class="v">${GROUPS.length}</div><div class="d">+ 3 buckets to sort</div></div>
+    <div class="tile"><div class="k">Unsorted</div><div class="v" style="color:var(--amber)">${bucket('unassigned').length+bucket('unnamed').length+bucket('orphaned').length}</div><div class="d">unassigned · unnamed · orphaned</div></div>`;
+}
+/* ---------- iteration A: cards ---------- */
+function renderCards(){
+  const groupCards=GROUPS.map((g,i)=>{
+    const list=resInGroup(g.id); const val=gVal(g.id);
+    return `<div class="gcard" data-group="${g.id}">
+      <div class="top"><div class="gname">${esc(g.name)}</div><span class="kindbadge k-${g.kind}">${g.kind}</span></div>
+      <div class="envrow">${envHtml(list)}</div>
+      <div class="bigmetric"><span class="n">${metric==='cost'?money(val):val}</span><span class="u">${metric==='cost'?'/mo':'resources'}</span></div>
+      <div class="spark">${sparkline(i+3)}</div>
+      <div class="foot"><span>${metric==='cost'?list.length+' resources':money(gCost(g.id))+'/mo'}</span><span class="mom up">▲ ${3+i}%</span></div>
+    </div>`;}).join('');
+  const specials=[['unassigned','⚠ Unassigned','no rule matched'],['unnamed','✎ Unnamed','missing a Name tag'],['orphaned','◌ Orphaned','no metadata']].map(([st,title,sub])=>{
+    const list=bucket(st); const val=bVal(list);
+    return `<div class="gcard special ${st}" data-bucket="${st}">
+      <div class="top"><div class="gname" style="font-size:15px">${title}</div></div>
+      <div style="font-size:12px;color:var(--muted)">${sub}</div>
+      <div class="bigmetric"><span class="n">${metric==='cost'?money(val):val}</span><span class="u">${metric==='cost'?'/mo':'resources'}</span></div>
+      <button class="btn ghost-indigo sm assignbtn" data-bucket="${st}">Open &amp; assign →</button>
+    </div>`;}).join('');
+  document.getElementById('iter-cards').innerHTML=`<div class="cardgrid">${groupCards}${specials}</div>`;
+}
+/* ---------- iteration B: treemap ---------- */
+function renderTreemap(){
+  const items=GROUPS.map(g=>({name:g.name,sub:g.kind,val:gVal(g.id),hue:KHUE[g.kind],id:g.id,special:false}))
+    .concat([['unassigned','Unassigned'],['unnamed','Unnamed'],['orphaned','Orphaned']].map(([st,nm])=>({name:nm,sub:'bucket',val:bVal(bucket(st)),hue:'#fff',id:st,special:true})))
+    .filter(t=>t.val>0).sort((a,b)=>b.val-a.val);
+  const max=Math.max(...items.map(t=>t.val),1);
+  document.getElementById('iter-treemap').innerHTML=`<div class="treemap">${items.map(t=>{
+    const w=Math.max(150,Math.round(t.val/max*520));
+    return `<div class="tm ${t.special?'special-tm':''}" style="flex:1 1 ${w}px;${t.special?'':'background:'+t.hue}" ${t.special?`data-bucket="${t.id}"`:`data-group="${t.id}"`}>
+      <div><div class="tmn">${esc(t.name)}</div><div class="tmsub">${esc(t.sub)}</div></div>
+      <div class="tmv">${metric==='cost'?moneyK(t.val):t.val}</div></div>`;}).join('')}</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:10px;">Sized by ${metric==='cost'?'monthly cost':'resource count'} · click a tile to open its group. Dashed tiles are unsorted buckets.</div>`;
+}
+function renderLanding(){ renderTiles(); if(iteration==='cards'){renderCards();document.getElementById('iter-cards').style.display='';document.getElementById('iter-treemap').style.display='none';} else {renderTreemap();document.getElementById('iter-treemap').style.display='';document.getElementById('iter-cards').style.display='none';} }
+
+/* ---------- group details ---------- */
+function renderGroup(gid){
+  const g=gById(gid); if(!g){show('landing');return;} curGroup=gid;
+  const list=resInGroup(gid); const total=gCost(gid);
+  const byType={},byAcct={},byEnv={}; list.forEach(r=>{byType[r.type]=(byType[r.type]||0)+r.cost;byAcct[r.account]=(byAcct[r.account]||0)+r.cost;const e=r.env==='prod'?'prod':(r.env==='unknown'?'other':'non-prod');byEnv[e]=(byEnv[e]||0)+r.cost;});
+  const topTypes=Object.entries(byType).sort((a,b)=>b[1]-a[1]);
+  const donutColors=['#6366f1','#7c3aed','#2563eb','#0d9488','#b45309','#9aa1af'];
+  let acc=0; const stops=topTypes.slice(0,5).map((t,i)=>{const from=acc/total*100;acc+=t[1];const to=acc/total*100;return `${donutColors[i]} ${from}% ${to}%`;}); if(acc<total)stops.push(`#e5e7eb ${acc/total*100}% 100%`);
+  const legend=topTypes.slice(0,5).map((t,i)=>`<div class="li"><span class="sw" style="background:${donutColors[i]}"></span>${t[0]}<span class="lc">${money(t[1])}</span></div>`).join('');
+  const maxAcct=Math.max(...Object.values(byAcct),1);
+  const acctBars=Object.entries(byAcct).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="barrow"><span class="bn">${esc(k)}</span><span class="bt"><i style="width:${v/maxAcct*100}%;background:var(--indigo)"></i></span><span class="bc">${money(v)}</span></div>`).join('');
+  const maxEnv=Math.max(...Object.values(byEnv),1);
+  const envBars=Object.entries(byEnv).map(([k,v])=>`<div class="barrow"><span class="bn">${k}</span><span class="bt"><i style="width:${v/maxEnv*100}%;background:${k==='prod'?'var(--red)':'var(--blue)'}"></i></span><span class="bc">${money(v)}</span></div>`).join('');
+  const series=trendSeries(total,gid.length+5); const maxS=Math.max(...series); const pts=series.map((v,i)=>`${i/(series.length-1)*100},${40-v/maxS*36}`).join(' ');
+  const topRes=list.slice().sort((a,b)=>b.cost-a.cost).slice(0,8).map(r=>`<tr><td><span class="rowlink" data-res="${r.id}">${esc(r.name)}</span></td><td><span class="type-chip">${r.type}</span></td><td>${esc(r.account)}</td><td class="num">${money(r.cost)}</td><td><button class="btn sm" data-move="${r.id}">Move</button></td></tr>`).join('');
+  const subgs=g.subgroups.length?g.subgroups.map(s=>`<div class="subg"><div style="flex:1"><div class="sn">${esc(s.name)}</div><div class="sm2">${esc(s.rule)} · ${s.count} resources</div></div><div style="font-weight:700">${money(s.cost)}</div></div>`).join(''):'<div style="font-size:12.5px;color:var(--muted)">No sub-groups yet.</div>';
+  // subgroup recommendations by 2nd name token
+  const tok={}; list.forEach(r=>{const p=r.name.split('-');if(p.length>1)tok[p[1]]=(tok[p[1]]||0)+1;});
+  const recs=Object.entries(tok).filter(([k,v])=>v>=2&&k.length>1).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([t,v])=>`<div class="rec"><span>Split out <b>${esc(list[0].name.split('-')[0])}-${esc(t)}-*</b> — ${v} resources</span><button class="btn sm" data-sub="${gid}" data-tok="${esc(t)}">Create sub-group</button></div>`).join('')||'';
+  const aiItems=[
+    `<b>${topTypes[0]?topTypes[0][0]:'—'}</b> is ${topTypes[0]?Math.round(topTypes[0][1]/total*100):0}% of this group's cost (${topTypes[0]?money(topTypes[0][1]):'$0'}/mo).`,
+    `Cost is up <b>▲ 8% MoM</b>, driven by new ${topTypes[0]?topTypes[0][0]:''} resources in ${Object.keys(byAcct)[0]||'—'}.`,
+    `${list.filter(r=>r.env!=='prod').length} resources are non-prod — <b>${money(list.filter(r=>r.env!=='prod').reduce((s,r)=>s+r.cost,0))}/mo</b> could be scheduled off out of hours.`,
+  ].map(t=>`<div class="ai-item">✦ ${t}</div>`).join('');
+  document.getElementById('v-group').innerHTML=`
+    <span class="back" data-action="toLanding">← all groups</span>
+    <div class="gd-head"><div><h1>${esc(g.name)} <span class="kindbadge k-${g.kind}" style="vertical-align:middle">${g.kind}</span></h1><div class="envrow" style="margin-top:6px">${envHtml(list)}</div></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-action="openAI">✦ AI insights</button><button class="btn">⤓ Download report</button><button class="btn">Edit rules</button></div></div>
+    <div class="kpis" style="margin-bottom:16px">
+      <div class="kpi"><div class="k">Total cost / mo</div><div class="v">${money(total)}</div></div>
+      <div class="kpi"><div class="k">Resources</div><div class="v">${list.length}</div></div>
+      <div class="kpi"><div class="k">Avg / resource</div><div class="v">${money(total/Math.max(list.length,1))}</div></div>
+      <div class="kpi"><div class="k">MoM change</div><div class="v up">▲ 8%</div></div>
+    </div>
+    <div class="gd-grid">
+      <div>
+        <div class="card"><div class="card-h">Cost trend · 6 months</div><svg viewBox="0 0 100 42" preserveAspectRatio="none" style="width:100%;height:120px"><polyline points="${pts}" fill="none" stroke="var(--indigo)" stroke-width="1.5"/><polyline points="0,42 ${pts} 100,42" fill="rgba(99,102,241,.12)" stroke="none"/></svg></div>
+        <div class="viz2">
+          <div class="card"><div class="card-h">Cost by service</div><div class="donut-wrap"><div class="donut" style="background:conic-gradient(${stops.join(',')})"><div class="donut-hole"><div><div style="font-weight:800">${moneyK(total)}</div><div style="font-size:10px;color:var(--muted)">total</div></div></div></div><div class="legend">${legend}</div></div></div>
+          <div class="card"><div class="card-h">Cost by account</div><div class="bars">${acctBars}</div><div class="card-h" style="margin-top:14px">Cost by environment</div><div class="bars">${envBars}</div></div>
+        </div>
+        <div class="card"><div class="card-h">Top resources by cost</div><table><thead><tr><th>Resource</th><th>Type</th><th>Account</th><th class="num">Cost/mo</th><th></th></tr></thead><tbody>${topRes}</tbody></table></div>
+        <div class="card"><div class="card-h">Sub-groups <button class="btn sm" data-sub-open="${gid}">+ Create sub-group</button></div>${recs}${subgs}</div>
+      </div>
+      <div class="ai-rail">
+        <div class="card"><div class="card-h">✦ AI insights</div>${aiItems}</div>
+        <div class="card"><div class="card-h">How this group was formed</div><p style="font-size:12.5px;color:#4b4f66;margin:0 0 8px">${esc(g.why)}</p>${g.strategies.map(s=>`<span class="type-chip" style="margin:2px">${s}</span>`).join('')}</div>
+        <div class="card"><div class="card-h">Rule</div><div style="font-family:var(--mono);font-size:11.5px;color:var(--muted)">name ${g.cond[0].op==='sw'?'starts with':'contains'} “${esc(g.cond[0].v)}”</div></div>
+      </div>
+    </div>`;
+  show('group');
+}
+
+/* ---------- resource 360 ---------- */
+function renderResource(rid){
+  const r=byId(rid); if(!r){show('landing');return;} curRes=rid;
+  const a=assignFor(r); const gname=a.status==='assigned'?gById(a.g).name:a.status;
+  let top=r,chain=[],guard=0; while(top.parent&&guard++<10){chain.unshift(byId(top.parent));top=byId(top.parent);}
+  const children=RESOURCES.filter(x=>x.parent===r.id);
+  const links=(r.links||[]).map(byId).filter(Boolean);
+  let tree=chain.map((p,i)=>`<div class="tree-row" style="margin-left:${i*16}px"><span class="dot"></span><span class="rowlink" data-res="${p.id}">${esc(p.name)}</span> <span class="type-chip">${p.type}</span> <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">parent</span></div>`).join('');
+  tree+=`<div class="tree-row" style="margin-left:${chain.length*16}px"><span class="dot" style="background:var(--amber)"></span><b>${esc(r.name)}</b> <span class="type-chip">${r.type}</span> <span style="font-family:var(--mono);font-size:10px;color:var(--amber)">this</span></div>`;
+  tree+=children.map(c=>`<div class="tree-row" style="margin-left:${(chain.length+1)*16}px"><span class="dot child"></span><span class="rowlink" data-res="${c.id}">${esc(c.name)}</span> <span class="type-chip">${c.type}</span> <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">child</span></div>`).join('');
+  if(!chain.length&&!children.length)tree+='<div style="font-size:12px;color:var(--muted);margin-top:6px">Standalone — no parent or children.</div>';
+  const linkRows=links.length?links.map(x=>`<div class="linkitem"><span class="dot ${x.parent===r.id?'child':''}"></span><span class="rowlink" data-res="${x.id}">${esc(x.name)}</span><span class="type-chip">${x.type}</span><span class="lr">${x.parent===r.id?'child':(r.parent===x.id?'parent':'linked')}</span></div>`).join(''):'<div style="font-size:12px;color:var(--muted)">No linked resources.</div>';
+  const tagRows=Object.keys(r.tags).length?Object.entries(r.tags).map(([k,v])=>`<span class="k">${k}</span><span><span class="tag">${v}</span></span>`).join(''):`<span class="k">tags</span><span style="color:var(--amber)">none</span>`;
+  document.getElementById('v-resource').innerHTML=`
+    <span class="back" data-action="toGroupOrLanding">← back</span>
+    <div class="gd-head"><div><h1>${esc(r.name)}</h1><div style="font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:4px">${r.type} · ${esc(r.account)} · ${esc(r.vpc)} · in <b>${esc(gname)}</b></div></div>
+      <div style="display:flex;gap:10px"><button class="btn" data-move="${r.id}">Move to group</button><button class="btn">⤓ Download report</button></div></div>
+    <div class="gd-grid"><div>
+      <div class="card"><div class="card-h">Cost insights</div>
+        <div class="bigmetric" style="margin-bottom:10px"><span class="n">${money(r.cost)}</span><span class="u">/ month · ${money(r.cost*12)}/yr</span></div>
+        <div class="spark">${sparkline(r.id.length+6)}</div>
+        <div class="kv" style="margin-top:12px"><span class="k">Forecast</span><span>~${money(r.cost*1.08)} next mo</span><span class="k">Share of group</span><span>${a.status==='assigned'?Math.round(r.cost/Math.max(gCost(a.g),1)*100)+'% of '+esc(gname):'—'}</span><span class="k">Breakdown</span><span>compute ${money(r.cost*0.8)} · storage ${money(r.cost*0.15)} · transfer ${money(r.cost*0.05)}</span></div></div>
+      <div class="card"><div class="card-h">Hierarchy — parent → this → children</div>${tree}</div>
+    </div><div>
+      <div class="card"><div class="card-h">Tags &amp; metadata</div><div class="kv"><span class="k">Owner</span><span>${esc(r.owner)}</span><span class="k">Team</span><span>${esc(r.team)}</span><span class="k">Environment</span><span>${esc(r.env)}</span>${tagRows}</div></div>
+      <div class="card"><div class="card-h">Linked &amp; shared <span style="font-family:var(--mono);color:var(--muted)">${links.length}</span></div>${linkRows}</div>
+    </div></div>`;
+  show('resource');
+}
+
+/* ---------- assign drawer ---------- */
+function openAssign(st){
+  const titles={unassigned:'⚠ Unassigned',unnamed:'✎ Unnamed',orphaned:'◌ Orphaned'};
+  const list=bucket(st);
+  const rows=list.map(r=>`<label class="arow"><input type="checkbox" class="asel" value="${r.id}"><span style="flex:1"><b>${esc(r.name)}</b> <span class="type-chip">${r.type}</span></span><span style="font-family:var(--mono);font-size:11px;color:var(--muted)">${money(r.cost)}/mo · ${esc(r.account)}</span></label>`).join('')||'<div style="font-size:12.5px;color:var(--muted)">Empty 🎉</div>';
+  document.getElementById('drawer').innerHTML=`
+    <div class="dh"><b>${titles[st]} — assign resources</b><span class="x" data-action="closeDrawer">✕</span></div>
+    <div class="dbody"><p style="font-size:12.5px;color:var(--muted);margin:0 0 12px">Select resources and assign them to a group. This pins them (a manual override); optionally turn it into a rule later.</p>
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center"><span style="font-size:12px;color:var(--muted)">Assign to</span><select id="assign-target">${GROUPS.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select></div>
+      ${rows}</div>
+    <div class="dfoot"><button class="btn" data-action="closeDrawer">Cancel</button><button class="btn primary" data-action="applyAssign" data-st="${st}">Assign selected</button></div>`;
+  document.getElementById('drawer').classList.add('open'); document.getElementById('drawer-bg').classList.add('open');
+}
+function applyAssign(){
+  const gid=document.getElementById('assign-target').value;
+  const sel=[...document.querySelectorAll('.asel:checked')].map(c=>c.value);
+  if(!sel.length){toast('Select at least one resource');return;}
+  sel.forEach(id=>overrides[id]=gid);
+  closeDrawer(); renderLanding(); toast(`${sel.length} resource${sel.length>1?'s':''} assigned to ${gById(gid).name}`);
+}
+const closeDrawer=()=>{document.getElementById('drawer').classList.remove('open');document.getElementById('drawer-bg').classList.remove('open');};
+
+/* ---------- move modal ---------- */
+function openMove(rid){
+  const r=byId(rid); const cur=assignFor(r);
+  document.getElementById('modal').innerHTML=`<h3>Move “${esc(r.name)}”</h3>
+    <div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Currently: ${cur.status==='assigned'?esc(gById(cur.g).name):cur.status}</div>
+    <label style="font-size:12px;color:var(--muted)">Move to group</label>
+    <select id="move-target" style="margin:6px 0 14px">${GROUPS.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select>
+    <div style="display:flex;justify-content:flex-end;gap:10px"><button class="btn" data-action="closeModal">Cancel</button><button class="btn primary" data-action="applyMove" data-res="${rid}">Move</button></div>`;
+  document.getElementById('modal-bg').classList.add('open');
+}
+function applyMove(rid){const gid=document.getElementById('move-target').value;overrides[rid]=gid;document.getElementById('modal-bg').classList.remove('open');if(view==='group')renderGroup(curGroup);else if(view==='resource')renderResource(rid);toast('Moved to '+gById(gid).name);}
+
+/* ---------- subgroups ---------- */
+function makeSub(gid,tok){const g=gById(gid);const list=resInGroup(gid).filter(r=>r.name.split('-')[1]===tok);g.subgroups.push({name:g.name+' · '+tok,rule:`name contains “${tok}”`,count:list.length,cost:bCost(list)});renderGroup(gid);toast('Sub-group created');}
+
+/* ---------- router ---------- */
+function show(v){view=v;document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');document.querySelector('.main').scrollTop=0;window.scrollTo(0,0);}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const it=e.target.closest('#iter-seg button'); if(it&&!it.title){iteration=it.dataset.iter;document.querySelectorAll('#iter-seg button').forEach(b=>b.classList.remove('on'));it.classList.add('on');renderLanding();return;}
+  const mt=e.target.closest('#metric-seg button'); if(mt){metric=mt.dataset.metric;document.querySelectorAll('#metric-seg button').forEach(b=>b.classList.remove('on'));mt.classList.add('on');renderLanding();return;}
+  const gb=e.target.closest('[data-group]'); if(gb){renderGroup(gb.dataset.group);return;}
+  const bk=e.target.closest('[data-bucket]'); if(bk){openAssign(bk.dataset.bucket);return;}
+  const rs=e.target.closest('[data-res]'); if(rs){renderResource(rs.dataset.res);return;}
+  const mv=e.target.closest('[data-move]'); if(mv){openMove(mv.dataset.move);return;}
+  const sub=e.target.closest('[data-sub]'); if(sub){makeSub(sub.dataset.sub,sub.dataset.tok);return;}
+  const subo=e.target.closest('[data-sub-open]'); if(subo){toast('Pick a suggested split, or use AI to define one');return;}
+  const t=e.target.closest('[data-action]'); if(!t)return;
+  switch(t.dataset.action){
+    case 'toLanding': show('landing'); renderLanding(); break;
+    case 'toGroupOrLanding': if(curGroup)renderGroup(curGroup); else show('landing'); break;
+    case 'openAI': toast('AI assistant — wired in the full build'); break;
+    case 'closeDrawer': closeDrawer(); break;
+    case 'applyAssign': applyAssign(); break;
+    case 'closeModal': document.getElementById('modal-bg').classList.remove('open'); break;
+    case 'applyMove': applyMove(t.dataset.res); break;
+  }
+});
+
+renderLanding();
+</script>
+</body>
+</html>
