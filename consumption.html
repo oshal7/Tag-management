@@ -154,43 +154,60 @@
 /* ---------- engine + cost ---------- */
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 const rng=mulberry32(11); const rint=(a,b)=>Math.floor(rng()*(b-a+1))+a;
-const ACCOUNTS=['payments-prod','marketing-prod','shared-dev','data-eng-prod'],VPCS=['vpc-0aa111','vpc-0bb222','vpc-0cc333','vpc-0dd444'],OWNERS=['jsmith','arao','mchen','tolawale','pgarcia'],TEAMS=['Payments','Checkout','Marketing','Core-Platform','Data-Eng'];
-const COST={EC2:[220,1400],RDS:[600,3200],Redshift:[1800,5200],ElastiCache:[180,900],Lambda:[15,240],S3:[25,520],DynamoDB:[40,600],SNS:[4,45],Cognito:[15,120],SecurityGroup:[0,0],EBS:[20,180],ENI:[2,15]};
-const TEMPLATES=[['pay-checkout-svc','EC2'],['pay-checkout-svc','SecurityGroup'],['pay-api-gw','Lambda'],['pay-ledger-db','RDS'],['pay-events','SNS'],['pay-audit-logs','S3'],['chk-cart-lambda','Lambda'],['chk-cart-cache','ElastiCache'],['chk-session-store','DynamoDB'],['chk-web-frontend','EC2'],['chk-assets','S3'],['mkt-campaign-assets','S3'],['mkt-analytics-db','RDS'],['mkt-email-worker','Lambda'],['mkt-cdn-origin','S3'],['mkt-crm-sync','Lambda'],['core-auth-svc','EC2'],['core-auth-sg','SecurityGroup'],['core-idp','Cognito'],['core-shared-vpc-nat','EC2'],['core-config-store','S3'],['core-audit-trail','S3'],['data-lake-raw','S3'],['data-lake-curated','S3'],['data-etl-job','Lambda'],['data-warehouse','Redshift'],['search-index','EC2'],['search-api','Lambda']];
-const ENVS=['prod','dev','staging']; const TYPE_ICON={EC2:'🖥',S3:'🪣',RDS:'🗄',Lambda:'ƛ',SecurityGroup:'🛡',DynamoDB:'⬡',ElastiCache:'⚡',SNS:'📣',Cognito:'👤',Redshift:'🔺',EBS:'💽',ENI:'🔌'};
-const TYPE_VALUES=Object.keys(COST);
-const costFor=t=>{const c=COST[t]||[20,200];return rint(c[0],c[1]);};
-const RESOURCES=[]; let n=1;
-TEMPLATES.forEach((t,i)=>ENVS.forEach((env,ei)=>{ if(ei===2&&i%3!==0)return; const team=TEAMS[Math.floor(i/(TEMPLATES.length/TEAMS.length))]||TEAMS[i%TEAMS.length]; RESOURCES.push({id:'r'+n,name:`${t[0]}-${env}-${String(n).padStart(2,'0')}`,app:t[0],type:t[1],account:ACCOUNTS[i%4],vpc:VPCS[i%4],owner:OWNERS[(i+ei)%5],team,env,cost:costFor(t[1]),cluster:t[0]+'|'+env,parent:null,links:[],tags:{Env:env,Team:team,Owner:OWNERS[(i+ei)%5]}}); n++; }));
-// unnamed (generic ids, has account, no tags) + orphaned (no account)
-[['i-0a91f','EC2','shared-dev'],['vol-0f2e','EBS','payments-prod'],['eni-04b7','ENI','shared-dev'],['i-07c3d','EC2','marketing-prod']].forEach(o=>{RESOURCES.push({id:'r'+n,name:o[0],app:'(none)',type:o[1],account:o[2],vpc:VPCS[rint(0,3)],owner:'—',team:'—',env:'unknown',cost:costFor(o[1]),cluster:'x'+n,parent:null,links:[],tags:{},unnamed:true});n++;});
-[['orphan-vol-9c04','EBS'],['orphan-eni-0aa2','ENI']].forEach(o=>{RESOURCES.push({id:'r'+n,name:o[0],app:'(none)',type:o[1],account:'—',vpc:'—',owner:'—',team:'—',env:'unknown',cost:costFor(o[1]),cluster:'y'+n,parent:null,links:[],tags:{},orphaned:true});n++;});
-// wire cluster parent/links
-const byC={}; RESOURCES.forEach(r=>{(byC[r.cluster]=byC[r.cluster]||[]).push(r);});
-Object.values(byC).forEach(list=>{if(list.length<2)return;const prio={EC2:4,RDS:3,Redshift:3,Lambda:2};const parent=list.slice().sort((a,b)=>(prio[b.type]||1)-(prio[a.type]||1))[0];list.forEach(r=>{r.links=list.filter(x=>x.id!==r.id).map(x=>x.id);if(r!==parent)r.parent=parent.id;});});
-const byId=id=>RESOURCES.find(r=>r.id===id);
-
-let GROUPS=[
- {id:'g1',name:'Payments Platform',kind:'Product',cond:[{f:'name',op:'sw',v:'pay-'}],strategies:['Naming convention','Account boundary'],why:'Shared “pay-” prefix + dedicated payments-prod account.',subgroups:[]},
- {id:'g2',name:'Checkout Service',kind:'Product',cond:[{f:'name',op:'sw',v:'chk-'}],strategies:['Naming convention'],why:'Consistent “chk-” prefix.',subgroups:[]},
- {id:'g3',name:'Marketing',kind:'Team',cond:[{f:'name',op:'sw',v:'mkt-'}],strategies:['Naming convention','Creator identity'],why:'“mkt-” prefix + eng-marketing SSO group.',subgroups:[]},
- {id:'g4',name:'Core Platform',kind:'Team',cond:[{f:'name',op:'sw',v:'core-'}],strategies:['Naming convention','Runtime role'],why:'“core-” prefix + core-platform IAM roles.',subgroups:[]},
- {id:'g5',name:'Data Engineering',kind:'Department',cond:[{f:'name',op:'sw',v:'data-'}],strategies:['Naming convention','IaC / Terraform'],why:'“data-” prefix + Terraform default_tags.',subgroups:[]},
+const ACCOUNTS=['payments-prod','marketing-prod','shared-dev','data-eng-prod','core-shared','ml-prod'],VPCS=['vpc-0aa111','vpc-0bb222','vpc-0cc333','vpc-0dd444','vpc-0ee555','vpc-0ff666'],OWNERS=['jsmith','arao','mchen','tolawale','pgarcia','kwright','dsingh','lchen'];
+// ~40 AWS resource types with monthly cost ranges
+const TYPES_COST={EC2:[120,1400],S3:[8,520],EBS:[8,180],ENI:[1,12],SecurityGroup:[0,0],Lambda:[3,240],RDS:[400,3200],Aurora:[500,3600],DynamoDB:[20,600],ElastiCache:[120,900],SNS:[1,40],SQS:[1,35],Cognito:[10,120],Redshift:[1200,5200],ELB:[16,260],ALB:[18,300],NATGateway:[32,120],EKS:[120,1200],ECS:[40,700],EFS:[15,400],CloudFront:[20,900],Route53:[1,15],KMS:[1,8],SecretsManager:[1,6],StepFunctions:[5,160],Kinesis:[30,700],Glue:[20,500],Athena:[5,300],EMR:[150,2500],SageMaker:[80,3000],APIGateway:[8,300],CloudWatch:[3,120],DocumentDB:[250,1800],Neptune:[250,1600],MSK:[150,1500],OpenSearch:[120,1600],Firehose:[15,300],WAF:[4,60],FSx:[60,900],Backup:[5,120]};
+const TYPES=Object.keys(TYPES_COST); const TYPE_VALUES=TYPES;
+const TYPE_ICON={EC2:'🖥',S3:'🪣',RDS:'🗄',Aurora:'🗄',Lambda:'ƛ',SecurityGroup:'🛡',DynamoDB:'⬡',ElastiCache:'⚡',SNS:'📣',SQS:'📥',Cognito:'👤',Redshift:'🔺',ELB:'⚖',ALB:'⚖',NATGateway:'🌐',EKS:'☸',ECS:'📦',EFS:'🗂',CloudFront:'🌎',EBS:'💽',ENI:'🔌',KMS:'🔑',SecretsManager:'🔒'};
+const TYPE_WEIGHTS={EC2:15,S3:16,EBS:13,ENI:10,SecurityGroup:9,Lambda:13,RDS:4,DynamoDB:4,CloudWatch:6,SNS:4,SQS:4,ELB:2,ALB:2,ECS:2,EKS:1};
+const WTYPES=[]; TYPES.forEach(t=>{const w=TYPE_WEIGHTS[t]||1; for(let i=0;i<w;i++)WTYPES.push(t);});
+const pickType=()=>WTYPES[rint(0,WTYPES.length-1)];
+const pickEnv=()=>{const x=rng(); return x<.32?'prod':x<.74?'dev':x<.90?'staging':'qa';};
+const costFor=t=>{const c=TYPES_COST[t]||[20,200];return rint(c[0],c[1]);};
+const GROUP_DEFS=[
+ {id:'g1',name:'Payments Platform',kind:'Product',prefix:'pay-',team:'Payments',accounts:['payments-prod','shared-dev'],apps:['ledger-db','checkout-svc','api-gw','events','audit-logs','settlement','fraud-engine','wallet','payouts','refunds','recon','gateway','tokenizer','statement','dispute','ledger-cache','risk','kyc'],n:3400,strategies:['Naming convention','Account boundary'],why:'Shared “pay-” prefix + dedicated payments-prod account — two signals agree.'},
+ {id:'g2',name:'Checkout Service',kind:'Product',prefix:'chk-',team:'Checkout',accounts:['shared-dev','payments-prod'],apps:['cart','cart-cache','session-store','web-frontend','assets','pricing','promo','tax','inventory','shipping','order-svc','basket','coupon'],n:2600,strategies:['Naming convention'],why:'Consistent “chk-” prefix across checkout resources.'},
+ {id:'g3',name:'Marketing',kind:'Team',prefix:'mkt-',team:'Marketing',accounts:['marketing-prod','shared-dev'],apps:['campaign-assets','analytics-db','email-worker','cdn-origin','crm-sync','segment','ads-api','landing','attribution','events','audience','personalize'],n:2100,strategies:['Naming convention','Creator identity'],why:'“mkt-” prefix + creator SSO group eng-marketing.'},
+ {id:'g4',name:'Core Platform',kind:'Team',prefix:'core-',team:'Core-Platform',accounts:['core-shared','shared-dev','data-eng-prod'],apps:['auth-svc','auth-sg','idp','shared-vpc-nat','config-store','audit-trail','logging','secrets','registry','mesh','gateway','observability','dns','ci','artifact'],n:2300,strategies:['Naming convention','Runtime role'],why:'“core-” prefix + core-platform IAM roles — shared infrastructure.'},
+ {id:'g5',name:'Data Engineering',kind:'Department',prefix:'data-',team:'Data-Eng',accounts:['data-eng-prod','shared-dev'],apps:['lake-raw','lake-curated','etl-job','warehouse','pipeline','stream','feature-store','ml-train','catalog','quality','governance','ingest','export'],n:1800,strategies:['Naming convention','IaC / Terraform'],why:'“data-” prefix + Terraform default_tags.'},
 ];
+const RESOURCES=[]; let n=1; const clusterCtr={};
+function genRow(o){ RESOURCES.push(o); n++; }
+GROUP_DEFS.forEach(gd=>{ for(let k=0;k<gd.n;k++){ const app=gd.apps[rint(0,gd.apps.length-1)]; const env=pickEnv(); const type=pickType(); const owner=OWNERS[rint(0,OWNERS.length-1)]; const account=gd.accounts[rint(0,gd.accounts.length-1)]; const ck=gd.prefix+app+'|'+env; clusterCtr[ck]=(clusterCtr[ck]||0)+1; genRow({id:'r'+n,name:`${gd.prefix}${app}-${env}-${String(n).padStart(5,'0')}`,app:gd.prefix+app,type,account,vpc:VPCS[rint(0,VPCS.length-1)],owner,team:gd.team,env,cost:costFor(type),cluster:ck+'|'+((clusterCtr[ck]-1)>>2),parent:null,links:[],tags:{Env:env,Team:gd.team,Owner:owner}}); } });
+// unassigned (real metadata, no rule match) — search-/ml-/ops-/sandbox-
+const UNAPP=[['search-',['index','api','cache','ranking','ingest','autocomplete']],['ml-',['training','inference','feature','pipeline','registry']],['ops-',['runner','agent','backup','monitor','patch']],['sandbox-',['test','poc','scratch','demo']]];
+for(let k=0;k<1200;k++){ const grp=UNAPP[rint(0,UNAPP.length-1)]; const app=grp[1][rint(0,grp[1].length-1)]; const env=pickEnv(); const type=pickType(); genRow({id:'r'+n,name:`${grp[0]}${app}-${env}-${String(n).padStart(5,'0')}`,app:grp[0]+app,type,account:ACCOUNTS[rint(0,ACCOUNTS.length-1)],vpc:VPCS[rint(0,VPCS.length-1)],owner:OWNERS[rint(0,OWNERS.length-1)],team:'—',env,cost:costFor(type),cluster:grp[0]+app+'|'+env+'|'+(k>>2),parent:null,links:[],tags:{Env:env}}); }
+// unnamed (generic ids, has account, no tags)
+const GIDPRE=['i-0','vol-0','eni-0','snap-0','ami-0','fs-0']; for(let k=0;k<700;k++){ const type=pickType(); genRow({id:'r'+n,name:GIDPRE[rint(0,GIDPRE.length-1)]+Math.floor(rng()*0xffffff).toString(16).padStart(6,'0'),app:'(none)',type,account:ACCOUNTS[rint(0,ACCOUNTS.length-1)],vpc:rng()<.5?VPCS[rint(0,VPCS.length-1)]:'—',owner:'—',team:'—',env:'unknown',cost:costFor(type),cluster:'u'+n,parent:null,links:[],tags:{},unnamed:true}); }
+// orphaned (no account / metadata)
+for(let k=0;k<300;k++){ const type=pickType(); genRow({id:'r'+n,name:'orphan-'+type.toLowerCase()+'-'+Math.floor(rng()*0xffff).toString(16),app:'(none)',type,account:'—',vpc:'—',owner:'—',team:'—',env:'unknown',cost:costFor(type),cluster:'o'+n,parent:null,links:[],tags:{},orphaned:true}); }
+// wire small clusters (parent/child + links) — skip singletons and huge clusters
+const byC={}; for(const r of RESOURCES){(byC[r.cluster]||(byC[r.cluster]=[])).push(r);}
+const PRIO={EC2:5,RDS:4,Aurora:4,Redshift:4,EKS:4,ECS:3,Lambda:3};
+for(const key in byC){ const list=byC[key]; if(list.length<2||list.length>8) continue; let parent=list[0]; for(const r of list){ if((PRIO[r.type]||1)>(PRIO[parent.type]||1)) parent=r; } for(const r of list){ r.links=list.filter(x=>x!==r).map(x=>x.id); if(r!==parent) r.parent=parent.id; } }
+const _byId=new Map(); for(const r of RESOURCES) _byId.set(r.id,r); const byId=id=>_byId.get(id);
+
+let GROUPS=GROUP_DEFS.map(gd=>({id:gd.id,name:gd.name,kind:gd.kind,cond:[{f:'name',op:'sw',v:gd.prefix}],strategies:gd.strategies,why:gd.why,subgroups:[]}));
 const gById=id=>GROUPS.find(g=>g.id===id);
 const KHUE={Product:'#6366f1',Team:'#2563eb',Department:'#b45309',Feature:'#7c3aed',Customer:'#0d9488'};
 let overrides={};
-function ruleMatch(r,g){ return g.cond.every(c=>{const L=String(r[c.f]??'').toLowerCase(),v=c.v.toLowerCase(); return c.op==='sw'?L.startsWith(v):c.op==='ct'?L.includes(v):L===v;}); }
-function assignFor(r){
-  if(overrides[r.id]) return {status:'assigned',g:overrides[r.id]};
-  if(r.orphaned) return {status:'orphaned'};
-  if(r.unnamed) return {status:'unnamed'};
-  const m=GROUPS.filter(g=>ruleMatch(r,g));
-  if(m.length===0) return {status:'unassigned'};
-  return {status:'assigned',g:m[0].id};
+function ruleMatch(r,g){ return g.cond.length>0 && g.cond.every(c=>{const L=String(r[c.f]??'').toLowerCase(),v=(c.v||'').toLowerCase(); return c.op==='sw'?L.startsWith(v):c.op==='ct'?L.includes(v):L===v;}); }
+// ---- cached assignment (computed once per state; invalidated on mutation) ----
+let _assign=null;
+function invalidateAssign(){ _assign=null; }
+function assignAll(){ if(_assign) return _assign;
+  const A={of:{},groups:{},unassigned:[],unnamed:[],orphaned:[]}; GROUPS.forEach(g=>A.groups[g.id]=[]);
+  for(const r of RESOURCES){ let a;
+    if(overrides[r.id]) a={status:'assigned',g:overrides[r.id]};
+    else if(r.orphaned) a={status:'orphaned'};
+    else if(r.unnamed) a={status:'unnamed'};
+    else { let gid=null; for(const g of GROUPS){ if(ruleMatch(r,g)){gid=g.id;break;} } a=gid?{status:'assigned',g:gid}:{status:'unassigned'}; }
+    A.of[r.id]=a; if(a.status==='assigned'){ (A.groups[a.g]||(A.groups[a.g]=[])).push(r); } else A[a.status].push(r);
+  } _assign=A; return A;
 }
-const resInGroup=gid=>RESOURCES.filter(r=>{const a=assignFor(r);return a.status==='assigned'&&a.g===gid;});
-const bucket=st=>RESOURCES.filter(r=>assignFor(r).status===st);
+const assignFor=r=>assignAll().of[r.id];
+const resInGroup=gid=>assignAll().groups[gid]||[];
+const bucket=st=>assignAll()[st]||[];
 const gCost=gid=>resInGroup(gid).reduce((s,r)=>s+r.cost,0);
 const bCost=list=>list.reduce((s,r)=>s+r.cost,0);
 
@@ -214,9 +231,9 @@ function renderTiles(){
   const mapped=RESOURCES.filter(r=>assignFor(r).status==='assigned').length;
   document.getElementById('tiles').innerHTML=`
     <div class="tile hero"><div class="k">Total non-prod cost</div><div class="v">${money(total)}</div><div class="d up">▲ 6.2% MoM</div></div>
-    <div class="tile hero"><div class="k">Mapped</div><div class="v">${Math.round(mapped/RESOURCES.length*100)}%</div><div class="d">${mapped} of ${RESOURCES.length} resources</div></div>
+    <div class="tile hero"><div class="k">Mapped</div><div class="v">${Math.round(mapped/RESOURCES.length*100)}%</div><div class="d">${mapped.toLocaleString()} of ${RESOURCES.length.toLocaleString()} resources</div></div>
     <div class="tile"><div class="k">Groups</div><div class="v">${GROUPS.length}</div><div class="d">+ 3 buckets to sort</div></div>
-    <div class="tile"><div class="k">Unsorted</div><div class="v" style="color:var(--amber)">${bucket('unassigned').length+bucket('unnamed').length+bucket('orphaned').length}</div><div class="d">unassigned · unnamed · orphaned</div></div>`;
+    <div class="tile"><div class="k">Unsorted</div><div class="v" style="color:var(--amber)">${(bucket('unassigned').length+bucket('unnamed').length+bucket('orphaned').length).toLocaleString()}</div><div class="d">unassigned · unnamed · orphaned</div></div>`;
 }
 /* ---------- iteration A: cards ---------- */
 function renderCards(){
@@ -225,9 +242,9 @@ function renderCards(){
     return `<div class="gcard" data-group="${g.id}">
       <div class="top"><div class="gname">${esc(g.name)}</div><span class="kindbadge k-${g.kind}">${g.kind}</span></div>
       <div class="envrow">${envHtml(list)}</div>
-      <div class="bigmetric"><span class="n">${metric==='cost'?money(val):val}</span><span class="u">${metric==='cost'?'/mo':'resources'}</span></div>
+      <div class="bigmetric"><span class="n">${metric==='cost'?money(val):val.toLocaleString()}</span><span class="u">${metric==='cost'?'/mo':'resources'}</span></div>
       <div class="spark">${sparkline(i+3)}</div>
-      <div class="foot"><span>${metric==='cost'?list.length+' resources':money(gCost(g.id))+'/mo'}</span><span class="mom up">▲ ${3+i}%</span></div>
+      <div class="foot"><span>${metric==='cost'?list.length.toLocaleString()+' resources':money(gCost(g.id))+'/mo'}</span><span class="mom up">▲ ${3+i}%</span></div>
     </div>`;}).join('');
   const specials=[['unassigned','⚠ Unassigned','no rule matched'],['unnamed','✎ Unnamed','missing a Name tag'],['orphaned','◌ Orphaned','no metadata']].map(([st,title,sub])=>{
     const list=bucket(st); const val=bVal(list);
@@ -249,7 +266,7 @@ function renderTreemap(){
     const w=Math.max(150,Math.round(t.val/max*520));
     return `<div class="tm ${t.special?'special-tm':''}" style="flex:1 1 ${w}px;${t.special?'':'background:'+t.hue}" ${t.special?`data-bucket="${t.id}"`:`data-group="${t.id}"`}>
       <div><div class="tmn">${esc(t.name)}</div><div class="tmsub">${esc(t.sub)}</div></div>
-      <div class="tmv">${metric==='cost'?moneyK(t.val):t.val}</div></div>`;}).join('')}</div>
+      <div class="tmv">${metric==='cost'?moneyK(t.val):t.val.toLocaleString()}</div></div>`;}).join('')}</div>
     <div style="font-size:12px;color:var(--muted);margin-top:10px;">Sized by ${metric==='cost'?'monthly cost':'resource count'} · click a tile to open its group. Dashed tiles are unsorted buckets.</div>`;
 }
 function renderLanding(){ renderTiles(); if(iteration==='cards'){renderCards();document.getElementById('iter-cards').style.display='';document.getElementById('iter-treemap').style.display='none';} else {renderTreemap();document.getElementById('iter-treemap').style.display='';document.getElementById('iter-cards').style.display='none';} }
@@ -260,8 +277,10 @@ function bulkBarHtml(count){ return `<div class="bulkbar"><b>${count} selected</
 function groupResFiltered(gid){ return resInGroup(gid).filter(r=>{ if(gFilt.type&&r.type!==gFilt.type)return false; if(gFilt.account&&r.account!==gFilt.account)return false; if(gFilt.env&&(r.env==='prod'?'prod':r.env==='unknown'?'other':'non-prod')!==gFilt.env)return false; if(gFilt.q){const h=[r.name,r.type,r.account,r.owner].join(' ').toLowerCase();if(!h.includes(gFilt.q.toLowerCase()))return false;} return true;}); }
 function groupResPaneHtml(gid){
   const list=groupResFiltered(gid);
-  const rows=list.map(r=>`<tr><td><input type="checkbox" class="gsel" value="${r.id}" ${gSel.has(r.id)?'checked':''}></td><td><span class="rowlink" data-res="${r.id}">${esc(r.name)}</span></td><td><span class="type-chip">${r.type}</span></td><td>${esc(r.account)}</td><td>${r.env}</td><td class="num">${money(r.cost)}</td><td><button class="btn sm" data-move="${r.id}">Move</button></td></tr>`).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:16px">No resources match.</td></tr>';
-  return `<div class="filters"><input class="search" id="gd-q" placeholder="Search resources…" value="${esc(gFilt.q)}" data-gf="q"><select data-gf="type"><option value="">all types</option>${TYPE_VALUES.map(t=>`<option ${gFilt.type===t?'selected':''}>${t}</option>`).join('')}</select><select data-gf="account"><option value="">all accounts</option>${ACCOUNTS.map(a=>`<option ${gFilt.account===a?'selected':''}>${a}</option>`).join('')}</select><select data-gf="env"><option value="">all envs</option>${['prod','non-prod','other'].map(e=>`<option ${gFilt.env===e?'selected':''}>${e}</option>`).join('')}</select><span style="font-size:12px;color:var(--muted)">${list.length} of ${resInGroup(gid).length}</span></div>${gSel.size?bulkBarHtml(gSel.size):''}<div class="card" style="padding:0"><table><thead><tr><th style="width:34px"></th><th>Resource</th><th>Type</th><th>Account</th><th>Env</th><th class="num">Cost/mo</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  const CAP=250; const shown=list.slice(0,CAP);
+  const capNote=list.length>CAP?`<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:12px;font-size:12px">Showing first ${CAP} of ${list.length.toLocaleString()} — refine filters or search to narrow.</td></tr>`:'';
+  const rows=(shown.map(r=>`<tr><td><input type="checkbox" class="gsel" value="${r.id}" ${gSel.has(r.id)?'checked':''}></td><td><span class="rowlink" data-res="${r.id}">${esc(r.name)}</span></td><td><span class="type-chip">${r.type}</span></td><td>${esc(r.account)}</td><td>${r.env}</td><td class="num">${money(r.cost)}</td><td><button class="btn sm" data-move="${r.id}">Move</button></td></tr>`).join('')+capNote)||'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:16px">No resources match.</td></tr>';
+  return `<div class="filters"><input class="search" id="gd-q" placeholder="Search resources…" value="${esc(gFilt.q)}" data-gf="q"><select data-gf="type"><option value="">all types</option>${TYPE_VALUES.map(t=>`<option ${gFilt.type===t?'selected':''}>${t}</option>`).join('')}</select><select data-gf="account"><option value="">all accounts</option>${ACCOUNTS.map(a=>`<option ${gFilt.account===a?'selected':''}>${a}</option>`).join('')}</select><select data-gf="env"><option value="">all envs</option>${['prod','non-prod','other'].map(e=>`<option ${gFilt.env===e?'selected':''}>${e}</option>`).join('')}</select><span style="font-size:12px;color:var(--muted)">${list.length.toLocaleString()} of ${resInGroup(gid).length.toLocaleString()}</span></div>${gSel.size?bulkBarHtml(gSel.size):''}<div class="card" style="padding:0"><table><thead><tr><th style="width:34px"></th><th>Resource</th><th>Type</th><th>Account</th><th>Env</th><th class="num">Cost/mo</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 function renderGroup(gid){
   const g=gById(gid); if(!g){show('landing');return;} curGroup=gid;
@@ -392,8 +411,9 @@ function linkedGraphHtml(r,g){
 /* ---------- assign drawer ---------- */
 function openAssign(st){
   const titles={unassigned:'⚠ Unassigned',unnamed:'✎ Unnamed',orphaned:'◌ Orphaned'};
-  const list=bucket(st);
-  const rows=list.map(r=>`<label class="arow"><input type="checkbox" class="asel" value="${r.id}"><span style="flex:1"><b>${esc(r.name)}</b> <span class="type-chip">${r.type}</span></span><span style="font-family:var(--mono);font-size:11px;color:var(--muted)">${money(r.cost)}/mo · ${esc(r.account)}</span></label>`).join('')||'<div style="font-size:12.5px;color:var(--muted)">Empty 🎉</div>';
+  const list=bucket(st); const CAP=150; const shown=list.slice(0,CAP);
+  const capNote=list.length>CAP?`<div style="font-size:12px;color:var(--muted);padding:8px 2px">Showing first ${CAP} of ${list.length.toLocaleString()}. Assign these, or use Resource Explorer to bulk-filter and map at scale.</div>`:'';
+  const rows=(shown.map(r=>`<label class="arow"><input type="checkbox" class="asel" value="${r.id}"><span style="flex:1"><b>${esc(r.name)}</b> <span class="type-chip">${r.type}</span></span><span style="font-family:var(--mono);font-size:11px;color:var(--muted)">${money(r.cost)}/mo · ${esc(r.account)}</span></label>`).join('')+capNote)||'<div style="font-size:12.5px;color:var(--muted)">Empty 🎉</div>';
   document.getElementById('drawer').innerHTML=`
     <div class="dh"><b>${titles[st]} — assign resources</b><span class="x" data-action="closeDrawer">✕</span></div>
     <div class="dbody"><p style="font-size:12.5px;color:var(--muted);margin:0 0 12px">Select resources and assign them to a group. This pins them (a manual override); optionally turn it into a rule later.</p>
@@ -406,7 +426,7 @@ function applyAssign(){
   const gid=document.getElementById('assign-target').value;
   const sel=[...document.querySelectorAll('.asel:checked')].map(c=>c.value);
   if(!sel.length){toast('Select at least one resource');return;}
-  sel.forEach(id=>overrides[id]=gid);
+  sel.forEach(id=>overrides[id]=gid); invalidateAssign();
   closeDrawer(); renderLanding(); toast(`${sel.length} resource${sel.length>1?'s':''} assigned to ${gById(gid).name}`);
 }
 const closeDrawer=()=>{document.getElementById('drawer').classList.remove('open');document.getElementById('drawer-bg').classList.remove('open');};
@@ -449,7 +469,7 @@ function applyMove(mode){
   let target=document.getElementById('move-target').value;
   if(target==='__new'){ const nm=(document.getElementById('new-group-name')||{}).value||'New group'; const id='g'+Date.now(); GROUPS.push({id,name:nm.trim()||'New group',kind:'Product',cond:[{f:'name',op:'ct',v:'__pin__'+id}],strategies:['Manual'],why:'Created manually while moving resources.',subgroups:[]}); target=id; }
   const extra = mode==='all'? [...document.querySelectorAll('.sugg-item-cb:checked')].map(c=>c.value) : [];
-  const all=[...new Set([...moveIds,...extra])]; all.forEach(id=>overrides[id]=target);
+  const all=[...new Set([...moveIds,...extra])]; all.forEach(id=>overrides[id]=target); invalidateAssign();
   document.getElementById('modal-bg').classList.remove('open'); document.getElementById('modal').className='modal';
   gSel.clear(); xSel.clear();
   if(view==='group')renderGroup(curGroup); else if(view==='resource')renderResource(curRes); else if(view==='explorer')renderExplorer(); else renderLanding();
@@ -519,8 +539,8 @@ function renderRuleEditor(){
     <div style="display:flex;justify-content:flex-end;gap:10px"><button class="btn" data-action="ruleCancel">Cancel</button><button class="btn primary" data-action="ruleSave">Save rules</button></div>`;
 }
 function reUpdateCount(){ const el=document.getElementById('re-count'); if(el) el.textContent=ruleHits(gById(ruleGid)).length; }
-function ruleSave(){ const g=gById(ruleGid); const nm=(document.getElementById('re-name').value||'').trim(); if(nm)g.name=nm; g.kind=document.getElementById('re-kind').value; document.getElementById('modal-bg').classList.remove('open'); document.getElementById('modal').className='modal'; renderGroup(ruleGid); toast('Rules updated'); }
-function ruleCancel(){ gById(ruleGid).cond=JSON.parse(ruleSnap); document.getElementById('modal-bg').classList.remove('open'); document.getElementById('modal').className='modal'; }
+function ruleSave(){ const g=gById(ruleGid); const nm=(document.getElementById('re-name').value||'').trim(); if(nm)g.name=nm; g.kind=document.getElementById('re-kind').value; invalidateAssign(); document.getElementById('modal-bg').classList.remove('open'); document.getElementById('modal').className='modal'; renderGroup(ruleGid); toast('Rules updated'); }
+function ruleCancel(){ gById(ruleGid).cond=JSON.parse(ruleSnap); invalidateAssign(); document.getElementById('modal-bg').classList.remove('open'); document.getElementById('modal').className='modal'; }
 
 /* ---------- router ---------- */
 function show(v){view=v;document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');document.querySelector('.main').scrollTop=0;window.scrollTo(0,0);}

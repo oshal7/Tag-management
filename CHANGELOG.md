@@ -11,6 +11,15 @@ auto-deploys to GitHub Pages.
 ## Consumption module — `consumption.html`
 Live: https://oshal7.github.io/Tag-management/consumption.html
 
+- **2026-08-03 — Scaled to ~14,400 resources.** The consumption module now runs
+  on a realistic estate: **14,400 placeholder resources** across **40 AWS types**
+  (EC2, RDS, Aurora, Redshift, EKS, Lambda, S3, DynamoDB, EMR, SageMaker, MSK,
+  OpenSearch…) distributed into the five groups (3,400 / 2,600 / 2,100 / 2,300 /
+  1,800) plus **1,200 unassigned · 700 unnamed · 300 orphaned**. Assignment is
+  computed once and cached (invalidated on every move / assign / rule edit), so
+  group pages, buckets, and the explorer stay fast; large lists render capped
+  (250 in a group, 150 in the assign drawer, 400 in the explorer) with a
+  "showing X of N" note so the DOM never chokes on thousands of rows.
 - **2026-08-03 — Rule editor + module stitching.** Edit/add a group's rule
   conditions (field · operator · value, with a live match count) and its
   name/kind from Group details → *Edit rules*, the way onboarding does.
