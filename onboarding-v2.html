@@ -48,6 +48,7 @@
   h1{font-size:24px; margin:0; color:var(--indigo-d);}
   .sub{color:var(--muted); font-size:14px; margin:4px 0 0; max-width:72ch;}
   .head-actions{display:flex; gap:10px;}
+  .navitem.subitem{padding-left:48px; font-size:12.5px;} a.navitem{color:var(--nav-muted); text-decoration:none;}
 
   .btn{font:inherit; font-size:13px; border-radius:9px; padding:9px 15px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--ink); display:inline-flex; align-items:center; gap:7px;}
   .btn:hover{border-color:var(--indigo); color:var(--indigo-d);}
@@ -210,6 +211,9 @@
     <div class="navgroup"><div class="gh"><span class="ic">$</span> FinOps <span class="chev">▾</span></div>
       <div class="navitem"><span class="ic">▤</span> FinOps Dashboard</div><div class="navitem"><span class="ic">↗</span> Cost Optimization</div>
       <div class="navitem active"><span class="ic">🏷</span> Tag Management <span class="newpill">NEW</span></div>
+      <div class="navitem subitem active" style="color:#fff">Onboarding</div>
+      <a class="navitem subitem" href="./consumption.html">Consumption</a>
+      <a class="navitem subitem" href="./consumption.html#explorer">Resource Explorer</a>
       <div class="navitem"><span class="ic">◔</span> Intelligent Showback</div><div class="navitem"><span class="ic">⊟</span> Chargeback</div></div>
     <div class="navgroup"><div class="gh"><span class="ic">🛡</span> Security <span class="chev">▾</span></div>
       <div class="navitem"><span class="ic">◇</span> Security Posture</div><div class="navitem"><span class="ic">◍</span> IAM Exposure</div><div class="navitem"><span class="ic">✓</span> Compliance</div></div>
@@ -222,7 +226,7 @@
       <div class="page-head">
         <div><h1>Tag Management</h1>
           <p class="sub">We analysed your connected AWS resources and grouped them automatically using Compass strategies. Click any group to review and refine its rules — manually or with AI.</p></div>
-        <div class="head-actions"><button class="btn ghost-indigo" data-action="openAI">✦ Ask AI</button><button class="btn primary" data-action="openAI">+ New group</button></div>
+        <div class="head-actions"><button class="btn ghost-indigo" data-action="openAI">✦ Ask AI</button><button class="btn primary" data-action="openAI">+ New group</button><a class="btn" href="./consumption.html" style="text-decoration:none">Consumption →</a></div>
       </div>
 
       <div class="tiles" id="tiles"></div>

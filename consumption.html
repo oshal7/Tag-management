@@ -13,7 +13,7 @@
   .navgroup{padding:8px 12px 2px;} .navgroup>.gh{display:flex;align-items:center;gap:9px;padding:9px 10px;font-weight:600;font-size:13.5px;} .gh .chev{margin-left:auto;opacity:.5;font-size:10px;}
   .navitem{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 34px;color:var(--nav-muted);font-size:13px;border-radius:8px;cursor:pointer;position:relative;} .navitem:hover{color:#fff;background:var(--nav-2);}
   .navitem.active{color:#fff;background:linear-gradient(90deg,rgba(99,102,241,.22),transparent);} .navitem.active::before{content:'';position:absolute;left:14px;top:8px;bottom:8px;width:3px;background:var(--indigo);border-radius:3px;}
-  .subitem{padding-left:48px;font-size:12.5px;} .newpill{margin-left:auto;font-size:9px;background:var(--indigo);color:#fff;padding:1px 6px;border-radius:10px;}
+  .subitem{padding-left:48px;font-size:12.5px;} a.navitem{color:var(--nav-muted);text-decoration:none;} .newpill{margin-left:auto;font-size:9px;background:var(--indigo);color:#fff;padding:1px 6px;border-radius:10px;}
   .profile{margin:16px 14px;padding-top:14px;border-top:1px solid var(--nav-line);display:flex;align-items:center;gap:10px;} .profile .av{width:34px;height:34px;border-radius:50%;background:var(--indigo);display:grid;place-items:center;color:#fff;font-weight:700;} .profile .em{font-size:11px;color:var(--nav-muted);}
   .main{overflow-y:auto;height:100vh;}
   .topbar{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);padding:12px 26px;display:flex;align-items:center;gap:14px;}
@@ -100,7 +100,7 @@
     <div class="navgroup"><div class="gh">☁ Cloud Management <span class="chev">▾</span></div><div class="navitem">Dashboard</div><div class="navitem">Resources Inventory</div><div class="navitem">Heatmap</div></div>
     <div class="navgroup"><div class="gh">$ FinOps <span class="chev">▾</span></div><div class="navitem">FinOps Dashboard</div>
       <div class="navitem active">🏷 Tag Management <span class="newpill">NEW</span></div>
-      <div class="navitem subitem">Onboarding</div><div class="navitem subitem active" style="color:#fff" data-nav="landing">Consumption</div><div class="navitem subitem" data-nav="explorer">Resource Explorer</div>
+      <a class="navitem subitem" href="./onboarding-v2.html">Onboarding</a><div class="navitem subitem active" style="color:#fff" data-nav="landing">Consumption</div><div class="navitem subitem" data-nav="explorer">Resource Explorer</div>
       <div class="navitem">Chargeback</div></div>
     <div class="navgroup"><div class="gh">🛡 Security <span class="chev">▾</span></div><div class="navitem">Security Posture</div><div class="navitem">Compliance</div></div>
     <div class="profile"><div class="av">O</div><div><div style="font-size:13px;font-weight:600;">oshalurade</div><div class="em">oshalurade@gmail.com</div></div></div>
@@ -304,7 +304,7 @@ function renderGroup(gid){
   document.getElementById('v-group').innerHTML=`
     <span class="back" data-action="toLanding">← all groups</span>
     <div class="gd-head"><div><h1>${esc(g.name)} <span class="kindbadge k-${g.kind}" style="vertical-align:middle">${g.kind}</span></h1><div class="envrow" style="margin-top:6px">${envHtml(list)}</div></div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-action="openAI">✦ AI insights</button><button class="btn">⤓ Download report</button><button class="btn">Edit rules</button></div></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-action="openAI">✦ AI insights</button><button class="btn">⤓ Download report</button><button class="btn" data-editrules="${gid}">✎ Edit rules</button></div></div>
     <div class="kpis" style="margin-bottom:16px">
       <div class="kpi"><div class="k">Total cost / mo</div><div class="v">${money(total)}</div></div>
       <div class="kpi"><div class="k">Resources</div><div class="v">${list.length}</div></div>
@@ -492,6 +492,36 @@ function renderExplorer(){
 /* ---------- subgroups ---------- */
 function makeSub(gid,tok){const g=gById(gid);const list=resInGroup(gid).filter(r=>r.name.split('-')[1]===tok);g.subgroups.push({name:g.name+' · '+tok,rule:`name contains “${tok}”`,count:list.length,cost:bCost(list)});renderGroup(gid);toast('Sub-group created');}
 
+/* ---------- rule editor (edit/add group rules, like onboarding) ---------- */
+let ruleGid=null, ruleSnap=null;
+const ruleHits=g=>RESOURCES.filter(r=>ruleMatch(r,g));
+const RE_FIELDS=[['name','Resource name'],['type','Resource type'],['account','Account'],['vpc','VPC'],['owner','Owner / Created by'],['team','Team / Group']];
+const RE_OPS=[['sw','starts with'],['ct','contains'],['eq','equals']];
+function openRuleEditor(gid){ ruleGid=gid; ruleSnap=JSON.stringify(gById(gid).cond); renderRuleEditor(); document.getElementById('modal-bg').classList.add('open'); }
+function reValField(c,i){ const sel=arr=>`<div><label class="f">Value</label><select data-rc="${i}" data-part="v">${arr.map(x=>`<option ${x===c.v?'selected':''}>${x}</option>`).join('')}</select></div>`;
+  if(c.f==='type')return sel(TYPE_VALUES); if(c.f==='account')return sel(ACCOUNTS); if(c.f==='vpc')return sel(VPCS); if(c.f==='team')return sel(TEAMS);
+  return `<div><label class="f">Value</label><input data-rc="${i}" data-part="v" value="${esc(c.v||'')}" placeholder="e.g. pay-"></div>`; }
+function renderRuleEditor(){
+  const g=gById(ruleGid); const m=ruleHits(g);
+  const rows=g.cond.map((c,i)=>`<div class="cond"><div class="cond-grid">
+      <div><label class="f">Field</label><select data-rc="${i}" data-part="f">${RE_FIELDS.map(f=>`<option value="${f[0]}" ${f[0]===c.f?'selected':''}>${f[1]}</option>`).join('')}</select></div>
+      <div><label class="f">Operator</label><select data-rc="${i}" data-part="op">${RE_OPS.map(o=>`<option value="${o[0]}" ${o[0]===c.op?'selected':''}>${o[1]}</option>`).join('')}</select></div>
+      ${reValField(c,i)}
+      <div><label class="f">&nbsp;</label><button class="rmv" data-rrm="${i}">×</button></div>
+    </div></div>${i<g.cond.length-1?'<div style="text-align:center;font-family:var(--mono);font-size:11px;color:var(--indigo-d);margin:2px 0 8px">AND</div>':''}`).join('')||'<div style="font-size:12.5px;color:var(--muted);padding:6px 0">No conditions — add one below.</div>';
+  document.getElementById('modal').className='modal wide';
+  document.getElementById('modal').innerHTML=`<h3>Edit group rules — ${esc(g.name)}</h3>
+    <div style="display:flex;gap:10px;margin-bottom:14px"><div style="flex:1"><label class="f">Group name</label><input id="re-name" value="${esc(g.name)}"></div><div style="width:150px"><label class="f">Kind</label><select id="re-kind">${['Product','Feature','Customer','Team','Department'].map(k=>`<option ${g.kind===k?'selected':''}>${k}</option>`).join('')}</select></div></div>
+    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Conditions · all must match (AND)</div>
+    <div class="mbody">${rows}</div>
+    <div class="addrow" style="display:flex;gap:10px;margin:8px 0 12px"><button class="btn sm" data-radd style="flex:1;border-style:dashed">＋ add condition</button><button class="btn sm" data-rai style="border-style:dashed;border-color:var(--indigo-line);color:var(--indigo-d);background:var(--indigo-soft)">✦ suggest with AI</button></div>
+    <div style="background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:9px;padding:10px 12px;font-family:var(--mono);font-size:13px;margin-bottom:14px"><b id="re-count">${m.length}</b> resources match this rule</div>
+    <div style="display:flex;justify-content:flex-end;gap:10px"><button class="btn" data-action="ruleCancel">Cancel</button><button class="btn primary" data-action="ruleSave">Save rules</button></div>`;
+}
+function reUpdateCount(){ const el=document.getElementById('re-count'); if(el) el.textContent=ruleHits(gById(ruleGid)).length; }
+function ruleSave(){ const g=gById(ruleGid); const nm=(document.getElementById('re-name').value||'').trim(); if(nm)g.name=nm; g.kind=document.getElementById('re-kind').value; document.getElementById('modal-bg').classList.remove('open'); document.getElementById('modal').className='modal'; renderGroup(ruleGid); toast('Rules updated'); }
+function ruleCancel(){ gById(ruleGid).cond=JSON.parse(ruleSnap); document.getElementById('modal-bg').classList.remove('open'); document.getElementById('modal').className='modal'; }
+
 /* ---------- router ---------- */
 function show(v){view=v;document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');document.querySelector('.main').scrollTop=0;window.scrollTo(0,0);}
 
@@ -510,6 +540,10 @@ document.addEventListener('click',e=>{
   const bk=e.target.closest('[data-bucket]'); if(bk){openAssign(bk.dataset.bucket);return;}
   const rs=e.target.closest('[data-res]'); if(rs){renderResource(rs.dataset.res);return;}
   const mv=e.target.closest('[data-move]'); if(mv){openMoveFlow([mv.dataset.move]);return;}
+  const er=e.target.closest('[data-editrules]'); if(er){openRuleEditor(er.dataset.editrules);return;}
+  const radd=e.target.closest('[data-radd]'); if(radd){const g=gById(ruleGid);g.cond.push({f:'name',op:'ct',v:''});renderRuleEditor();return;}
+  const rai=e.target.closest('[data-rai]'); if(rai){const g=gById(ruleGid);g.cond.push({f:'type',op:'eq',v:'RDS'});renderRuleEditor();toast('AI added: type equals RDS');return;}
+  const rrm=e.target.closest('[data-rrm]'); if(rrm){const g=gById(ruleGid);g.cond.splice(+rrm.dataset.rrm,1);renderRuleEditor();return;}
   const sub=e.target.closest('[data-sub]'); if(sub){makeSub(sub.dataset.sub,sub.dataset.tok);return;}
   const subo=e.target.closest('[data-sub-open]'); if(subo){toast('Pick a suggested split, or use AI to define one');return;}
   const t=e.target.closest('[data-action]'); if(!t)return;
@@ -522,12 +556,15 @@ document.addEventListener('click',e=>{
     case 'closeModal': document.getElementById('modal-bg').classList.remove('open'); document.getElementById('modal').className='modal'; break;
     case 'applyMove': applyMove(t.dataset.mode); break;
     case 'clearSel': if(view==='group'){gSel.clear(); document.getElementById('gd-resources').innerHTML=groupResPaneHtml(curGroup);} else {xSel.clear(); updateExplorerBody();} break;
+    case 'ruleSave': ruleSave(); break;
+    case 'ruleCancel': ruleCancel(); break;
   }
 });
 // filters + selections (input + change)
 document.addEventListener('input',e=>{ const el=e.target;
   if(el.dataset.gf!==undefined){ gFilt[el.dataset.gf]=el.value; const pane=document.getElementById('gd-resources'); pane.innerHTML=groupResPaneHtml(curGroup); if(el.dataset.gf==='q'){const q=document.getElementById('gd-q'); q.focus(); try{q.setSelectionRange(q.value.length,q.value.length);}catch(_){}} return; }
   if(el.dataset.xf!==undefined){ xFilt[el.dataset.xf]=el.value; updateExplorerBody(); if(el.dataset.xf==='q'){const q=document.getElementById('x-q'); q.focus(); try{q.setSelectionRange(q.value.length,q.value.length);}catch(_){}} return; }
+  if(el.dataset.rc!==undefined && el.tagName==='INPUT'){ gById(ruleGid).cond[+el.dataset.rc][el.dataset.part]=el.value; reUpdateCount(); return; }
 });
 document.addEventListener('change',e=>{ const el=e.target;
   if(el.dataset.gf!==undefined){ gFilt[el.dataset.gf]=el.value; document.getElementById('gd-resources').innerHTML=groupResPaneHtml(curGroup); return; }
@@ -536,9 +573,10 @@ document.addEventListener('change',e=>{ const el=e.target;
   if(el.classList.contains('gsel')){ el.checked?gSel.add(el.value):gSel.delete(el.value); document.getElementById('gd-resources').innerHTML=groupResPaneHtml(curGroup); return; }
   if(el.classList.contains('xsel')){ el.checked?xSel.add(el.value):xSel.delete(el.value); updateExplorerBody(); return; }
   if(el.classList.contains('sugg-all')){ document.querySelectorAll(`.sugg-item-cb[data-cluster="${el.dataset.cluster}"]`).forEach(cb=>cb.checked=el.checked); return; }
+  if(el.dataset.rc!==undefined){ const c=gById(ruleGid).cond[+el.dataset.rc]; const part=el.dataset.part; c[part]=el.value; if(part==='f'){ c.v = c.f==='type'?TYPE_VALUES[0]:c.f==='account'?ACCOUNTS[0]:c.f==='vpc'?VPCS[0]:c.f==='team'?TEAMS[0]:''; c.op=c.f==='name'?'sw':'eq'; } renderRuleEditor(); return; }
 });
 
-renderLanding();
+if(location.hash==='#explorer'){ renderExplorer(); } else { renderLanding(); }
 </script>
 </body>
 </html>
