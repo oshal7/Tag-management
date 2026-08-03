@@ -64,6 +64,10 @@
   .kv{display:grid;grid-template-columns:130px 1fr;gap:6px 10px;font-size:12.5px;} .kv .k{color:var(--muted);font-family:var(--mono);font-size:11px;} .tag{font-size:10px;background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-family:var(--mono);}
   .tree-row{padding:6px 0;font-size:12.5px;display:flex;align-items:center;gap:8px;} .dot{width:8px;height:8px;border-radius:50%;background:var(--indigo);} .dot.child{background:var(--muted);}
   .linkitem{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:7px 0;border-bottom:1px dashed var(--line);} .linkitem:last-child{border-bottom:none;} .lr{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--muted);}
+  /* rollup ladder */
+  .ladder{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;} .lk{border:1px solid var(--line);border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;min-width:108px;background:#fff;} .lk small{font-size:9px;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);font-family:var(--mono);} .lk b{font-size:13.5px;margin-top:1px;} .lk .src{font-size:10px;color:var(--indigo-d);font-family:var(--mono);margin-top:1px;} .lk.cur{border-color:var(--ink);border-width:1.5px;} .sep{align-self:center;color:var(--faint);font-size:15px;}
+  /* mini graph */
+  .lgraph{position:relative;height:300px;border:1px solid var(--line);border-radius:12px;background:var(--bg);overflow:hidden;} .lnode{position:absolute;transform:translate(-50%,-50%);background:#fff;border:1.5px solid var(--indigo);border-radius:9px;padding:6px 9px;font-size:11px;font-family:var(--mono);white-space:nowrap;z-index:2;cursor:pointer;} .lnode.cur{border-color:var(--ink);font-weight:700;} .lnode.shared{border-color:var(--red);border-style:dashed;color:var(--red);}
   /* drawer / modal */
   .drawer-bg{position:fixed;inset:0;background:rgba(15,26,46,.4);z-index:80;opacity:0;pointer-events:none;transition:opacity .2s;} .drawer-bg.open{opacity:1;pointer-events:auto;}
   .drawer{position:fixed;top:0;right:0;height:100%;width:460px;max-width:96vw;background:#fff;z-index:81;transform:translateX(100%);transition:transform .26s cubic-bezier(.2,.7,.2,1);display:flex;flex-direction:column;} .drawer.open{transform:none;}
@@ -289,31 +293,73 @@ function renderGroup(gid){
 /* ---------- resource 360 ---------- */
 function renderResource(rid){
   const r=byId(rid); if(!r){show('landing');return;} curRes=rid;
-  const a=assignFor(r); const gname=a.status==='assigned'?gById(a.g).name:a.status;
+  const a=assignFor(r); const g=a.status==='assigned'?gById(a.g):null; const gname=g?g.name:a.status;
   let top=r,chain=[],guard=0; while(top.parent&&guard++<10){chain.unshift(byId(top.parent));top=byId(top.parent);}
   const children=RESOURCES.filter(x=>x.parent===r.id);
   const links=(r.links||[]).map(byId).filter(Boolean);
+  const shared=links.filter(x=>{const xa=assignFor(x);return xa.status==='assigned'&&(!g||xa.g!==a.g);});
   let tree=chain.map((p,i)=>`<div class="tree-row" style="margin-left:${i*16}px"><span class="dot"></span><span class="rowlink" data-res="${p.id}">${esc(p.name)}</span> <span class="type-chip">${p.type}</span> <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">parent</span></div>`).join('');
   tree+=`<div class="tree-row" style="margin-left:${chain.length*16}px"><span class="dot" style="background:var(--amber)"></span><b>${esc(r.name)}</b> <span class="type-chip">${r.type}</span> <span style="font-family:var(--mono);font-size:10px;color:var(--amber)">this</span></div>`;
   tree+=children.map(c=>`<div class="tree-row" style="margin-left:${(chain.length+1)*16}px"><span class="dot child"></span><span class="rowlink" data-res="${c.id}">${esc(c.name)}</span> <span class="type-chip">${c.type}</span> <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">child</span></div>`).join('');
   if(!chain.length&&!children.length)tree+='<div style="font-size:12px;color:var(--muted);margin-top:6px">Standalone — no parent or children.</div>';
-  const linkRows=links.length?links.map(x=>`<div class="linkitem"><span class="dot ${x.parent===r.id?'child':''}"></span><span class="rowlink" data-res="${x.id}">${esc(x.name)}</span><span class="type-chip">${x.type}</span><span class="lr">${x.parent===r.id?'child':(r.parent===x.id?'parent':'linked')}</span></div>`).join(''):'<div style="font-size:12px;color:var(--muted)">No linked resources.</div>';
+  const ladder=[['Account',r.account==='—'?'—':r.account,'billing',''],['Group',g?g.name:gname,g?('kind: '+g.kind):'unsorted',''],['Application',r.app==='(none)'?'—':r.app,'name prefix',''],['Service',r.type,'resource type',''],['Resource',r.name,'this','cur']];
+  const ladderHtml=ladder.map((l,i)=>`${i?'<span class="sep">›</span>':''}<div class="lk ${l[3]==='cur'?'cur':''}"><small>${l[0]}</small><b>${esc(l[1])}</b><span class="src">${esc(l[2])}</span></div>`).join('');
   const tagRows=Object.keys(r.tags).length?Object.entries(r.tags).map(([k,v])=>`<span class="k">${k}</span><span><span class="tag">${v}</span></span>`).join(''):`<span class="k">tags</span><span style="color:var(--amber)">none</span>`;
   document.getElementById('v-resource').innerHTML=`
     <span class="back" data-action="toGroupOrLanding">← back</span>
-    <div class="gd-head"><div><h1>${esc(r.name)}</h1><div style="font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:4px">${r.type} · ${esc(r.account)} · ${esc(r.vpc)} · in <b>${esc(gname)}</b></div></div>
-      <div style="display:flex;gap:10px"><button class="btn" data-move="${r.id}">Move to group</button><button class="btn">⤓ Download report</button></div></div>
-    <div class="gd-grid"><div>
-      <div class="card"><div class="card-h">Cost insights</div>
-        <div class="bigmetric" style="margin-bottom:10px"><span class="n">${money(r.cost)}</span><span class="u">/ month · ${money(r.cost*12)}/yr</span></div>
-        <div class="spark">${sparkline(r.id.length+6)}</div>
-        <div class="kv" style="margin-top:12px"><span class="k">Forecast</span><span>~${money(r.cost*1.08)} next mo</span><span class="k">Share of group</span><span>${a.status==='assigned'?Math.round(r.cost/Math.max(gCost(a.g),1)*100)+'% of '+esc(gname):'—'}</span><span class="k">Breakdown</span><span>compute ${money(r.cost*0.8)} · storage ${money(r.cost*0.15)} · transfer ${money(r.cost*0.05)}</span></div></div>
-      <div class="card"><div class="card-h">Hierarchy — parent → this → children</div>${tree}</div>
-    </div><div>
-      <div class="card"><div class="card-h">Tags &amp; metadata</div><div class="kv"><span class="k">Owner</span><span>${esc(r.owner)}</span><span class="k">Team</span><span>${esc(r.team)}</span><span class="k">Environment</span><span>${esc(r.env)}</span>${tagRows}</div></div>
-      <div class="card"><div class="card-h">Linked &amp; shared <span style="font-family:var(--mono);color:var(--muted)">${links.length}</span></div>${linkRows}</div>
-    </div></div>`;
+    <div class="gd-head"><div><h1>${esc(r.name)}</h1><div style="font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:4px">${r.type} · ${esc(r.account)} · ${esc(r.vpc)} · in <b>${esc(gname)}</b> · ${money(r.cost)}/mo</div></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-move="${r.id}">Move to group</button><button class="btn">Pin</button><button class="btn">⤓ Download report</button></div></div>
+
+    <div class="card"><div class="card-h">Hierarchy — how this rolls up</div>
+      <div class="ladder">${ladderHtml}</div>
+      <div class="card-h" style="margin:18px 0 8px">Resource tree</div>${tree}</div>
+
+    <div class="gd-grid">
+      <div>
+        <div class="card"><div class="card-h">Cost insights</div>
+          <div class="bigmetric" style="margin-bottom:10px"><span class="n">${money(r.cost)}</span><span class="u">/ month · ${money(r.cost*12)}/yr &nbsp;<span class="mom up">▲ 12% MoM</span></span></div>
+          <div class="spark">${sparkline(r.id.length+6)}</div>
+          <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><span class="tag">compute ${money(r.cost*0.8)}</span><span class="tag">storage ${money(r.cost*0.15)}</span><span class="tag">transfer ${money(r.cost*0.05)}</span></div>
+          <div class="kv"><span class="k">forecast</span><span>~${money(r.cost*1.08)} next mo</span><span class="k">share of group</span><span>${g?Math.round(r.cost/Math.max(gCost(a.g),1)*100)+'% of '+esc(gname):'—'}</span><span class="k">since inception</span><span>${money(r.cost*7)} (7 mo)</span></div>
+          <div style="font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:10px">From CUR line items joined on the attribution.</div></div>
+        <div class="card"><div class="card-h">Tags &amp; metadata</div><div class="kv"><span class="k">Owner</span><span>${esc(r.owner)}</span><span class="k">Team</span><span>${esc(r.team)}</span><span class="k">Environment</span><span>${esc(r.env)}</span>${tagRows}</div></div>
+      </div>
+      <div>
+        <div class="card"><div class="card-h">Linked &amp; shared</div>
+          <div style="font-size:12.5px;color:var(--muted);margin-bottom:8px"><b style="color:var(--ink)">${links.length}</b> linked · <b style="color:${shared.length?'var(--red)':'var(--ink)'}">${shared.length}</b> shared with other groups</div>
+          ${shared.length?`<div class="rec" style="border-color:#f2c0c0;background:var(--red-soft);color:var(--red)">⚠ Shares infrastructure with ${[...new Set(shared.map(x=>gById(assignFor(x).g).name))].map(esc).join(', ')} — cost may be split.</div>`:''}
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn primary sm" data-linked="${r.id}" data-mode="list">Open linked &amp; shared →</button><button class="btn sm" data-linked="${r.id}" data-mode="graph">View in graph ⤢</button></div>
+        </div>
+        <div class="card"><div class="card-h">History</div><ul style="margin:0;padding-left:16px;font-size:12.5px;color:var(--muted);line-height:2"><li><span style="font-family:var(--mono)">Jul 12</span> — tag written by rule</li><li><span style="font-family:var(--mono)">Jul 03</span> — assigned to ${esc(gname)}</li><li><span style="font-family:var(--mono)">Jun 28</span> — first seen · by ${esc(r.owner)}</li></ul></div>
+      </div>
+    </div>`;
   show('resource');
+}
+
+/* ---------- linked & shared side drawer (list / graph) ---------- */
+let linkedRes=null, linkedMode='list';
+function openLinked(rid,mode){ linkedRes=rid; linkedMode=mode||'list'; renderLinkedDrawer(); document.getElementById('drawer').classList.add('open'); document.getElementById('drawer-bg').classList.add('open'); }
+function renderLinkedDrawer(){
+  const r=byId(linkedRes); const a=assignFor(r); const g=a.status==='assigned'?gById(a.g):null;
+  document.getElementById('drawer').innerHTML=`
+    <div class="dh"><b>Linked &amp; shared — ${esc(r.name)}</b><span class="x" data-action="closeDrawer">✕</span></div>
+    <div style="padding:12px 18px 0"><div class="seg" id="linked-seg"><button class="${linkedMode==='list'?'on':''}" data-lmode="list">List</button><button class="${linkedMode==='graph'?'on':''}" data-lmode="graph">⤢ Graph</button></div></div>
+    <div class="dbody">${linkedMode==='list'?linkedListHtml(r,g):linkedGraphHtml(r,g)}</div>`;
+}
+function linkRowFor(x,rel,g){ const xa=assignFor(x); const xg=xa.status==='assigned'?gById(xa.g):null; const shared=xg&&g&&xg.id!==g.id;
+  return `<div class="linkitem"><span class="dot ${rel==='child'?'child':''}"></span><div style="flex:1;min-width:0"><span class="rowlink" data-res="${x.id}" data-action="closeDrawerGo">${esc(x.name)}</span><div style="font-family:var(--mono);font-size:10px;color:var(--muted)">${x.type} · ${money(x.cost)}/mo${xg?' · '+esc(xg.name):''}</div></div><span class="lr" style="color:${shared?'var(--red)':'var(--muted)'}">${rel}${shared?' · shared':''}</span></div>`;
+}
+function neighbors(r){ const parent=r.parent?byId(r.parent):null; const children=RESOURCES.filter(x=>x.parent===r.id); const links=(r.links||[]).map(byId).filter(Boolean);
+  const list=[]; if(parent)list.push({x:parent,rel:'parent'}); children.forEach(c=>list.push({x:c,rel:'child'})); links.filter(x=>x.id!==r.parent&&!children.some(c=>c.id===x.id)).forEach(x=>list.push({x:x,rel:'linked'})); return list; }
+function linkedListHtml(r,g){ const ns=neighbors(r); return ns.length?ns.map(nn=>linkRowFor(nn.x,nn.rel,g)).join(''):'<div style="font-size:12.5px;color:var(--muted)">No linked resources.</div>'; }
+function linkedGraphHtml(r,g){
+  const ns=neighbors(r); const R=32;
+  ns.forEach((nn,i)=>{const ang=(-90+i*(360/Math.max(ns.length,1)))*Math.PI/180; nn.px=50+Math.cos(ang)*R; nn.py=50+Math.sin(ang)*R;});
+  const isShared=x=>{const xa=assignFor(x);return xa.status==='assigned'&&g&&xa.g!==g.id;};
+  const edges=ns.map(nn=>`<line x1="50" y1="50" x2="${nn.px.toFixed(1)}" y2="${nn.py.toFixed(1)}" stroke="${isShared(nn.x)?'#dc2626':'#c3c9d6'}" stroke-width="0.5" ${isShared(nn.x)?'stroke-dasharray="2 1.5"':''}/>`).join('');
+  const nodes=ns.map(nn=>`<div class="lnode ${isShared(nn.x)?'shared':''}" style="left:${nn.px}%;top:${nn.py}%" data-res="${nn.x.id}" data-action="closeDrawerGo" title="${esc(nn.x.name)} · ${nn.rel}">${esc(nn.x.name.length>15?nn.x.name.slice(0,14)+'…':nn.x.name)}</div>`).join('');
+  return `<div class="lgraph"><svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">${edges}</svg><div class="lnode cur" style="left:50%;top:50%">${esc(r.name.length>15?r.name.slice(0,14)+'…':r.name)}</div>${nodes}</div>
+    <div style="font-size:11.5px;color:var(--muted);margin-top:10px">Red dashed edges = shared with another group. Click a node to open its 360.</div>`;
 }
 
 /* ---------- assign drawer ---------- */
@@ -360,6 +406,9 @@ function show(v){view=v;document.querySelectorAll('.view').forEach(x=>x.classLis
 document.addEventListener('click',e=>{
   const it=e.target.closest('#iter-seg button'); if(it&&!it.title){iteration=it.dataset.iter;document.querySelectorAll('#iter-seg button').forEach(b=>b.classList.remove('on'));it.classList.add('on');renderLanding();return;}
   const mt=e.target.closest('#metric-seg button'); if(mt){metric=mt.dataset.metric;document.querySelectorAll('#metric-seg button').forEach(b=>b.classList.remove('on'));mt.classList.add('on');renderLanding();return;}
+  const cg=e.target.closest('[data-action="closeDrawerGo"]'); if(cg){closeDrawer();renderResource(cg.dataset.res);return;}
+  const lk=e.target.closest('[data-linked]'); if(lk){openLinked(lk.dataset.linked,lk.dataset.mode);return;}
+  const lm=e.target.closest('[data-lmode]'); if(lm){linkedMode=lm.dataset.lmode;renderLinkedDrawer();return;}
   const gb=e.target.closest('[data-group]'); if(gb){renderGroup(gb.dataset.group);return;}
   const bk=e.target.closest('[data-bucket]'); if(bk){openAssign(bk.dataset.bucket);return;}
   const rs=e.target.closest('[data-res]'); if(rs){renderResource(rs.dataset.res);return;}
