@@ -48,6 +48,8 @@ Live: https://oshal7.github.io/Tag-management/consumption.html
   lets you resolve the whole cluster in one click — with a Compass recommendation
   toward the stronger ownership rule, a progress bar, and Undo. The old
   per-resource list is preserved under the second tab for granular control.
+  Applied to **both** the main prototype's wizard view (`onboarding-v2.html`)
+  and the standalone `onboarding-wizard.html` so they behave identically.
 - **2026-08-04 — Wizard is now the main prototype; Cards is a page inside it.**
   `onboarding-v2.html` is now a single prototype that opens on the **guided
   Wizard** (Review groups → Resolve conflicts → Map & finish) by default, with
