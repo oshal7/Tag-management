@@ -199,6 +199,27 @@
   .fab{position:fixed; bottom:24px; right:24px; z-index:60; background:var(--indigo); color:#fff; border:none; border-radius:26px; padding:13px 20px; font:inherit; font-size:14px; cursor:pointer; box-shadow:0 8px 24px rgba(79,70,229,.4);}
   .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--nav); color:#fff; padding:12px 20px; border-radius:11px; font-size:13px; z-index:95; opacity:0; transition:.25s; pointer-events:none;}
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  /* ---- wizard view ---- */
+  .wz-stepper{display:flex;align-items:center;margin:0 auto 24px;justify-content:center;flex-wrap:wrap;}
+  .wz-st{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);} .wz-st .d{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-weight:700;background:#fff;}
+  .wz-st.cur .d{background:var(--indigo);border-color:var(--indigo);color:#fff;} .wz-st.done .d{background:var(--green-soft);border-color:var(--green);color:var(--green);} .wz-st.cur{color:var(--ink);font-weight:600;}
+  .wz-join{width:56px;height:2px;background:var(--line);margin:0 10px;}
+  .wz-panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;}
+  .wz-iter{display:none;} .wz-iter.on{display:block;animation:fade .25s ease;} @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .wz-summ{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;} @media(max-width:700px){.wz-summ{grid-template-columns:1fr 1fr;}}
+  .wz-stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;} .wz-stat.hero{background:linear-gradient(180deg,#f3f4ff,#fff);border-color:var(--indigo-line);} .wz-stat .k{font-size:12px;color:var(--muted);} .wz-stat .v{font-size:26px;font-weight:700;margin-top:3px;}
+  .wz-grow{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:16px;} .wz-grow.conf{border-left:4px solid var(--amber);} .wz-grow.rev{border-color:var(--green-soft);background:#fbfefb;}
+  .wz-grow .chk{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;color:transparent;flex:none;} .wz-grow.rev .chk{background:var(--green);border-color:var(--green);color:#fff;}
+  .wz-grow .gi{flex:1;min-width:0;} .wz-grow .gn{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .wz-grow .rule{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:5px;}
+  .wz-grow .cnt{text-align:center;} .wz-grow .cnt .n{font-size:20px;font-weight:700;} .wz-grow .cnt .l{font-size:11px;color:var(--muted);}
+  .wz-navbtns{display:flex;justify-content:space-between;margin-top:24px;align-items:center;gap:10px;}
+  .wz-acceptbar{display:flex;justify-content:flex-end;margin:10px 0 4px;}
+  .wz-conflict{background:var(--amber-soft);border:1px solid #f2d9a8;border-radius:12px;padding:16px;margin-bottom:12px;} .wz-conflict .cn{font-weight:700;font-family:var(--mono);} .wz-opts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .wz-opts .o{font-size:12px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;cursor:pointer;} .wz-opts .o:hover,.wz-opts .o.sel{border-color:var(--indigo);color:var(--indigo-d);background:var(--indigo-soft);}
+  .wz-done{text-align:center;padding:24px;} .wz-done .big{width:70px;height:70px;border-radius:50%;background:var(--green-soft);color:var(--green);display:grid;place-items:center;font-size:34px;margin:0 auto 14px;}
+  .wz-maploader{text-align:center;padding:20px;} .wz-spin{width:40px;height:40px;border:4px solid var(--line);border-top-color:var(--indigo);border-radius:50%;margin:0 auto 12px;animation:spin .9s linear infinite;} @keyframes spin{to{transform:rotate(360deg);}} @media(prefers-reduced-motion:reduce){.wz-spin{animation:none;}}
+  .wz-bigbar{height:20px;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;margin:14px auto 6px;max-width:520px;} .wz-bigbar i{display:block;height:100%;width:0;background:var(--indigo);transition:width .2s linear;}
 </style>
 </head>
 <body>
@@ -211,7 +232,9 @@
     <div class="navgroup"><div class="gh"><span class="ic">$</span> FinOps <span class="chev">▾</span></div>
       <div class="navitem"><span class="ic">▤</span> FinOps Dashboard</div><div class="navitem"><span class="ic">↗</span> Cost Optimization</div>
       <div class="navitem active"><span class="ic">🏷</span> Tag Management <span class="newpill">NEW</span></div>
-      <div class="navitem subitem active" style="color:#fff">Onboarding</div>
+      <div class="navitem subitem" id="nav-onb">Onboarding</div>
+      <div class="navitem subitem active" id="nav-wizard" data-action="setMode" data-mode="wizard" style="color:#fff;padding-left:64px">Wizard flow</div>
+      <div class="navitem subitem" id="nav-cards" data-action="setMode" data-mode="cards" style="padding-left:64px">Cards flow</div>
       <a class="navitem subitem" href="./consumption.html">Consumption</a>
       <a class="navitem subitem" href="./consumption.html#explorer">Resource Explorer</a>
       <div class="navitem"><span class="ic">◔</span> Intelligent Showback</div><div class="navitem"><span class="ic">⊟</span> Chargeback</div></div>
@@ -221,24 +244,57 @@
   </aside>
 
   <div class="main">
-    <div class="topbar"><span class="verchip">onboarding · v2</span><div class="tsearch" style="margin-left:auto;">🔍 Search resources…</div><div class="ib">◇</div><div class="ib">🔔<span class="badge-dot">3</span></div></div>
+    <div class="topbar"><span class="verchip" id="verchip">onboarding · wizard</span><div class="tsearch" style="margin-left:auto;">🔍 Search resources…</div><div class="ib">◇</div><div class="ib">🔔<span class="badge-dot">3</span></div></div>
     <div class="wrap">
-      <div class="page-head">
-        <div><h1>Tag Management</h1>
-          <p class="sub">We analysed your connected AWS resources and grouped them automatically using Compass strategies. Click any group to review and refine its rules — manually or with AI.</p></div>
-        <div class="head-actions"><button class="btn ghost-indigo" data-action="openAI">✦ Ask AI</button><button class="btn primary" data-action="openAI">+ New group</button><a class="btn" href="./consumption.html" style="text-decoration:none">Consumption →</a></div>
+
+      <!-- ============ WIZARD VIEW (default) ============ -->
+      <div id="view-wizard">
+        <div class="page-head">
+          <div><h1>Set up Tag Management</h1>
+            <p class="sub">Review the groups Compass suggested across your 14,400 resources, resolve the overlaps, then initiate mapping — a guided, step-by-step setup.</p></div>
+          <div class="head-actions"><button class="btn ghost-indigo" data-action="openAI">✦ Ask AI</button><a class="btn" href="./consumption.html" style="text-decoration:none">Consumption →</a></div>
+        </div>
+        <div class="wz-stepper" id="wz-stepper"></div>
+
+        <section class="wz-iter on" id="wz-s1">
+          <div class="wz-summ" id="wz-summ"></div>
+          <div class="wz-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><b style="font-size:16px;">Review suggested groups</b><span style="font-size:12px;color:var(--muted);"><span id="wz-revcount">0</span> of <span id="wz-revtotal">6</span> reviewed</span></div>
+            <div id="wz-growlist"></div>
+          </div>
+          <div class="wz-navbtns"><span style="font-size:12px;color:var(--muted);">Review each group, then continue.</span><button class="btn primary" data-action="wzGo" data-step="2">Next: resolve conflicts →</button></div>
+        </section>
+
+        <section class="wz-iter" id="wz-s2">
+          <div class="wz-panel"><b style="font-size:16px;">Resolve conflicts</b>
+            <p style="color:var(--muted);font-size:13px;margin:6px 0 16px;">These resources match rules in more than one group. Choose an owner or mark shared — the rule updates automatically.</p>
+            <div id="wz-conflist"></div></div>
+          <div class="wz-navbtns"><button class="btn" data-action="wzGo" data-step="1">← Back</button><button class="btn primary" data-action="wzGo" data-step="3">Initiate mapping of all groups →</button></div>
+        </section>
+
+        <section class="wz-iter" id="wz-s3"><div class="wz-panel" id="wz-mappanel"></div></section>
       </div>
 
-      <div class="tiles" id="tiles"></div>
+      <!-- ============ CARDS VIEW ============ -->
+      <div id="view-cards" style="display:none">
+        <div class="page-head">
+          <div><h1>Tag Management</h1>
+            <p class="sub">We analysed your connected AWS resources and grouped them automatically using Compass strategies. Click any group to review and refine its rules — manually or with AI.</p></div>
+          <div class="head-actions"><button class="btn ghost-indigo" data-action="openAI">✦ Ask AI</button><button class="btn primary" data-action="openAI">+ New group</button><a class="btn" href="./consumption.html" style="text-decoration:none">Consumption →</a></div>
+        </div>
 
-      <div class="banner" id="banner">
-        <div class="bi">⚠</div>
-        <div><div class="bt"><span id="conf-count">0</span> resources are claimed by more than one group</div><div class="bd">Overlapping rules create conflicts. Resolve each as a shared service or move it to one owner — the rule updates automatically.</div></div>
-        <button class="btn" data-action="openConflict">Resolve conflicts →</button>
+        <div class="tiles" id="tiles"></div>
+
+        <div class="banner" id="banner">
+          <div class="bi">⚠</div>
+          <div><div class="bt"><span id="conf-count">0</span> resources are claimed by more than one group</div><div class="bd">Overlapping rules create conflicts. Resolve each as a shared service or move it to one owner — the rule updates automatically.</div></div>
+          <button class="btn" data-action="openConflict">Resolve conflicts →</button>
+        </div>
+
+        <div class="detail" id="detail"></div>
+        <div id="cards"></div>
       </div>
 
-      <div class="detail" id="detail"></div>
-      <div id="cards"></div>
     </div>
   </div>
 </div>
@@ -430,6 +486,7 @@ function condRow(c,i){
 /* ---------- interactions ---------- */
 function refreshOpen(){ // re-render detail + tiles + list counts without closing
   computeConflicts();
+  if(mode==='wizard'){ const sc=window.scrollY; wzRenderGrows(); window.scrollTo(0,sc); return; }
   document.getElementById('detail').innerHTML=detailHtml(byId(openGroupId));
   renderTiles();
   // update list card counts
@@ -448,7 +505,7 @@ function aiSend(text){ const inp=document.getElementById('ai-input'); text=text|
   else if(t.includes('why')||t.includes('conflict')){ reply=`<b>pay-audit-logs</b> matches two rules: Payments Platform (name starts with “pay-”) and Audit & Compliance (name contains “audit”). Both true → conflict. Resolve it as shared or assign one owner.<button class="btn sm" data-action="openConflict" style="margin-top:8px;">Open resolver</button>`; }
   else reply=`Tell me a <b>name pattern</b>, <b>account</b>, <b>type</b> or <b>team</b> to match, and whether it's a Product / Feature / Customer / Team / Department.`;
   chatLog.push({r:'a',h:reply}); renderChat(); }
-function aiCreateSearch(){ GROUPS.push({id:'g'+Date.now(),name:'Search',kind:'Team',cond:[{field:'name',op:'contains',value:'search'}],connectors:[],strategies:['Naming convention'],why:'Created via AI — resources whose name contains “search”.',confidence:70}); fullRender(); toast('Group “Search” created'); closeAI(); }
+function aiCreateSearch(){ GROUPS.push({id:'g'+Date.now(),name:'Search',kind:'Team',cond:[{field:'name',op:'contains',value:'search'}],connectors:[],strategies:['Naming convention'],why:'Created via AI — resources whose name contains “search”.',confidence:70}); computeConflicts(); if(mode==='wizard') wzRenderGrows(); else fullRender(); toast('Group “Search” created'); closeAI(); }
 function aiAddRDS(){ const g=byId(openGroupId); if(g){ g.cond.push({field:'type',op:'equals',value:'RDS'}); g.connectors.push('OR'); refreshOpen(); toast('Condition added: type = RDS (OR)'); } closeAI(); }
 const openAI=()=>{document.getElementById('drawer').classList.add('open'); document.getElementById('drawer-bg').classList.add('open'); renderChat(); setTimeout(()=>document.getElementById('ai-input').focus(),150);};
 const closeAI=()=>{document.getElementById('drawer').classList.remove('open'); document.getElementById('drawer-bg').classList.remove('open');};
@@ -478,7 +535,13 @@ document.addEventListener('click',e=>{
   switch(A){
     case 'toggleWhy':{const w=document.getElementById('why-'+id); if(w){w.classList.toggle('show'); t.textContent=w.classList.contains('show')?'Hide explanation ▴':'Why these were grouped ▾';} break;}
     case 'openGroup': openGroupId=id; renderCards(); document.getElementById('detail').scrollIntoView({behavior:'smooth',block:'start'}); break;
-    case 'closeGroup': openGroupId=null; renderCards(); break;
+    case 'closeGroup': openGroupId=null; if(mode==='wizard') wzRenderGrows(); else renderCards(); break;
+    case 'setMode': setMode(t.dataset.mode); break;
+    case 'wzReview': openGroupId=(openGroupId===id?null:id); wzRenderGrows(); break;
+    case 'wzAccept': wzReviewed[id]=true; openGroupId=null; wzRenderGrows(); toast('Group marked reviewed'); break;
+    case 'wzGo': wzShow(+t.dataset.step); break;
+    case 'wzResolve': wzResolved[t.dataset.ci]=t.dataset.val; wzRenderConf(); break;
+    case 'wzFinish': setMode('cards'); break;
     case 'rename': break;
     case 'addCondition':{const g=byId(openGroupId); g.cond.push({field:'name',op:'contains',value:''}); if(g.cond.length>1) g.connectors.push('AND'); refreshOpen(); break;}
     case 'removeCondition':{const g=byId(openGroupId),idx=+t.dataset.idx; g.cond.splice(idx,1); if(idx>0)g.connectors.splice(idx-1,1); else if(g.connectors.length)g.connectors.splice(0,1); refreshOpen(); break;}
@@ -505,14 +568,88 @@ document.getElementById('ai-input').addEventListener('keydown',e=>{ if(e.key==='
 function updateCond(el,isSel){ const g=byId(openGroupId); if(!g) return; const i=+el.dataset.cond, part=el.dataset.part, c=g.cond[i]; if(!c) return;
   if(part==='field'){ c.field=el.value; c.op=c.field==='tagValue'?'equals':'startsWith'; c.value=''; c.tagKey='Env'; refreshOpen(); return; }
   c[part]=el.value; if(isSel) refreshOpen(); else { // live-update matched/preview without losing focus
-    computeConflicts(); const d=document.getElementById('detail');
-    const scroll=window.scrollY; d.innerHTML=detailHtml(g); window.scrollTo(0,scroll); renderTiles();
-    const inp=d.querySelector(`[data-cond="${i}"][data-part="${part}"]`); if(inp){inp.focus(); if(inp.setSelectionRange){try{inp.setSelectionRange(inp.value.length,inp.value.length);}catch(_){}}}
+    computeConflicts(); const scroll=window.scrollY;
+    if(mode==='wizard'){ wzRenderGrows(); } else { const d=document.getElementById('detail'); d.innerHTML=detailHtml(g); renderTiles(); }
+    window.scrollTo(0,scroll);
+    const inp=document.querySelector(`#view-${mode==='wizard'?'wizard':'cards'} [data-cond="${i}"][data-part="${part}"]`); if(inp){inp.focus(); if(inp.setSelectionRange){try{inp.setSelectionRange(inp.value.length,inp.value.length);}catch(_){}}}
   }
 }
 
+/* ================= WIZARD VIEW ================= */
+let mode='wizard', wzStep=1, wzReviewed={}, wzResolved={};
+function setMode(m){
+  mode=m;
+  document.getElementById('view-wizard').style.display = m==='wizard'?'':'none';
+  document.getElementById('view-cards').style.display  = m==='cards'?'':'none';
+  document.getElementById('nav-wizard').classList.toggle('active',m==='wizard');
+  document.getElementById('nav-wizard').style.color = m==='wizard'?'#fff':'';
+  document.getElementById('nav-cards').classList.toggle('active',m==='cards');
+  document.getElementById('nav-cards').style.color = m==='cards'?'#fff':'';
+  document.getElementById('verchip').textContent='onboarding · '+m;
+  openGroupId=null;
+  if(m==='cards') fullRender(); else wzBoot();
+  window.scrollTo(0,0);
+}
+function wzRenderTiles(){
+  const covered=RESOURCES.filter(r=>groupsFor(r).length>0).length;
+  const cov=Math.round(covered/RESOURCES.length*100);
+  document.getElementById('wz-summ').innerHTML=`
+    <div class="wz-stat hero"><div class="k">Resources analysed</div><div class="v">${RESOURCES.length.toLocaleString()}</div></div>
+    <div class="wz-stat hero"><div class="k">Coverage</div><div class="v">${cov}%</div></div>
+    <div class="wz-stat"><div class="k">Groups found</div><div class="v">${GROUPS.length}</div></div>
+    <div class="wz-stat"><div class="k">Conflicts</div><div class="v" style="color:var(--amber)">${CONFLICTS.length.toLocaleString()}</div></div>`;
+  document.getElementById('wz-revtotal').textContent=GROUPS.length;
+  document.getElementById('wz-revcount').textContent=Object.keys(wzReviewed).length;
+}
+function wzRenderStepper(){
+  document.getElementById('wz-stepper').innerHTML=[['Review groups'],['Resolve conflicts'],['Map & finish']].map((s,i)=>{
+    const nn=i+1, cls=wzStep===nn?'cur':(wzStep>nn?'done':'');
+    return `<div class="wz-st ${cls}"><div class="d">${wzStep>nn?'✓':nn}</div>${s[0]}</div>${nn<3?'<div class="wz-join"></div>':''}`;
+  }).join('');
+}
+function wzRenderGrows(){
+  document.getElementById('wz-growlist').innerHTML=GROUPS.map(g=>{
+    const conf=matches(g).filter(r=>groupsFor(r).length>1).length;
+    const row=`<div class="wz-grow ${conf?'conf':''} ${wzReviewed[g.id]?'rev':''}">
+      <div class="chk">✓</div>
+      <div class="gi"><div class="gn">${esc(g.name)} <span class="kindbadge k-${g.kind}">${g.kind}</span> ${envHtml(g)} ${conf?'<span style="color:var(--amber);font-size:11.5px;">⚠ '+conf.toLocaleString()+' conflict'+(conf>1?'s':'')+'</span>':''}</div>
+        <div class="rule">${esc(ruleText(g))}</div>
+        <div class="strat">${stratHtml(g.strategies)}</div></div>
+      <div class="cnt"><div class="n">${matches(g).length.toLocaleString()}</div><div class="l">resources</div></div>
+      <button class="btn ${wzReviewed[g.id]?'':'primary'} sm" data-action="wzReview" data-id="${g.id}">${openGroupId===g.id?'Close ▴':(wzReviewed[g.id]?'Reviewed ✓':'Review ▾')}</button>
+    </div>`;
+    return row + (openGroupId===g.id ? `<div class="detail open">${detailHtml(g)}</div><div class="wz-acceptbar"><button class="btn primary" data-action="wzAccept" data-id="${g.id}">✓ Looks good — mark reviewed</button></div>` : '');
+  }).join('');
+  wzRenderTiles();
+}
+function wzRenderConf(){
+  computeConflicts();
+  const list=CONFLICTS.slice(0,60);
+  const note=CONFLICTS.length>60?`<div style="font-size:12px;color:var(--muted);padding:6px 2px 10px">Showing 60 of ${CONFLICTS.length.toLocaleString()} conflicting resources. Resolving the rule for one pattern (e.g. everything matching “audit”) clears the whole cluster at once.</div>`:'';
+  document.getElementById('wz-conflist').innerHTML=note+(list.length?list:[]).map((c,i)=>`<div class="wz-conflict"><div class="cn">${esc(c.res)}</div><div style="font-size:12.5px;color:#7a5a1e;margin-top:3px;">claimed by ${c.groups.join(' & ')}</div><div class="wz-opts">${c.groups.map(g=>`<div class="o ${wzResolved[i]===g?'sel':''}" data-action="wzResolve" data-ci="${i}" data-val="${esc(g)}">→ ${esc(g)}</div>`).join('')}<div class="o ${wzResolved[i]==='shared'?'sel':''}" data-action="wzResolve" data-ci="${i}" data-val="shared">◒ Shared</div></div>${wzResolved[i]?`<div style="font-size:12px;color:var(--indigo-d);margin-top:8px;">✓ ${wzResolved[i]==='shared'?'Marked shared — cost split, no rule change.':'Assigned to '+wzResolved[i]+' — other rule narrowed.'}</div>`:''}</div>`).join('') || '<div style="font-size:13px;color:var(--muted);padding:12px;">No conflicts 🎉</div>';
+}
+function wzRunMapping(){
+  const p=document.getElementById('wz-mappanel');
+  p.innerHTML=`<div class="wz-maploader"><div class="wz-spin"></div><b style="font-size:16px;">Mapping ${RESOURCES.length.toLocaleString()} resources to ${GROUPS.length} groups…</b><div class="wz-bigbar"><i id="wz-mf"></i></div><div style="font-family:var(--mono);font-size:12px;color:var(--muted);" id="wz-mtxt">0%</div></div>`;
+  let v=0; const fill=document.getElementById('wz-mf'), txt=document.getElementById('wz-mtxt');
+  const reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const cov=Math.round(RESOURCES.filter(r=>groupsFor(r).length>0).length/RESOURCES.length*100);
+  const done=()=>{p.innerHTML=`<div class="wz-done"><div class="big">✓</div><h2 style="margin:0 0 6px;">You're all set</h2><p style="color:var(--muted);max-width:56ch;margin:0 auto 18px;">${GROUPS.length} groups are live and mapping <b>${cov}%</b> of your ${RESOURCES.length.toLocaleString()} resources. Compass will keep new resources tagged automatically.</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a class="btn primary" href="./consumption.html" style="text-decoration:none">Go to Consumption dashboard →</a><button class="btn" data-action="wzFinish">Browse groups as cards</button></div></div>`;};
+  if(reduce){done();return;}
+  const t=setInterval(()=>{ v+=Math.random()*10+5; if(v>=100){clearInterval(t); fill.style.width='100%'; txt.textContent='100%'; setTimeout(done,350); return;} fill.style.width=v+'%'; txt.textContent=Math.round(v)+'%'; },150);
+}
+function wzShow(nn){
+  wzStep=nn;
+  document.querySelectorAll('#view-wizard .wz-iter').forEach(s=>s.classList.remove('on'));
+  document.getElementById('wz-s'+nn).classList.add('on');
+  wzRenderStepper(); window.scrollTo(0,0);
+  if(nn===2) wzRenderConf();
+  if(nn===3) wzRunMapping();
+}
+function wzBoot(){ computeConflicts(); wzStep=1; document.querySelectorAll('#view-wizard .wz-iter').forEach(s=>s.classList.remove('on')); document.getElementById('wz-s1').classList.add('on'); wzRenderStepper(); wzRenderGrows(); }
+
 /* boot */
-fullRender();
+computeConflicts(); renderTiles(); renderCards(); setMode('wizard');
 </script>
 </body>
 </html>

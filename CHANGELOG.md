@@ -40,6 +40,15 @@ Live: https://oshal7.github.io/Tag-management/consumption.html
   (trend, cost-by-service donut, cost-by-account/env bars) + AI insights.
 
 ## Onboarding module
+- **2026-08-04 — Wizard is now the main prototype; Cards is a page inside it.**
+  `onboarding-v2.html` is now a single prototype that opens on the **guided
+  Wizard** (Review groups → Resolve conflicts → Map & finish) by default, with
+  the original **Cards** flow moved to a separate in-app page. Switch between
+  them from the sidebar (Onboarding → *Wizard flow* / *Cards flow*) — both share
+  one shell, one 14,400-resource engine, and the same rule-editing plumbing, so
+  editing a rule in the wizard behaves exactly like it does in the cards flow.
+  The wizard's finish step links straight into the Consumption dashboard.
+  Live: https://oshal7.github.io/Tag-management/onboarding-v2.html
 - **2026-08-04 — Scaled to ~14,400 resources (all four approaches).** Every
   onboarding iteration now analyses the same realistic estate as consumption:
   **14,400 resources across 36 AWS types**, with the five system-suggested
