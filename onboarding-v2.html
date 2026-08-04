@@ -267,24 +267,34 @@
 /* ---------- rule engine (real resources) ---------- */
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 const rng=mulberry32(7); const rint=(a,b)=>Math.floor(rng()*(b-a+1))+a;
-const ACCOUNTS=['payments-prod','marketing-prod','shared-dev','data-eng-prod'];
-const VPCS=['vpc-0aa111','vpc-0bb222','vpc-0cc333','vpc-0dd444'];
-const OWNERS=['jsmith','arao','mchen','tolawale','pgarcia'];
+const ACCOUNTS=['payments-prod','marketing-prod','shared-dev','data-eng-prod','core-shared','ml-prod'];
+const VPCS=['vpc-0aa111','vpc-0bb222','vpc-0cc333','vpc-0dd444','vpc-0ee555','vpc-0ff666'];
+const OWNERS=['jsmith','arao','mchen','tolawale','pgarcia','kwright','dsingh','lchen'];
 const TEAMS=['Payments','Checkout','Marketing','Core-Platform','Data-Eng'];
-const TEMPLATES=[['pay-checkout-svc','EC2'],['pay-checkout-svc','SecurityGroup'],['pay-api-gw','Lambda'],['pay-ledger-db','RDS'],['pay-events','SNS'],['pay-audit-logs','S3'],['chk-cart-lambda','Lambda'],['chk-cart-cache','ElastiCache'],['chk-session-store','DynamoDB'],['chk-web-frontend','EC2'],['chk-assets','S3'],['mkt-campaign-assets','S3'],['mkt-analytics-db','RDS'],['mkt-email-worker','Lambda'],['mkt-cdn-origin','S3'],['mkt-crm-sync','Lambda'],['core-auth-svc','EC2'],['core-auth-sg','SecurityGroup'],['core-idp','Cognito'],['core-shared-vpc-nat','EC2'],['core-config-store','S3'],['core-audit-trail','S3'],['data-lake-raw','S3'],['data-lake-curated','S3'],['data-etl-job','Lambda'],['data-warehouse','Redshift'],['search-index','EC2'],['search-api','Lambda'],['search-cache','ElastiCache']];
-const ENVS=['prod','dev','staging'];
+const TYPES_WEIGHT={EC2:15,S3:16,EBS:13,ENI:10,SecurityGroup:9,Lambda:13,RDS:4,Aurora:2,DynamoDB:4,ElastiCache:2,SNS:4,SQS:4,Cognito:1,Redshift:2,ELB:2,ALB:2,NATGateway:2,EKS:1,ECS:2,EFS:2,CloudFront:2,Route53:2,KMS:2,SecretsManager:1,Kinesis:1,Glue:1,Athena:1,SageMaker:1,APIGateway:2,CloudWatch:6,OpenSearch:1,DocumentDB:1,MSK:1,StepFunctions:1,FSx:1,Backup:1};
+const TYPE_VALUES=Object.keys(TYPES_WEIGHT);
+const WTYPES=[]; TYPE_VALUES.forEach(t=>{for(let i=0;i<TYPES_WEIGHT[t];i++)WTYPES.push(t);});
+const pickType=()=>WTYPES[rint(0,WTYPES.length-1)];
+const pickEnv=()=>{const x=rng();return x<.32?'prod':x<.74?'dev':x<.90?'staging':'qa';};
+const GROUP_DEFS=[
+ {prefix:'pay-',team:'Payments',accounts:['payments-prod','shared-dev'],apps:['ledger-db','checkout-svc','api-gw','events','audit-logs','settlement','fraud-engine','wallet','payouts','refunds','recon','gateway','tokenizer','statement','dispute','ledger-cache','risk','kyc'],n:3400},
+ {prefix:'chk-',team:'Checkout',accounts:['shared-dev','payments-prod'],apps:['cart','cart-cache','session-store','web-frontend','assets','pricing','promo','tax','inventory','shipping','order-svc','basket','coupon'],n:2600},
+ {prefix:'mkt-',team:'Marketing',accounts:['marketing-prod','shared-dev'],apps:['campaign-assets','analytics-db','email-worker','cdn-origin','crm-sync','segment','ads-api','landing','attribution','events','audience','personalize'],n:2100},
+ {prefix:'core-',team:'Core-Platform',accounts:['core-shared','shared-dev','data-eng-prod'],apps:['auth-svc','auth-sg','idp','shared-vpc-nat','config-store','audit-trail','logging','secrets','registry','mesh','gateway','observability','dns','ci','artifact'],n:2300},
+ {prefix:'data-',team:'Data-Eng',accounts:['data-eng-prod','shared-dev'],apps:['lake-raw','lake-curated','etl-job','warehouse','pipeline','stream','feature-store','ml-train','catalog','quality','governance','ingest','export'],n:1800},
+];
 const RESOURCES=[]; let n=1;
-TEMPLATES.forEach((t,i)=>ENVS.forEach((env,ei)=>{ if(ei===2&&i%3!==0) return;
-  const team=TEAMS[Math.floor(i/(TEMPLATES.length/TEAMS.length))]||TEAMS[i%TEAMS.length];
-  RESOURCES.push({id:'r'+n,name:`${t[0]}-${env}-${String(n).padStart(2,'0')}`,type:t[1],account:ACCOUNTS[i%4],vpc:VPCS[i%4],owner:OWNERS[(i+ei)%5],team,env,tags:{Env:env,Team:team,Owner:OWNERS[(i+ei)%5]}});
-  n++;
-}));
-// orphaned (unmatched)
-['i-0a91f','vol-0f2e','eni-04b7','i-07c3d','s3-legacy-7742','i-0b52a'].forEach((nm,i)=>{ RESOURCES.push({id:'r'+n,name:nm,type:['EC2','EBS','ENI','EC2','S3','EC2'][i],account:ACCOUNTS[i%4],vpc:'—',owner:'—',team:'—',env:'unknown',tags:{}}); n++; });
+GROUP_DEFS.forEach(gd=>{ for(let k=0;k<gd.n;k++){ const app=gd.apps[rint(0,gd.apps.length-1)]; const env=pickEnv(); const type=pickType(); const owner=OWNERS[rint(0,OWNERS.length-1)]; const account=gd.accounts[rint(0,gd.accounts.length-1)]; RESOURCES.push({id:'r'+n,name:`${gd.prefix}${app}-${env}-${String(n).padStart(5,'0')}`,type,account,vpc:VPCS[rint(0,VPCS.length-1)],owner,team:gd.team,env,tags:{Env:env,Team:gd.team,Owner:owner}}); n++; } });
+// unassigned (real metadata, no rule match)
+const UNAPP=[['search-',['index','api','cache','ranking','ingest','autocomplete']],['ml-',['training','inference','feature','pipeline','registry']],['ops-',['runner','agent','backup','monitor','patch']],['sandbox-',['test','poc','scratch','demo']]];
+for(let k=0;k<1200;k++){ const grp=UNAPP[rint(0,UNAPP.length-1)]; const app=grp[1][rint(0,grp[1].length-1)]; const env=pickEnv(); const type=pickType(); RESOURCES.push({id:'r'+n,name:`${grp[0]}${app}-${env}-${String(n).padStart(5,'0')}`,type,account:ACCOUNTS[rint(0,ACCOUNTS.length-1)],vpc:VPCS[rint(0,VPCS.length-1)],owner:OWNERS[rint(0,OWNERS.length-1)],team:'—',env,tags:{Env:env}}); n++; }
+// unnamed (generic ids, no tags)
+const GIDPRE=['i-0','vol-0','eni-0','snap-0','ami-0','fs-0']; for(let k=0;k<700;k++){ const type=pickType(); RESOURCES.push({id:'r'+n,name:GIDPRE[rint(0,GIDPRE.length-1)]+Math.floor(rng()*0xffffff).toString(16).padStart(6,'0'),type,account:ACCOUNTS[rint(0,ACCOUNTS.length-1)],vpc:rng()<.5?VPCS[rint(0,VPCS.length-1)]:'—',owner:'—',team:'—',env:'unknown',tags:{}}); n++; }
+// orphaned (no account / metadata)
+for(let k=0;k<300;k++){ const type=pickType(); RESOURCES.push({id:'r'+n,name:'orphan-'+type.toLowerCase()+'-'+Math.floor(rng()*0xffff).toString(16),type,account:'—',vpc:'—',owner:'—',team:'—',env:'unknown',tags:{}}); n++; }
 
 const FIELD_OPTIONS=[['name','Resource name'],['type','Resource type'],['account','Account'],['vpc','VPC'],['owner','Owner / Created by'],['team','Team / Group'],['tagValue','Tag (key = value)']];
 const OPS=[['startsWith','starts with'],['contains','contains'],['equals','equals'],['endsWith','ends with'],['notEquals','not equals']];
-const TYPE_VALUES=['EC2','S3','RDS','Lambda','SecurityGroup','DynamoDB','ElastiCache','SNS','Cognito','Redshift','EBS','ENI'];
 const TYPE_ICON={EC2:'🖥',S3:'🪣',RDS:'🗄',Lambda:'ƛ',SecurityGroup:'🛡',DynamoDB:'⬡',ElastiCache:'⚡',SNS:'📣',Cognito:'👤',Redshift:'🔺',EBS:'💽',ENI:'🔌',StepFunctions:'⛓'};
 
 function evalC(r,c){ let L; if(c.field==='tagValue') L=(r.tags[c.tagKey||'Env']||''); else L=String(r[c.field]??''); const v=(c.value||'').toLowerCase(); L=L.toLowerCase();

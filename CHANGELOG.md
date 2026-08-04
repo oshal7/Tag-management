@@ -40,6 +40,15 @@ Live: https://oshal7.github.io/Tag-management/consumption.html
   (trend, cost-by-service donut, cost-by-account/env bars) + AI insights.
 
 ## Onboarding module
+- **2026-08-04 — Scaled to ~14,400 resources (all four approaches).** Every
+  onboarding iteration now analyses the same realistic estate as consumption:
+  **14,400 resources across 36 AWS types**, with the five system-suggested
+  groups sized 3,400 / 2,600 / 2,100 / 2,300 / 1,800, **85% coverage**, and
+  **~332 real conflicts** where the cross-cutting *Audit & Compliance* rule
+  overlaps Payments and Core (genuine chaos to resolve). Matched-resource
+  tables stay capped (top 5–6 + "…and N more") so the rule-review pages render
+  instantly. onboarding-v2, wizard and board run this on their live rule engine;
+  onboarding v1's static figures were updated to match.
 - **2026-08-02 — onboarding-v2 (primary).** Refined cards that expand to an
   inline rules page (functional engine): manual + AI add-condition, matched-
   resources table (account/VPC/owner/tags), resource-type count mapping.

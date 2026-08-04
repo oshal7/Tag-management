@@ -267,7 +267,7 @@
       <div class="page-head">
         <div>
           <h1>Tag Management</h1>
-          <p class="sub">We analysed <b>2,480 resources</b> across your connected AWS accounts and grouped them automatically using Compass strategies. Review the suggested groups, refine their rules, or resolve overlaps — no manual tagging needed.</p>
+          <p class="sub">We analysed <b>14,400 resources</b> across your connected AWS accounts and grouped them automatically using Compass strategies. Review the suggested groups, refine their rules, or resolve overlaps — no manual tagging needed.</p>
         </div>
         <div class="head-actions">
           <button class="btn ghost-indigo" data-action="openAI">✦ Ask AI</button>
@@ -284,16 +284,16 @@
       <!-- shared conflict banner -->
       <div class="banner" id="banner">
         <div class="bi">⚠</div>
-        <div><div class="bt"><span id="conf-count">3</span> resources are claimed by more than one group</div><div class="bd">Overlapping rules create conflicts. Resolve each as a shared service or move it to one owner — the rule updates automatically.</div></div>
+        <div><div class="bt"><span id="conf-count">342</span> resources are claimed by more than one group</div><div class="bd">Overlapping rules create conflicts. Resolve each as a shared service or move it to one owner — the rule updates automatically.</div></div>
         <button class="btn" data-action="openConflict">Resolve conflicts →</button>
       </div>
 
       <!-- ITERATION A: CARDS -->
       <section class="iter on" id="iter-cards">
         <div class="tiles">
-          <div class="tile"><div class="k">Resources analysed</div><div class="v">2,480</div><div class="d">4 accounts · 6 regions</div></div>
+          <div class="tile"><div class="k">Resources analysed</div><div class="v">14,400</div><div class="d">6 accounts · 6 VPCs</div></div>
           <div class="tile"><div class="k">Groups suggested</div><div class="v" id="tile-groups">6</div><div class="d">by Compass strategies</div></div>
-          <div class="tile"><div class="k">Coverage</div><div class="v">84%</div><div class="d">of resources grouped</div></div>
+          <div class="tile"><div class="k">Coverage</div><div class="v">85%</div><div class="d">of resources grouped</div></div>
           <div class="tile alert"><div class="k">Conflicts</div><div class="v" id="tile-conf">3</div><div class="d">need resolution</div></div>
         </div>
         <div class="cardgrid" id="cardgrid"></div>
@@ -357,36 +357,36 @@
 <script>
 /* ---------- data ---------- */
 let GROUPS=[
-  {id:'g1',name:'Payments Platform',kind:'Product',envs:['prod','non-prod'],count:214,cost:'$10.3k',
+  {id:'g1',name:'Payments Platform',kind:'Product',envs:['prod','non-prod'],count:3400,cost:'$182k',
    cond:[{f:'Resource name',op:'starts with',v:'pay-'}],
    strategies:['Naming convention','Account boundary'],
    why:'These resources share the “pay-” name prefix and almost all live in the dedicated payments-prod account — two strong ownership signals that agree, so confidence is high.',
-   confidence:88, conflicts:2},
-  {id:'g2',name:'Checkout Service',kind:'Product',envs:['non-prod'],count:168,cost:'$3.6k',
+   confidence:88, conflicts:189},
+  {id:'g2',name:'Checkout Service',kind:'Product',envs:['non-prod'],count:2600,cost:'$121k',
    cond:[{f:'Resource name',op:'starts with',v:'chk-'}],
    strategies:['Naming convention'],
    why:'Grouped from the “chk-” naming prefix used consistently across checkout resources.',
    confidence:76, conflicts:0},
-  {id:'g3',name:'Marketing',kind:'Team',envs:['non-prod'],count:94,cost:'$5.3k',
+  {id:'g3',name:'Marketing',kind:'Team',envs:['non-prod'],count:2100,cost:'$96k',
    cond:[{f:'Resource name',op:'starts with',v:'mkt-'}],
    strategies:['Naming convention','Creator identity (SSO)'],
    why:'The “mkt-” prefix plus creator SSO sessions resolving to the eng-marketing IdP group point to the Marketing team.',
    confidence:72, conflicts:0},
-  {id:'g4',name:'Core Platform',kind:'Team',envs:['prod'],count:120,cost:'$4.3k',
+  {id:'g4',name:'Core Platform',kind:'Team',envs:['prod'],count:2300,cost:'$88k',
    cond:[{f:'Resource name',op:'starts with',v:'core-'}],
    strategies:['Naming convention','Runtime role'],
    why:'Named with “core-” and running under core-platform IAM roles — shared infrastructure owned by the platform team.',
-   confidence:80, conflicts:1},
-  {id:'g5',name:'Data Engineering',kind:'Department',envs:['prod'],count:110,cost:'$6.4k',
+   confidence:80, conflicts:153},
+  {id:'g5',name:'Data Engineering',kind:'Department',envs:['prod'],count:1800,cost:'$77k',
    cond:[{f:'Resource name',op:'starts with',v:'data-'}],
    strategies:['Naming convention','IaC / Terraform'],
    why:'The “data-” prefix and Terraform state (default_tags) both attribute these to the Data Engineering department.',
    confidence:74, conflicts:0},
-  {id:'g6',name:'Audit & Compliance',kind:'Feature',envs:['prod'],count:8,cost:'$0.7k',
+  {id:'g6',name:'Audit & Compliance',kind:'Feature',envs:['prod'],count:342,cost:'$14k',
    cond:[{f:'Resource name',op:'contains',v:'audit'}],
    strategies:['Naming convention'],
    why:'A single weak signal — the word “audit” in the resource name. Because it cuts across products, it overlaps other groups (see conflicts).',
-   confidence:42, conflicts:2},
+   confidence:42, conflicts:342},
 ];
 let CONFLICTS=[
   {res:'pay-audit-logs-prod-13',type:'S3',cost:'$394/mo',groups:['Payments Platform','Audit & Compliance']},
@@ -558,8 +558,8 @@ function aiSend(text){
     reply=`I found <b>8 resources</b> matching “search” in dev environments. I'll create a <b>Team</b> group:
       <div class="proposal"><div class="pt">Search · Team · dev</div><div class="pd">Rule: name contains “search” AND env = dev</div><div class="pd">8 resources · $2.1k/mo · strategy: Naming + Creator identity</div><button class="btn primary sm" data-action="aiApplySearch">Apply — create group</button></div>`;
   } else if(t.includes('merge')){
-    reply=`Merging <b>Audit & Compliance</b> into <b>Payments Platform</b> would move 8 resources and remove the weak “contains audit” rule (which is causing 2 conflicts).
-      <div class="proposal"><div class="pt">Merge → Payments Platform</div><div class="pd">Resolves 2 conflicts · Payments becomes 222 resources</div><button class="btn primary sm" data-action="aiApplyMerge">Apply merge</button></div>`;
+    reply=`Merging <b>Audit & Compliance</b> into <b>Payments Platform</b> would move 342 resources and remove the weak “contains audit” rule (which is causing 2 conflicts).
+      <div class="proposal"><div class="pt">Merge → Payments Platform</div><div class="pd">Resolves conflicts · Payments becomes 3,742 resources</div><button class="btn primary sm" data-action="aiApplyMerge">Apply merge</button></div>`;
   } else if(t.includes('why')||t.includes('conflict')){
     reply=`<b>pay-audit-logs</b> matches two rules: Payments Platform (name starts with “pay-”) and Audit & Compliance (name contains “audit”). Since both are true, it's a conflict. Resolve it as a <b>shared</b> service or assign one owner — I'll update the losing rule.  <button class="btn sm" data-action="openConflict" style="margin-top:8px;">Open conflict resolver</button>`;
   } else {
@@ -572,7 +572,7 @@ function aiApplySearch(){
   renderAll(); toast('Group “Search” created'); closeAI();
 }
 function aiApplyMerge(){
-  GROUPS=GROUPS.filter(g=>g.id!=='g6'); const p=byId('g1'); if(p){p.count+=8; p.conflicts=0;}
+  GROUPS=GROUPS.filter(g=>g.id!=='g6'); const p=byId('g1'); if(p){p.count+=342; p.conflicts=0;}
   CONFLICTS=[]; document.getElementById('conf-count').textContent=0; document.getElementById('tile-conf').textContent=0; document.getElementById('banner').style.display='none';
   renderAll(); toast('Merged · 2 conflicts resolved'); closeAI();
 }
