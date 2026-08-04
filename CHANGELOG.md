@@ -40,6 +40,14 @@ Live: https://oshal7.github.io/Tag-management/consumption.html
   (trend, cost-by-service donut, cost-by-account/env bars) + AI insights.
 
 ## Onboarding module
+- **2026-08-04 — Rule-first conflict resolution in the wizard.** The wizard's
+  *Resolve conflicts* step is now **tabbed — “By rule” (default) / “By
+  resource”**. The rule view collapses all 332 conflicting resources into the
+  handful of **rule overlaps** actually causing them (e.g. *Payments Platform ∩
+  Audit & Compliance*), shows both clashing rules with the weak one flagged, and
+  lets you resolve the whole cluster in one click — with a Compass recommendation
+  toward the stronger ownership rule, a progress bar, and Undo. The old
+  per-resource list is preserved under the second tab for granular control.
 - **2026-08-04 — Wizard is now the main prototype; Cards is a page inside it.**
   `onboarding-v2.html` is now a single prototype that opens on the **guided
   Wizard** (Review groups → Resolve conflicts → Map & finish) by default, with

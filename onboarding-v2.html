@@ -220,6 +220,27 @@
   .wz-done{text-align:center;padding:24px;} .wz-done .big{width:70px;height:70px;border-radius:50%;background:var(--green-soft);color:var(--green);display:grid;place-items:center;font-size:34px;margin:0 auto 14px;}
   .wz-maploader{text-align:center;padding:20px;} .wz-spin{width:40px;height:40px;border:4px solid var(--line);border-top-color:var(--indigo);border-radius:50%;margin:0 auto 12px;animation:spin .9s linear infinite;} @keyframes spin{to{transform:rotate(360deg);}} @media(prefers-reduced-motion:reduce){.wz-spin{animation:none;}}
   .wz-bigbar{height:20px;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;margin:14px auto 6px;max-width:520px;} .wz-bigbar i{display:block;height:100%;width:0;background:var(--indigo);transition:width .2s linear;}
+  /* resolve-conflicts tabs + rule-first clusters */
+  .wz-tabs{display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--line);margin:4px 0 16px;flex-wrap:wrap;}
+  .wz-tab{font:inherit;font-size:13px;border:none;background:none;padding:10px 14px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;display:inline-flex;align-items:center;gap:7px;} .wz-tab:hover{color:var(--ink);}
+  .wz-tab.on{color:var(--indigo-d);border-bottom-color:var(--indigo);font-weight:600;}
+  .wz-tab .tcnt{font-size:11px;background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:1px 8px;font-family:var(--mono);} .wz-tab.on .tcnt{background:var(--indigo-soft);border-color:var(--indigo-line);color:var(--indigo-d);}
+  .wz-tabhint{margin-left:auto;font-size:12px;color:var(--faint);}
+  .wz-cl-progress{display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:12.5px;color:var(--muted);} .wz-cl-progress .pbar{flex:1;height:8px;background:var(--line);border-radius:5px;overflow:hidden;max-width:300px;} .wz-cl-progress .pbar i{display:block;height:100%;background:var(--green);transition:width .3s;}
+  .wz-alldone{background:var(--green-soft);border:1px solid #b7e4c7;color:var(--green);border-radius:12px;padding:14px 16px;font-size:13.5px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+  .wz-cluster{border:1px solid var(--line);border-left:4px solid var(--amber);border-radius:12px;padding:16px;margin-bottom:12px;}
+  .wz-cluster.done{border-left-color:var(--green);background:#fbfefb;}
+  .wz-cl-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+  .wz-cl-title{font-size:15px;font-weight:700;} .wz-cl-title .x{color:var(--amber);margin:0 3px;}
+  .wz-cl-count{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:3px 11px;white-space:nowrap;}
+  .wz-cl-rules{display:flex;flex-direction:column;gap:7px;margin-bottom:11px;background:var(--bg);border-radius:10px;padding:12px;}
+  .wz-rr{display:flex;align-items:center;gap:9px;flex-wrap:wrap;} .wz-rr .rlab{font-size:11px;color:var(--muted);min-width:130px;} .wz-rr .rlab b{color:var(--ink);} .wz-rr .rpill{font-family:var(--mono);font-size:11.5px;background:#fff;border:1px solid var(--indigo-line);color:var(--indigo-d);border-radius:6px;padding:3px 9px;} .wz-rr .weak{border-color:#f2d9a8;color:var(--amber);}
+  .wz-cl-res{font-size:12.5px;color:var(--muted);margin-bottom:13px;} .wz-cl-res .mono{font-family:var(--mono);color:var(--ink);}
+  .wz-cl-hint{font-size:12px;color:var(--indigo-d);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:8px;padding:8px 11px;margin-bottom:11px;}
+  .wz-cl-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;} .wz-alab{font-size:12px;color:var(--muted);font-weight:600;}
+  .wz-act{font:inherit;font-size:12.5px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 13px;cursor:pointer;} .wz-act:hover{border-color:var(--indigo);color:var(--indigo-d);background:var(--indigo-soft);}
+  .wz-act.rec{border-color:var(--indigo);color:#fff;background:var(--indigo);font-weight:600;} .wz-act.rec:hover{background:var(--indigo-d);}
+  .wz-cl-resolved{font-size:12.5px;color:var(--green);font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;} .wz-cl-undo{font-size:11.5px;color:var(--muted);border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 9px;cursor:pointer;font-weight:400;} .wz-cl-undo:hover{border-color:var(--indigo);color:var(--indigo-d);}
 </style>
 </head>
 <body>
@@ -540,6 +561,8 @@ document.addEventListener('click',e=>{
     case 'wzReview': openGroupId=(openGroupId===id?null:id); wzRenderGrows(); break;
     case 'wzAccept': wzReviewed[id]=true; openGroupId=null; wzRenderGrows(); toast('Group marked reviewed'); break;
     case 'wzGo': wzShow(+t.dataset.step); break;
+    case 'wzConfTab': wzConfTab=t.dataset.tab; wzRenderConf(); break;
+    case 'wzResolveCluster': wzResolveCluster(t.dataset.key,t.dataset.val); break;
     case 'wzResolve': wzResolved[t.dataset.ci]=t.dataset.val; wzRenderConf(); break;
     case 'wzFinish': setMode('cards'); break;
     case 'rename': break;
@@ -622,11 +645,67 @@ function wzRenderGrows(){
   }).join('');
   wzRenderTiles();
 }
-function wzRenderConf(){
+/* --- rule-first conflict resolution (tabs: by rule [default] / by resource) --- */
+let wzConfTab='rule', wzClusterResolved={};
+const gByName=n=>GROUPS.find(g=>g.name===n);
+const isWeak=g=>!!(g&&g.cond.some(c=>c.op==='contains'||c.op==='endsWith'));
+function conflictClusters(){
   computeConflicts();
+  const map={};
+  CONFLICTS.forEach(c=>{ const key=c.groups.slice().sort().join(' ∩ '); (map[key]=map[key]||{key,groups:c.groups.slice().sort(),items:[]}).items.push(c); });
+  return Object.values(map).sort((a,b)=>b.items.length-a.items.length);
+}
+function wzRenderConf(){
+  const clusters=conflictClusters();
+  const el=document.getElementById('wz-conflist');
+  if(!clusters.length){ el.innerHTML='<div class="wz-alldone">✓ No conflicts — every resource maps to exactly one group.</div>'; return; }
+  const totalRes=CONFLICTS.length;
+  el.innerHTML=`
+    <div class="wz-tabs">
+      <button class="wz-tab ${wzConfTab==='rule'?'on':''}" data-action="wzConfTab" data-tab="rule">⚑ By rule <span class="tcnt">${clusters.length}</span></button>
+      <button class="wz-tab ${wzConfTab==='resource'?'on':''}" data-action="wzConfTab" data-tab="resource">▤ By resource <span class="tcnt">${totalRes.toLocaleString()}</span></button>
+      <span class="wz-tabhint">${wzConfTab==='rule'?'Fix the overlapping rule once — clears every resource under it.':'Resolve resources individually.'}</span>
+    </div>
+    <div id="wz-conf-body">${wzConfTab==='rule'?wzConfRuleHtml(clusters):wzConfResHtml()}</div>`;
+}
+function wzConfRuleHtml(clusters){
+  const doneN=clusters.filter(cl=>wzClusterResolved[cl.key]).length;
+  const pct=Math.round(doneN/clusters.length*100);
+  const head = doneN===clusters.length
+    ? `<div class="wz-alldone">✓ All ${clusters.length} overlapping rules resolved — you're ready to map.</div>`
+    : `<div class="wz-cl-progress"><span><b>${doneN}</b> of <b>${clusters.length}</b> rule overlaps resolved</span><span class="pbar"><i style="width:${pct}%"></i></span></div>`;
+  const cards=clusters.map(cl=>{
+    const done=wzClusterResolved[cl.key];
+    const ordered=cl.groups.map(gByName).sort((a,b)=>(isWeak(a)?1:0)-(isWeak(b)?1:0)); // strong first, weak last
+    const A=ordered[0], B=ordered[1]; // A = likely owner (stronger rule), B = weaker
+    const n=cl.items.length;
+    const sample=cl.items.slice(0,4).map(c=>esc(c.res)).join(', ')+(n>4?` <span style="color:var(--faint)">+${(n-4).toLocaleString()} more</span>`:'');
+    const ruleRow=g=>`<div class="wz-rr"><span class="rlab"><b>${esc(g.name)}</b> rule</span><span class="rpill ${isWeak(g)?'weak':''}">${esc(ruleText(g))}</span>${isWeak(g)?'<span style="font-size:11px;color:var(--amber)">⚠ weak · cuts across products</span>':''}</div>`;
+    return `<div class="wz-cluster ${done?'done':''}">
+      <div class="wz-cl-head"><div class="wz-cl-title">⚠ <b>${esc(A.name)}</b><span class="x">∩</span><b>${esc(B.name)}</b></div><div class="wz-cl-count">${n.toLocaleString()} resources</div></div>
+      <div class="wz-cl-rules">${ruleRow(A)}${ruleRow(B)}</div>
+      <div class="wz-cl-res">Both rules match, e.g. <span class="mono">${sample}</span></div>
+      ${done
+        ? `<div class="wz-cl-resolved">✓ ${done==='shared'?`Marked <b>shared</b> — cost split across ${esc(A.name)} &amp; ${esc(B.name)}.`:`All ${n.toLocaleString()} assigned to <b>${esc(done)}</b> — the ${esc(done===A.name?B.name:A.name)} rule was narrowed to exclude them.`}<button class="wz-cl-undo" data-action="wzResolveCluster" data-key="${esc(cl.key)}" data-val="__undo">Undo</button></div>`
+        : `<div class="wz-cl-hint">✦ Compass suggests these belong to <b>${esc(A.name)}</b> — its “${esc(ruleText(A))}” rule is the stronger ownership signal; ${esc(B.name)}’s rule just happens to also match.</div>
+           <div class="wz-cl-actions"><span class="wz-alab">Resolve all ${n.toLocaleString()}:</span>
+             <button class="wz-act rec" data-action="wzResolveCluster" data-key="${esc(cl.key)}" data-val="${esc(A.name)}">→ ${esc(A.name)} ✦</button>
+             <button class="wz-act" data-action="wzResolveCluster" data-key="${esc(cl.key)}" data-val="${esc(B.name)}">→ ${esc(B.name)}</button>
+             <button class="wz-act" data-action="wzResolveCluster" data-key="${esc(cl.key)}" data-val="shared">◒ Keep shared</button>
+           </div>`}
+    </div>`;
+  }).join('');
+  return head+cards;
+}
+function wzConfResHtml(){
   const list=CONFLICTS.slice(0,60);
-  const note=CONFLICTS.length>60?`<div style="font-size:12px;color:var(--muted);padding:6px 2px 10px">Showing 60 of ${CONFLICTS.length.toLocaleString()} conflicting resources. Resolving the rule for one pattern (e.g. everything matching “audit”) clears the whole cluster at once.</div>`:'';
-  document.getElementById('wz-conflist').innerHTML=note+(list.length?list:[]).map((c,i)=>`<div class="wz-conflict"><div class="cn">${esc(c.res)}</div><div style="font-size:12.5px;color:#7a5a1e;margin-top:3px;">claimed by ${c.groups.join(' & ')}</div><div class="wz-opts">${c.groups.map(g=>`<div class="o ${wzResolved[i]===g?'sel':''}" data-action="wzResolve" data-ci="${i}" data-val="${esc(g)}">→ ${esc(g)}</div>`).join('')}<div class="o ${wzResolved[i]==='shared'?'sel':''}" data-action="wzResolve" data-ci="${i}" data-val="shared">◒ Shared</div></div>${wzResolved[i]?`<div style="font-size:12px;color:var(--indigo-d);margin-top:8px;">✓ ${wzResolved[i]==='shared'?'Marked shared — cost split, no rule change.':'Assigned to '+wzResolved[i]+' — other rule narrowed.'}</div>`:''}</div>`).join('') || '<div style="font-size:13px;color:var(--muted);padding:12px;">No conflicts 🎉</div>';
+  const note=`<div style="font-size:12px;color:var(--muted);padding:2px 2px 12px">${CONFLICTS.length>60?`Showing 60 of ${CONFLICTS.length.toLocaleString()} conflicting resources. `:''}Tip: the <b>By rule</b> tab clears all of these in just ${conflictClusters().length} decision${conflictClusters().length>1?'s':''}.</div>`;
+  return note+(list.length?list:[]).map((c,i)=>`<div class="wz-conflict"><div class="cn">${esc(c.res)}</div><div style="font-size:12.5px;color:#7a5a1e;margin-top:3px;">claimed by ${c.groups.join(' & ')}</div><div class="wz-opts">${c.groups.map(g=>`<div class="o ${wzResolved[i]===g?'sel':''}" data-action="wzResolve" data-ci="${i}" data-val="${esc(g)}">→ ${esc(g)}</div>`).join('')}<div class="o ${wzResolved[i]==='shared'?'sel':''}" data-action="wzResolve" data-ci="${i}" data-val="shared">◒ Shared</div></div>${wzResolved[i]?`<div style="font-size:12px;color:var(--indigo-d);margin-top:8px;">✓ ${wzResolved[i]==='shared'?'Marked shared — cost split, no rule change.':'Assigned to '+wzResolved[i]+' — other rule narrowed.'}</div>`:''}</div>`).join('') || '<div style="font-size:13px;color:var(--muted);padding:12px;">No conflicts 🎉</div>';
+}
+function wzResolveCluster(key,val){
+  if(val==='__undo') delete wzClusterResolved[key]; else wzClusterResolved[key]=val;
+  wzRenderConf();
+  if(val!=='__undo') toast(val==='shared'?'Overlap marked shared':'Overlap assigned to '+val);
 }
 function wzRunMapping(){
   const p=document.getElementById('wz-mappanel');
