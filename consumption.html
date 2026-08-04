@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tag Management — Consumption (first cut)</title>
 <style>
-  :root{--bg:#f4f6fb;--panel:#fff;--ink:#1c2333;--muted:#6b7280;--faint:#9aa1af;--line:#e9ebf2;--nav:#0e1a2e;--nav-2:#17233b;--nav-line:#22304a;--nav-muted:#8fa1bd;--nav-text:#dbe3f0;--indigo:#6366f1;--indigo-d:#4f46e5;--indigo-soft:#eef1ff;--indigo-line:#d7dcfb;--green:#15803d;--green-soft:#dcfce7;--amber:#b45309;--amber-soft:#fdf0d5;--red:#dc2626;--red-soft:#fde8e8;--violet:#7c3aed;--violet-soft:#f3e8ff;--teal:#0d9488;--teal-soft:#ccfbf1;--blue:#2563eb;--blue-soft:#dbeafe;--r:12px;--mono:ui-monospace,Menlo,Consolas,monospace;}
+  :root{--bg:#f4f6fb;--panel:#fff;--ink:#1c2333;--muted:#6b7280;--faint:#9aa1af;--line:#e9ebf2;--nav:#0e1a2e;--nav-2:#17233b;--nav-line:#22304a;--nav-muted:#8fa1bd;--nav-text:#dbe3f0;--indigo:#0D5EBA;--indigo-d:#0A4A8F;--indigo-soft:#E9F1FB;--indigo-line:#BFD9F2;--green:#15803d;--green-soft:#dcfce7;--amber:#b45309;--amber-soft:#fdf0d5;--red:#dc2626;--red-soft:#fde8e8;--violet:#7c3aed;--violet-soft:#f3e8ff;--teal:#0d9488;--teal-soft:#ccfbf1;--blue:#2563eb;--blue-soft:#dbeafe;--r:12px;--mono:ui-monospace,Menlo,Consolas,monospace;}
   *{box-sizing:border-box;} html,body{margin:0;height:100%;} body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;}
   .app{display:grid;grid-template-columns:250px 1fr;height:100vh;} @media(max-width:900px){.app{grid-template-columns:1fr;}.sidebar{display:none;}}
   .sidebar{background:var(--nav);color:var(--nav-text);overflow-y:auto;}
   .logo{display:flex;align-items:center;gap:10px;padding:20px;font-size:20px;font-weight:700;}
   .navgroup{padding:8px 12px 2px;} .navgroup>.gh{display:flex;align-items:center;gap:9px;padding:9px 10px;font-weight:600;font-size:13.5px;} .gh .chev{margin-left:auto;opacity:.5;font-size:10px;}
   .navitem{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 34px;color:var(--nav-muted);font-size:13px;border-radius:8px;cursor:pointer;position:relative;} .navitem:hover{color:#fff;background:var(--nav-2);}
-  .navitem.active{color:#fff;background:linear-gradient(90deg,rgba(99,102,241,.22),transparent);} .navitem.active::before{content:'';position:absolute;left:14px;top:8px;bottom:8px;width:3px;background:var(--indigo);border-radius:3px;}
+  .navitem.active{color:#fff;background:linear-gradient(90deg,rgba(13,94,186,.22),transparent);} .navitem.active::before{content:'';position:absolute;left:14px;top:8px;bottom:8px;width:3px;background:var(--indigo);border-radius:3px;}
   .subitem{padding-left:48px;font-size:12.5px;} a.navitem{color:var(--nav-muted);text-decoration:none;} .newpill{margin-left:auto;font-size:9px;background:var(--indigo);color:#fff;padding:1px 6px;border-radius:10px;}
   .profile{margin:16px 14px;padding-top:14px;border-top:1px solid var(--nav-line);display:flex;align-items:center;gap:10px;} .profile .av{width:34px;height:34px;border-radius:50%;background:var(--indigo);display:grid;place-items:center;color:#fff;font-weight:700;} .profile .em{font-size:11px;color:var(--nav-muted);}
   .main{overflow-y:auto;height:100vh;}
@@ -32,7 +32,7 @@
   .up{color:var(--red);} .down{color:var(--green);}
   /* cards */
   .cardgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
-  .gcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px;cursor:pointer;transition:box-shadow .15s,border-color .15s;display:flex;flex-direction:column;gap:12px;} .gcard:hover{border-color:var(--indigo-line);box-shadow:0 6px 22px rgba(79,70,229,.08);}
+  .gcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px;cursor:pointer;transition:box-shadow .15s,border-color .15s;display:flex;flex-direction:column;gap:12px;} .gcard:hover{border-color:var(--indigo-line);box-shadow:0 6px 22px rgba(10,74,143,.08);}
   .gcard .top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;} .gcard .gname{font-size:16px;font-weight:700;}
   .kindbadge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;} .k-Product{background:var(--indigo-soft);color:var(--indigo-d);} .k-Feature{background:var(--violet-soft);color:var(--violet);} .k-Customer{background:var(--teal-soft);color:var(--teal);} .k-Team{background:var(--blue-soft);color:var(--blue);} .k-Department{background:var(--amber-soft);color:var(--amber);}
   .envrow{display:flex;gap:6px;flex-wrap:wrap;} .env{font-size:11px;padding:2px 8px;border-radius:6px;font-family:var(--mono);} .env-prod{background:var(--red-soft);color:var(--red);} .env-np{background:var(--blue-soft);color:var(--blue);}
@@ -96,7 +96,7 @@
 <body>
 <div class="app">
   <aside class="sidebar">
-    <div class="logo"><svg width="28" height="28" viewBox="0 0 30 30" fill="none"><path d="M8 19c-3 0-5-2-5-4.5S5 10 8 10c.4-3 3-5 6-5s5.6 2 6 5c3 0 5 2 5 4.5S29 19 26 19H8z" stroke="#818cf8" stroke-width="2"/></svg> Opsolute</div>
+    <div class="logo"><svg width="28" height="28" viewBox="0 0 30 30" fill="none"><path d="M8 19c-3 0-5-2-5-4.5S5 10 8 10c.4-3 3-5 6-5s5.6 2 6 5c3 0 5 2 5 4.5S29 19 26 19H8z" stroke="#5E9BE0" stroke-width="2"/></svg> Opsolute</div>
     <div class="navgroup"><div class="gh">☁ Cloud Management <span class="chev">▾</span></div><div class="navitem">Dashboard</div><div class="navitem">Resources Inventory</div><div class="navitem">Heatmap</div></div>
     <div class="navgroup"><div class="gh">$ FinOps <span class="chev">▾</span></div><div class="navitem">FinOps Dashboard</div>
       <div class="navitem active">🏷 Tag Management <span class="newpill">NEW</span></div>
@@ -189,7 +189,7 @@ const _byId=new Map(); for(const r of RESOURCES) _byId.set(r.id,r); const byId=i
 
 let GROUPS=GROUP_DEFS.map(gd=>({id:gd.id,name:gd.name,kind:gd.kind,cond:[{f:'name',op:'sw',v:gd.prefix}],strategies:gd.strategies,why:gd.why,subgroups:[]}));
 const gById=id=>GROUPS.find(g=>g.id===id);
-const KHUE={Product:'#6366f1',Team:'#2563eb',Department:'#b45309',Feature:'#7c3aed',Customer:'#0d9488'};
+const KHUE={Product:'#0D5EBA',Team:'#2563eb',Department:'#b45309',Feature:'#7c3aed',Customer:'#0d9488'};
 let overrides={};
 function ruleMatch(r,g){ return g.cond.length>0 && g.cond.every(c=>{const L=String(r[c.f]??'').toLowerCase(),v=(c.v||'').toLowerCase(); return c.op==='sw'?L.startsWith(v):c.op==='ct'?L.includes(v):L===v;}); }
 // ---- cached assignment (computed once per state; invalidated on mutation) ----
@@ -287,7 +287,7 @@ function renderGroup(gid){
   const list=resInGroup(gid); const total=gCost(gid);
   const byType={},byAcct={},byEnv={}; list.forEach(r=>{byType[r.type]=(byType[r.type]||0)+r.cost;byAcct[r.account]=(byAcct[r.account]||0)+r.cost;const e=r.env==='prod'?'prod':(r.env==='unknown'?'other':'non-prod');byEnv[e]=(byEnv[e]||0)+r.cost;});
   const topTypes=Object.entries(byType).sort((a,b)=>b[1]-a[1]);
-  const donutColors=['#6366f1','#7c3aed','#2563eb','#0d9488','#b45309','#9aa1af'];
+  const donutColors=['#0D5EBA','#7c3aed','#2563eb','#0d9488','#b45309','#9aa1af'];
   let acc=0; const stops=topTypes.slice(0,5).map((t,i)=>{const from=acc/total*100;acc+=t[1];const to=acc/total*100;return `${donutColors[i]} ${from}% ${to}%`;}); if(acc<total)stops.push(`#e5e7eb ${acc/total*100}% 100%`);
   const legend=topTypes.slice(0,5).map((t,i)=>`<div class="li"><span class="sw" style="background:${donutColors[i]}"></span>${t[0]}<span class="lc">${money(t[1])}</span></div>`).join('');
   const maxAcct=Math.max(...Object.values(byAcct),1);
@@ -306,7 +306,7 @@ function renderGroup(gid){
   ].map(t=>`<div class="ai-item">✦ ${t}</div>`).join('');
   const overview=`<div class="gd-grid">
       <div>
-        <div class="card"><div class="card-h">Cost trend · 6 months</div><svg viewBox="0 0 100 42" preserveAspectRatio="none" style="width:100%;height:120px"><polyline points="${pts}" fill="none" stroke="var(--indigo)" stroke-width="1.5"/><polyline points="0,42 ${pts} 100,42" fill="rgba(99,102,241,.12)" stroke="none"/></svg></div>
+        <div class="card"><div class="card-h">Cost trend · 6 months</div><svg viewBox="0 0 100 42" preserveAspectRatio="none" style="width:100%;height:120px"><polyline points="${pts}" fill="none" stroke="var(--indigo)" stroke-width="1.5"/><polyline points="0,42 ${pts} 100,42" fill="rgba(13,94,186,.12)" stroke="none"/></svg></div>
         <div class="viz2">
           <div class="card"><div class="card-h">Cost by service</div><div class="donut-wrap"><div class="donut" style="background:conic-gradient(${stops.join(',')})"><div class="donut-hole"><div><div style="font-weight:800">${moneyK(total)}</div><div style="font-size:10px;color:var(--muted)">total</div></div></div></div><div class="legend">${legend}</div></div></div>
           <div class="card"><div class="card-h">Cost by account</div><div class="bars">${acctBars}</div><div class="card-h" style="margin-top:14px">Cost by environment</div><div class="bars">${envBars}</div></div>

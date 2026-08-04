@@ -8,7 +8,7 @@
   :root{
     --bg:#f4f6fb; --panel:#ffffff; --ink:#1c2333; --muted:#6b7280; --faint:#9aa1af; --line:#e9ebf2;
     --nav:#0e1a2e; --nav-2:#17233b; --nav-line:#22304a; --nav-muted:#8fa1bd; --nav-text:#dbe3f0;
-    --indigo:#6366f1; --indigo-d:#4f46e5; --indigo-soft:#eef1ff; --indigo-line:#d7dcfb;
+    --indigo:#0D5EBA; --indigo-d:#0A4A8F; --indigo-soft:#E9F1FB; --indigo-line:#BFD9F2;
     --green:#15803d; --green-soft:#dcfce7; --amber:#b45309; --amber-soft:#fdf0d5; --red:#dc2626; --red-soft:#fde8e8;
     --violet:#7c3aed; --violet-soft:#f3e8ff; --teal:#0d9488; --teal-soft:#ccfbf1; --blue:#2563eb; --blue-soft:#dbeafe;
     --r:12px; --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
@@ -28,7 +28,7 @@
   .navgroup>.gh .chev{margin-left:auto; opacity:.5; font-size:10px;}
   .navitem{display:flex; align-items:center; gap:10px; padding:8px 10px 8px 34px; color:var(--nav-muted); font-size:13px; border-radius:8px; cursor:pointer; position:relative;}
   .navitem:hover{color:#fff; background:var(--nav-2);}
-  .navitem.active{color:#fff; background:linear-gradient(90deg,rgba(99,102,241,.22),transparent);}
+  .navitem.active{color:#fff; background:linear-gradient(90deg,rgba(13,94,186,.22),transparent);}
   .navitem.active::before{content:''; position:absolute; left:14px; top:8px; bottom:8px; width:3px; background:var(--indigo); border-radius:3px;}
   .navitem .ic,.gh .ic{width:16px; text-align:center; opacity:.9;}
   .newpill{margin-left:auto; font-size:9px; background:var(--indigo); color:#fff; padding:1px 6px; border-radius:10px;}
@@ -76,7 +76,7 @@
   #cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px;}
   #cards.list{display:flex; flex-direction:column; gap:10px;}
   .gcard{background:#fff; border:1px solid var(--line); border-radius:var(--r); padding:18px; display:flex; flex-direction:column; gap:12px; cursor:pointer; animation:pop .28s ease; transition:border-color .15s, box-shadow .15s;}
-  .gcard:hover{border-color:var(--indigo-line); box-shadow:0 6px 22px rgba(79,70,229,.08);}
+  .gcard:hover{border-color:var(--indigo-line); box-shadow:0 6px 22px rgba(10,74,143,.08);}
   @keyframes pop{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
   @media (prefers-reduced-motion:reduce){ .gcard,.detail.open{animation:none;} }
   .gcard .top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px;}
@@ -112,7 +112,7 @@
   .detail{display:none; margin-bottom:16px;}
   .detail.open{display:block; animation:slideDown .3s cubic-bezier(.2,.7,.2,1);}
   @keyframes slideDown{from{opacity:0; transform:translateY(-10px);} to{opacity:1; transform:none;}}
-  .dpanel{background:#fff; border:1.5px solid var(--indigo); border-radius:16px; overflow:hidden; box-shadow:0 12px 40px rgba(79,70,229,.12);}
+  .dpanel{background:#fff; border:1.5px solid var(--indigo); border-radius:16px; overflow:hidden; box-shadow:0 12px 40px rgba(10,74,143,.12);}
   .dhead{display:flex; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid var(--line); background:linear-gradient(90deg,var(--indigo-soft),#fff); flex-wrap:wrap;}
   .dhead input.nm{font-size:18px; font-weight:700; border:1px solid transparent; background:transparent; border-radius:8px; padding:6px 8px; width:auto; min-width:200px;}
   .dhead input.nm:hover{border-color:var(--line); background:#fff;}
@@ -196,7 +196,7 @@
   .rulechange{background:var(--bg); border:1px dashed var(--indigo-line); border-radius:9px; padding:10px 12px; margin-top:9px; font-size:12px; display:none;} .rulechange.show{display:block;} .rulechange code{font-family:var(--mono); background:#fff; padding:1px 6px; border-radius:5px; border:1px solid var(--line);}
   .mf{padding:16px 22px; border-top:1px solid var(--line); display:flex; align-items:center; gap:10px;} .mf .prog{font-size:12px; color:var(--muted); margin-right:auto;}
 
-  .fab{position:fixed; bottom:24px; right:24px; z-index:60; background:var(--indigo); color:#fff; border:none; border-radius:26px; padding:13px 20px; font:inherit; font-size:14px; cursor:pointer; box-shadow:0 8px 24px rgba(79,70,229,.4);}
+  .fab{position:fixed; bottom:24px; right:24px; z-index:60; background:var(--indigo); color:#fff; border:none; border-radius:26px; padding:13px 20px; font:inherit; font-size:14px; cursor:pointer; box-shadow:0 8px 24px rgba(10,74,143,.4);}
   .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--nav); color:#fff; padding:12px 20px; border-radius:11px; font-size:13px; z-index:95; opacity:0; transition:.25s; pointer-events:none;}
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
   /* ---- wizard view ---- */
@@ -246,7 +246,7 @@
 <body>
 <div class="app">
   <aside class="sidebar">
-    <div class="logo"><svg width="30" height="30" viewBox="0 0 30 30" fill="none"><path d="M8 19c-3 0-5-2-5-4.5S5 10 8 10c.4-3 3-5 6-5s5.6 2 6 5c3 0 5 2 5 4.5S29 19 26 19H8z" stroke="#818cf8" stroke-width="2"/><circle cx="11" cy="14" r="1.6" fill="#818cf8"/><circle cx="19" cy="14" r="1.6" fill="#818cf8"/></svg> Opsolute</div>
+    <div class="logo"><svg width="30" height="30" viewBox="0 0 30 30" fill="none"><path d="M8 19c-3 0-5-2-5-4.5S5 10 8 10c.4-3 3-5 6-5s5.6 2 6 5c3 0 5 2 5 4.5S29 19 26 19H8z" stroke="#5E9BE0" stroke-width="2"/><circle cx="11" cy="14" r="1.6" fill="#5E9BE0"/><circle cx="19" cy="14" r="1.6" fill="#5E9BE0"/></svg> Opsolute</div>
     <div class="side-search">🔍 Search…</div>
     <div class="navgroup"><div class="gh"><span class="ic">☁</span> Cloud Management <span class="chev">▾</span></div>
       <div class="navitem"><span class="ic">▦</span> Dashboard</div><div class="navitem"><span class="ic">▣</span> Resources Inventory</div><div class="navitem"><span class="ic">⛓</span> Service Topology</div><div class="navitem"><span class="ic">≋</span> Heatmap</div></div>
