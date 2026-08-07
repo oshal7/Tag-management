@@ -51,6 +51,14 @@ Live: https://oshal7.github.io/Tag-management/consumption.html
   (trend, cost-by-service donut, cost-by-account/env bars) + AI insights.
 
 ## Onboarding module
+- **2026-08-07 — Create a new group (with its own rule) in the wizard.** Step 1
+  of the wizard now has a **＋ Create a new group** action that spins up a fresh
+  group and opens the same inline **rule builder** the review panel uses — field ·
+  operator · value, ＋ add condition, ✦ add via AI, name/kind, and a live
+  matched-resources table — so you can define a manual group mid-onboarding, not
+  just review the system-suggested ones. An empty rule value now matches *nothing*
+  (instead of everything) until you type. Added to both the main prototype's
+  wizard and the standalone `onboarding-wizard.html`.
 - **2026-08-07 — Shorter resource-type mapping.** In the group review detail, the
   resource-type mapping now shows the top **15** types with a **＋ Show N more
   types** toggle instead of a long list (all onboarding approaches).

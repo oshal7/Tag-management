@@ -113,8 +113,9 @@
           <div class="stat"><div class="k">Conflicts</div><div class="v" style="color:var(--amber)" id="t-conf">–</div></div>
         </div>
         <div class="panel">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><b style="font-size:16px;">Review suggested groups</b><span style="font-size:12px;color:var(--muted);"><span id="revCount">0</span> of <span id="revTotal">6</span> reviewed</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;"><b style="font-size:16px;">Review suggested groups</b><div style="display:flex;align-items:center;gap:12px"><span style="font-size:12px;color:var(--muted);"><span id="revCount">0</span> of <span id="revTotal">6</span> reviewed</span><button class="btn ghost-indigo sm" data-newgroup>＋ Create a new group</button></div></div>
           <div id="growlist"></div>
+          <button class="btn" data-newgroup style="width:100%;margin-top:10px;border-style:dashed;justify-content:center;color:var(--indigo-d)">＋ Create a new group — then define its own rule</button>
         </div>
         <div class="navbtns"><span style="font-size:12px;color:var(--muted);">Review each group, then continue.</span><button class="btn primary" data-go="2">Next: resolve conflicts →</button></div>
       </section>
@@ -162,7 +163,7 @@ for(let k=0;k<300;k++){ const type=pickType(); RESOURCES.push({id:'r'+n,name:'or
 const FIELD_OPTIONS=[['name','Resource name'],['type','Resource type'],['account','Account'],['vpc','VPC'],['owner','Owner / Created by'],['team','Team / Group'],['tagValue','Tag (key = value)']];
 const OPS=[['startsWith','starts with'],['contains','contains'],['equals','equals'],['endsWith','ends with'],['notEquals','not equals']];
 const TYPE_ICON={EC2:'🖥',S3:'🪣',RDS:'🗄',Lambda:'ƛ',SecurityGroup:'🛡',DynamoDB:'⬡',ElastiCache:'⚡',SNS:'📣',Cognito:'👤',Redshift:'🔺',EBS:'💽',ENI:'🔌'};
-function evalC(r,c){let L;if(c.field==='tagValue')L=(r.tags[c.tagKey||'Env']||'');else L=String(r[c.field]??'');const v=(c.value||'').toLowerCase();L=L.toLowerCase();switch(c.op){case 'startsWith':return L.startsWith(v);case 'contains':return L.includes(v);case 'equals':return L===v;case 'endsWith':return L.endsWith(v);case 'notEquals':return L!==v;default:return false;}}
+function evalC(r,c){let L;if(c.field==='tagValue')L=(r.tags[c.tagKey||'Env']||'');else L=String(r[c.field]??'');const v=(c.value||'').toLowerCase();L=L.toLowerCase();if(v===''&&(c.op==='startsWith'||c.op==='contains'||c.op==='endsWith'))return false;switch(c.op){case 'startsWith':return L.startsWith(v);case 'contains':return L.includes(v);case 'equals':return L===v;case 'endsWith':return L.endsWith(v);case 'notEquals':return L!==v;default:return false;}}
 function evalG(r,g){if(!g.cond.length)return false;let res=evalC(r,g.cond[0]);for(let i=1;i<g.cond.length;i++){res=(g.connectors[i-1]||'AND')==='AND'?(res&&evalC(r,g.cond[i])):(res||evalC(r,g.cond[i]));}return res;}
 const matches=g=>RESOURCES.filter(r=>evalG(r,g));
 const groupsFor=r=>GROUPS.filter(g=>evalG(r,g));
@@ -193,13 +194,21 @@ function renderTiles(){const cov=Math.round(RESOURCES.filter(r=>groupsFor(r).len
   document.getElementById('t-grp').textContent=GROUPS.length; document.getElementById('t-conf').textContent=CONFLICTS.length;
   document.getElementById('revTotal').textContent=GROUPS.length; document.getElementById('revCount').textContent=Object.keys(reviewed).length;}
 
+/* ---------- create a new group + define its rule (same builder as review) ---------- */
+function newGroup(){
+  const id='g'+Date.now();
+  GROUPS.push({id,name:'New group',kind:'Product',cond:[{field:'name',op:'startsWith',value:''}],connectors:[],strategies:['Manual'],why:'Created manually during onboarding — define its rule below to choose which resources it owns.',manual:true});
+  openReviewId=id; CONFLICTS=computeConflicts(); renderGrows();
+  setTimeout(()=>{ const btn=document.querySelector(`#growlist [data-review="${id}"]`); const row=btn&&btn.closest('.grow'); if(row) row.scrollIntoView({behavior:'smooth',block:'center'}); const inp=document.querySelector('#growlist .detail input[data-cond="0"][data-part="value"]'); if(inp) inp.focus(); },40);
+  toast('New group created — add a condition to define which resources it owns');
+}
 /* ---------- step 1: group rows + inline review detail ---------- */
 function renderGrows(){
   document.getElementById('growlist').innerHTML=GROUPS.map(g=>{
     const conf=matches(g).filter(r=>groupsFor(r).length>1).length;
     const row=`<div class="grow ${conf?'conf':''} ${reviewed[g.id]?'rev':''}">
       <div class="chk">✓</div>
-      <div class="gi"><div class="gn">${esc(g.name)} <span class="kindbadge k-${g.kind}">${g.kind}</span> ${envHtml(g)} ${conf?'<span style="color:var(--amber);font-size:11.5px;">⚠ '+conf+' conflict'+(conf>1?'s':'')+'</span>':''}</div>
+      <div class="gi"><div class="gn">${esc(g.name)} <span class="kindbadge k-${g.kind}">${g.kind}</span> ${g.manual?'<span class="kindbadge" style="background:var(--indigo-soft);color:var(--indigo-d)">✎ manual</span>':''} ${envHtml(g)} ${conf?'<span style="color:var(--amber);font-size:11.5px;">⚠ '+conf+' conflict'+(conf>1?'s':'')+'</span>':''}</div>
         <div class="rule">${esc(ruleText(g))}</div>
         <div class="strat">${stratHtml(g.strategies)}</div></div>
       <div class="cnt"><div class="n">${matches(g).length}</div><div class="l">resources</div></div>
@@ -327,6 +336,7 @@ document.addEventListener('click',e=>{
   const ct=e.target.closest('[data-conftab]'); if(ct){confTab=ct.dataset.conftab; renderConf(); return;}
   const rcl=e.target.closest('[data-rescluster]'); if(rcl){resolveCluster(rcl.dataset.key,rcl.dataset.val); return;}
   const res=e.target.closest('[data-res]'); if(res){resolved[res.dataset.res]=res.dataset.val; renderConf(); return;}
+  const ng=e.target.closest('[data-newgroup]'); if(ng){newGroup(); return;}
   const go=e.target.closest('[data-go]'); if(go){show(+go.dataset.go);}
 });
 document.addEventListener('input',e=>{const el=e.target; if(el.dataset.cond!==undefined&&el.tagName==='INPUT'){const g=byId(openReviewId);const c=g.cond[+el.dataset.cond];if(!c)return;c[el.dataset.part]=el.value;CONFLICTS=computeConflicts();const d=document.querySelector('.detail');const sc=window.scrollY;d.innerHTML=detailHtml(g);window.scrollTo(0,sc);renderTiles();const inp=d.querySelector(`[data-cond="${el.dataset.cond}"][data-part="${el.dataset.part}"]`);if(inp){inp.focus();if(inp.setSelectionRange){try{inp.setSelectionRange(inp.value.length,inp.value.length);}catch(_){}}}}});
