@@ -57,7 +57,7 @@
   .bars .barrow{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:12.5px;} .bars .bn{width:110px;color:var(--muted);font-family:var(--mono);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .bars .bt{flex:1;height:9px;background:var(--line);border-radius:5px;overflow:hidden;} .bars .bt i{display:block;height:100%;} .bars .bc{width:64px;text-align:right;font-family:var(--mono);font-weight:600;}
   table{width:100%;border-collapse:collapse;font-size:12.5px;} th{font-family:var(--mono);font-size:10px;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:2px solid var(--line);} td{padding:8px 10px;border-bottom:1px solid var(--line);} tbody tr:hover td{background:#fbfbff;} .num{text-align:right;font-family:var(--mono);}
   .type-chip{font-family:var(--mono);font-size:10px;border:1px solid var(--line);border-radius:5px;padding:1px 6px;} .rowlink{color:var(--indigo-d);cursor:pointer;font-weight:600;}
-  .ai-rail .ai-item{border:1px solid var(--indigo-line);background:var(--indigo-soft);border-radius:10px;padding:12px;margin-bottom:10px;font-size:12.5px;color:#3a3f57;} .ai-item b{color:var(--indigo-d);}
+  .ai-item{border:1px solid var(--indigo-line);background:var(--indigo-soft);border-radius:10px;padding:12px;margin-bottom:10px;font-size:12.5px;color:#3a3f57;line-height:1.5;} .ai-item:last-child{margin-bottom:0;} .ai-item b{color:var(--indigo-d);}
   .subg{border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:9px;display:flex;align-items:center;gap:12px;} .subg .sn{font-weight:600;} .subg .sm2{font-size:11px;color:var(--muted);font-family:var(--mono);}
   .rec{border:1px dashed var(--indigo-line);background:var(--indigo-soft);border-radius:9px;padding:10px 12px;margin-bottom:9px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
   /* resource 360 */
@@ -103,9 +103,11 @@
   .chipf{font-size:11.5px;border:1px solid var(--line);background:#fff;border-radius:16px;padding:4px 11px;cursor:pointer;color:var(--muted);} .chipf.on{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo-d);font-weight:600;}
   .cardh-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px;flex-wrap:wrap;}
   /* resource roll-up path + dependency tree */
-  .rollup{display:flex;flex-direction:column;}
-  .roll-step{border:1px solid var(--line);border-radius:9px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;} .roll-step.cur{border-color:var(--indigo);background:var(--indigo-soft);} .roll-step small{font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--faint);font-family:var(--mono);display:block;margin-bottom:1px;} .roll-step b{font-size:13px;} .roll-step .rs-src{font-size:10.5px;color:var(--muted);font-family:var(--mono);text-align:right;max-width:46%;}
-  .roll-arrow{font-size:10px;color:var(--indigo-d);text-align:center;padding:4px 0;font-family:var(--mono);}
+  .rollbar{display:flex;align-items:stretch;flex-wrap:wrap;gap:2px;}
+  .rlk{border:1px solid var(--line);border-radius:10px;padding:9px 13px;background:#fff;flex:1 1 120px;min-width:118px;display:flex;flex-direction:column;justify-content:center;} .rlk.cur{border-color:var(--ink);border-width:1.5px;padding:8.5px 12.5px;}
+  .rlk small{font-size:9px;letter-spacing:.6px;text-transform:uppercase;color:var(--faint);font-family:var(--mono);} .rlk b{font-size:13.5px;margin:2px 0 1px;line-height:1.2;word-break:break-word;} .rlk .rsrc{font-size:10px;color:var(--indigo-d);font-family:var(--mono);}
+  .rsep{align-self:center;color:var(--faint);font-size:15px;padding:0 2px;flex:none;}
+  .trend-x{display:flex;margin-top:5px;font-family:var(--mono);font-size:10.5px;color:var(--faint);} .trend-x span{flex:1;}
   .deptree{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);} .deptree .tree-row{padding-top:6px;padding-bottom:6px;} .deptree .tree-row.cur{background:var(--indigo-soft);border-radius:7px;} .tw{font-family:var(--mono);color:var(--faint);} .tw-role{font-family:var(--mono);font-size:10px;color:var(--muted);margin-left:auto;}
 </style>
 </head>
@@ -235,8 +237,9 @@ function trendChart(series,color){ const max=Math.max(...series),min=Math.min(..
   const x=i=>n<=1?0:i/(n-1)*100; const y=v=>3+(1-(v-min)/Math.max(max-min,1))*32;
   const pts=series.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
   const grid=[0,0.5,1].map(f=>`<line x1="0" x2="100" y1="${3+f*32}" y2="${3+f*32}" stroke="var(--line)" stroke-width="0.4"/>`).join('');
-  const labs=series.map((v,i)=>{ if(n>7&&i%2!==0&&i!==n-1)return ''; return `<text x="${x(i)}" y="46" font-size="3.2" fill="var(--faint)" text-anchor="${i===0?'start':i===n-1?'end':'middle'}">${MONTHS[(now-(n-1)+i+24)%12]}</text>`;}).join('');
-  return `<svg viewBox="0 0 100 50" preserveAspectRatio="none" style="width:100%;height:150px"><polygon points="0,38 ${pts} 100,38" fill="${color}" opacity="0.10" stroke="none"/>${grid}<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.2"/>${series.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="0.9" fill="${color}"/>`).join('')}${labs}</svg>`;
+  // month labels rendered as HTML (outside the non-uniformly scaled SVG so they don't stretch)
+  const labs=series.map((v,i)=>{ const show=!(n>7&&i%2!==0&&i!==n-1); const m=show?MONTHS[(now-(n-1)+i+24)%12]:''; return `<span style="text-align:${i===0?'left':i===n-1?'right':'center'}">${m}</span>`;}).join('');
+  return `<svg viewBox="0 0 100 38" preserveAspectRatio="none" style="width:100%;height:140px;display:block"><polygon points="0,38 ${pts} 100,38" fill="${color}" opacity="0.10" stroke="none"/>${grid}<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.1" vector-effect="non-scaling-stroke"/></svg><div class="trend-x">${labs}</div>`;
 }
 
 /* ---------- format + state ---------- */
@@ -398,15 +401,18 @@ function renderResource(rid){
   const links=(r.links||[]).map(byId).filter(Boolean);
   const shared=links.filter(x=>{const xa=assignFor(x);return xa.status==='assigned'&&(!g||xa.g!==a.g);});
   const statusBadge=r.terminated?'<span class="badge-term">TERMINATED</span>':r.isNew?'<span class="badge-new">NEW</span>':'';
-  // (1a) COST ROLL-UP PATH — vertical, from this resource up to the account it's billed under
+  // (1a) COST ROLL-UP PATH — horizontal breadcrumb: Dept › Team › Product › Application › Service › Resource
+  const DEPT={'Payments':'Engineering','Checkout':'Engineering','Marketing':'Marketing','Core-Platform':'Platform Eng','Data-Eng':'Data'};
+  const dept=DEPT[r.team]||(g?g.kind:'—');
   const rollup=[
-    ['Resource', r.name, 'this object', true],
-    ['Application', r.app==='(none)'?'—':r.app, 'grouped by name prefix'],
-    ['Service type', r.type, 'AWS resource type'],
-    ['Group / owner', g?g.name:gname, g?(g.kind+' — where cost is attributed'):'not yet attributed'],
-    ['Account', r.account==='—'?'—':r.account, 'where it is billed'],
+    ['Dept', dept, 'org chart'],
+    ['Team', r.team==='—'?'—':r.team, 'idp group'],
+    ['Product', g?g.name:gname, g?('acct · '+g.kind):'unsorted'],
+    ['Application', r.app==='(none)'?'—':r.app, 'name prefix'],
+    ['Service', r.type, 'resource type'],
+    ['Resource', r.name, 'this', true],
   ];
-  const rollupHtml=rollup.map((l,i)=>`<div class="roll-step ${l[3]?'cur':''}"><div class="rs-l"><small>${l[0]}</small><b>${esc(l[1])}</b></div><div class="rs-src">${esc(l[2])}</div></div>${i<rollup.length-1?'<div class="roll-arrow">↑ rolls up into</div>':''}`).join('');
+  const rollupHtml=rollup.map((l,i)=>`${i?'<span class="rsep">›</span>':''}<div class="rlk ${l[3]?'cur':''}"><small>${l[0]}</small><b>${esc(l[1])}</b><span class="rsrc">${esc(l[2])}</span></div>`).join('');
   // (1b) DEPENDENCY TREE — physical parent/children
   let tree=chain.map((p,i)=>`<div class="tree-row" style="padding-left:${i*18}px"><span class="tw">${i?'└ ':''}</span><span class="dot"></span><span class="rowlink" data-res="${p.id}">${esc(p.name)}</span> <span class="type-chip">${p.type}</span> <span class="tw-role">parent</span></div>`).join('');
   tree+=`<div class="tree-row cur" style="padding-left:${chain.length*18}px"><span class="tw">${chain.length?'└ ':''}</span><span class="dot" style="background:var(--indigo)"></span><b>${esc(r.name)}</b> <span class="type-chip">${r.type}</span> <span class="tw-role" style="color:var(--indigo-d)">this resource</span></div>`;
@@ -427,14 +433,12 @@ function renderResource(rid){
     <div class="gd-head"><div><h1>${esc(r.name)} ${statusBadge}</h1><div style="font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:4px">${r.type} · ${esc(r.account)} · ${esc(r.vpc)} · in <b>${esc(gname)}</b> · ${money(r.cost)}/mo</div></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-move="${r.id}">Move to group</button><button class="btn" data-dlres="${r.id}">⤓ Download report</button></div></div>
 
-    <div class="gd-grid" style="margin-bottom:2px">
-      <div class="card"><div class="card-h">Cost roll-up path</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Every dollar this resource costs rolls up through these levels — from the object itself to the account it's billed under.</div>
-        <div class="rollup">${rollupHtml}</div></div>
-      <div class="card"><div class="card-h">Dependency tree</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Infrastructure this resource is physically attached to — its parent stack and anything running under it.</div>
-        ${treeEmpty?'<div style="font-size:12.5px;color:var(--muted);border:1px dashed var(--line);border-radius:9px;padding:16px;text-align:center">Standalone — no parent or child resources.</div>':`<div class="deptree">${tree}</div>`}</div>
-    </div>
+    <div class="card"><div class="card-h">Cost roll-up path</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">How this resource is attributed — from the department that owns it down to the object itself. Each level's cost rolls up into the one on its left.</div>
+      <div class="rollbar">${rollupHtml}</div></div>
+    <div class="card"><div class="card-h">Dependency tree</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Infrastructure this resource is physically attached to — its parent stack and anything running under it.</div>
+      ${treeEmpty?'<div style="font-size:12.5px;color:var(--muted);border:1px dashed var(--line);border-radius:9px;padding:16px;text-align:center">Standalone — no parent or child resources.</div>':`<div class="deptree">${tree}</div>`}</div>
 
     <div class="gd-grid">
       <div>
