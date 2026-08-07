@@ -177,7 +177,7 @@ let GROUPS=[
 const byId=id=>GROUPS.find(g=>g.id===id);
 function computeConflicts(){return RESOURCES.filter(r=>groupsFor(r).length>1).map(r=>({res:r.name,groups:groupsFor(r).map(g=>g.name)}));}
 let CONFLICTS=computeConflicts();
-let step=1, reviewed={}, resolved={}, openReviewId=null;
+let step=1, reviewed={}, resolved={}, openReviewId=null, typeExpanded={};
 
 /* ---------- helpers ---------- */
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -211,7 +211,8 @@ function renderGrows(){
 }
 function detailHtml(g){
   const m=matches(g); const types={}; m.forEach(r=>types[r.type]=(types[r.type]||0)+1); const maxT=Math.max(...Object.values(types),1);
-  const typeMap=Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([t,c])=>`<div class="tmrow"><span class="ti">${TYPE_ICON[t]||'▪'}</span><span class="tn">${t}</span><span class="tb"><i style="width:${c/maxT*100}%"></i></span><span class="tc">${c}</span></div>`).join('')||'<div style="font-size:12px;color:var(--muted)">No matches.</div>';
+  const tEntries=Object.entries(types).sort((a,b)=>b[1]-a[1]); const TCAP=15; const tExp=typeExpanded[g.id]; const tShown=tExp?tEntries:tEntries.slice(0,TCAP);
+  const typeMap=(tShown.map(([t,c])=>`<div class="tmrow"><span class="ti">${TYPE_ICON[t]||'▪'}</span><span class="tn">${t}</span><span class="tb"><i style="width:${c/maxT*100}%"></i></span><span class="tc">${c}</span></div>`).join('')||'<div style="font-size:12px;color:var(--muted)">No matches.</div>')+(tEntries.length>TCAP?`<button class="btn sm" data-toggletypes="${g.id}" style="width:100%;margin-top:8px;border-style:dashed;justify-content:center">${tExp?'Show fewer':'＋ Show '+(tEntries.length-TCAP)+' more types'}</button>`:'');
   let conds=''; g.cond.forEach((c,i)=>{if(i)conds+=`<div class="connector"><div class="andor"><span class="${(g.connectors[i-1]||'AND')==='AND'?'on':''}" data-conn="${i-1}" data-val="AND">AND</span><span class="${g.connectors[i-1]==='OR'?'on':''}" data-conn="${i-1}" data-val="OR">OR</span></div></div>`; conds+=condRow(c,i);});
   if(!g.cond.length)conds='<div style="font-size:12.5px;color:var(--muted);padding:8px 0;">No conditions.</div>';
   const mrows=m.slice(0,5).map(r=>`<div class="mrow"><div class="mres"><div class="ricon">${TYPE_ICON[r.type]||'▪'}</div><div style="min-width:0;"><div class="rn">${esc(r.name)}</div><div class="rt">${r.type}</div></div></div><div class="mcell">${esc(r.account)}</div><div class="mcell">${esc(r.vpc)}</div><div class="mcell">${esc(r.owner)} · ${esc(r.team)}</div><div class="tags">${Object.entries(r.tags).slice(0,2).map(([k,v])=>`<span class="tag">${k}=${v}</span>`).join('')||'<span class="tag">no tags</span>'}</div></div>`).join('');
@@ -318,6 +319,7 @@ function show(nn){step=nn;document.querySelectorAll('.iter').forEach(s=>s.classL
 document.addEventListener('click',e=>{
   const rv=e.target.closest('[data-review]'); if(rv){openReviewId=openReviewId===rv.dataset.review?null:rv.dataset.review; renderGrows(); if(openReviewId){const el=[...document.querySelectorAll('.grow')].find(x=>x.querySelector(`[data-review="${openReviewId}"]`)); } return;}
   const ac=e.target.closest('[data-accept]'); if(ac){reviewed[ac.dataset.accept]=true; openReviewId=null; renderGrows(); toast('Group marked reviewed'); return;}
+  const tt=e.target.closest('[data-toggletypes]'); if(tt){typeExpanded[tt.dataset.toggletypes]=!typeExpanded[tt.dataset.toggletypes]; refreshReview(); return;}
   const add=e.target.closest('[data-add]'); if(add){const g=byId(add.dataset.add); g.cond.push({field:'name',op:'contains',value:''}); if(g.cond.length>1)g.connectors.push('AND'); refreshReview(); return;}
   const ai=e.target.closest('[data-ai]'); if(ai){const g=byId(ai.dataset.ai); g.cond.push({field:'type',op:'equals',value:'RDS'}); g.connectors.push('OR'); refreshReview(); toast('AI added: type = RDS (OR)'); return;}
   const rm=e.target.closest('[data-remove]'); if(rm){const g=byId(openReviewId),idx=+rm.dataset.remove; g.cond.splice(idx,1); if(idx>0)g.connectors.splice(idx-1,1); else if(g.connectors.length)g.connectors.splice(0,1); refreshReview(); return;}

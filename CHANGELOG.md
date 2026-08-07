@@ -11,6 +11,17 @@ auto-deploys to GitHub Pages.
 ## Consumption module — `consumption.html`
 Live: https://oshal7.github.io/Tag-management/consumption.html
 
+- **2026-08-07 — Group + Resource 360 upgrades.** Resource 360 now splits the
+  confusing single block into a clear **Cost roll-up path** (Resource → App →
+  Service → Group → Account, with "rolls up into" between each) and a separate
+  **Dependency tree** (parent/children); the **Pin** button is gone and an
+  **✦ AI insights** card is added. **New** (🟢) and **terminated** (🔴) resources
+  are surfaced everywhere — highlight cards in a group's Overview, NEW/TERMINATED
+  badges + row styling and quick-filter chips in the Resources tab, and status on
+  the resource page. Trends in both group and resource pages became real area
+  charts with month ticks and a **3M / 6M / 12M** duration filter. **Download
+  report** now actually works — client-side CSV for a group, a resource, and the
+  landing **Export** (all from a cost/consumption standpoint).
 - **2026-08-03 — Scaled to ~14,400 resources.** The consumption module now runs
   on a realistic estate: **14,400 placeholder resources** across **40 AWS types**
   (EC2, RDS, Aurora, Redshift, EKS, Lambda, S3, DynamoDB, EMR, SageMaker, MSK,
@@ -40,6 +51,9 @@ Live: https://oshal7.github.io/Tag-management/consumption.html
   (trend, cost-by-service donut, cost-by-account/env bars) + AI insights.
 
 ## Onboarding module
+- **2026-08-07 — Shorter resource-type mapping.** In the group review detail, the
+  resource-type mapping now shows the top **15** types with a **＋ Show N more
+  types** toggle instead of a long list (all onboarding approaches).
 - **2026-08-04 — Rule-first conflict resolution in the wizard.** The wizard's
   *Resolve conflicts* step is now **tabbed — “By rule” (default) / “By
   resource”**. The rule view collapses all 332 conflicting resources into the

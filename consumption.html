@@ -91,6 +91,22 @@
   /* smart-move suggestions */
   .sugg-group{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:#fbfbff;} .sugg-group .sh{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;margin-bottom:2px;} .sugg-group .svia{font-size:11px;color:var(--muted);margin:0 0 6px 24px;} .sugg-item{display:flex;align-items:center;gap:9px;padding:6px 0 6px 24px;font-size:12.5px;border-top:1px dashed var(--line);} .relchip{font-family:var(--mono);font-size:10px;color:var(--indigo-d);background:var(--indigo-soft);border-radius:5px;padding:1px 6px;margin-left:auto;}
   .modal.wide{width:600px;} .modal .mbody{max-height:52vh;overflow-y:auto;margin:10px 0;}
+  /* new / terminated highlights */
+  .badge-new{font-size:9px;font-weight:700;letter-spacing:.4px;background:var(--green);color:#fff;border-radius:5px;padding:1px 6px;margin-left:7px;vertical-align:middle;}
+  .badge-term{font-size:9px;font-weight:700;letter-spacing:.4px;background:#fff;color:var(--red);border:1px solid var(--red);border-radius:5px;padding:0 6px;margin-left:7px;vertical-align:middle;}
+  tr.row-new{background:rgba(21,128,61,.06);} tr.row-new td:first-child{box-shadow:inset 3px 0 0 var(--green);}
+  tr.row-term{background:var(--red-soft);} tr.row-term .rowlink{text-decoration:line-through;color:var(--muted);} tr.row-term td:first-child{box-shadow:inset 3px 0 0 var(--red);}
+  .hl-card{border:1px solid var(--indigo-line);background:var(--indigo-soft);border-radius:10px;padding:11px 13px;margin-bottom:10px;font-size:12.5px;color:#3a3f57;display:flex;align-items:center;gap:10px;flex-wrap:wrap;} .hl-card b{color:var(--indigo-d);}
+  .hl-card.term{border-color:#f2c0c0;background:var(--red-soft);color:#7a2020;} .hl-card.term b{color:var(--red);}
+  .hl-card .hl-cta{margin-left:auto;color:var(--indigo-d);cursor:pointer;font-weight:600;white-space:nowrap;} .hl-card.term .hl-cta{color:var(--red);}
+  .durseg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:8px;padding:2px;} .durseg button{border:none;background:none;font:inherit;font-size:11.5px;color:var(--muted);padding:4px 10px;border-radius:6px;cursor:pointer;} .durseg button.on{background:var(--indigo);color:#fff;}
+  .chipf{font-size:11.5px;border:1px solid var(--line);background:#fff;border-radius:16px;padding:4px 11px;cursor:pointer;color:var(--muted);} .chipf.on{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo-d);font-weight:600;}
+  .cardh-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px;flex-wrap:wrap;}
+  /* resource roll-up path + dependency tree */
+  .rollup{display:flex;flex-direction:column;}
+  .roll-step{border:1px solid var(--line);border-radius:9px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;} .roll-step.cur{border-color:var(--indigo);background:var(--indigo-soft);} .roll-step small{font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--faint);font-family:var(--mono);display:block;margin-bottom:1px;} .roll-step b{font-size:13px;} .roll-step .rs-src{font-size:10.5px;color:var(--muted);font-family:var(--mono);text-align:right;max-width:46%;}
+  .roll-arrow{font-size:10px;color:var(--indigo-d);text-align:center;padding:4px 0;font-family:var(--mono);}
+  .deptree{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);} .deptree .tree-row{padding-top:6px;padding-bottom:6px;} .deptree .tree-row.cur{background:var(--indigo-soft);border-radius:7px;} .tw{font-family:var(--mono);color:var(--faint);} .tw-role{font-family:var(--mono);font-size:10px;color:var(--muted);margin-left:auto;}
 </style>
 </head>
 <body>
@@ -114,7 +130,7 @@
       <div class="view on" id="v-landing">
         <div class="page-head">
           <div><h1>Consumption</h1><p class="sub">Every group mapped on one page. Switch between resource counts and cost (showback). Unassigned, Unnamed &amp; Orphaned resources are groupable buckets — open one to assign.</p></div>
-          <div style="display:flex;gap:10px;"><button class="btn ghost-indigo" data-action="openAI">✦ Ask AI</button><button class="btn primary">Export</button></div>
+          <div style="display:flex;gap:10px;"><button class="btn ghost-indigo" data-action="openAI">✦ Ask AI</button><button class="btn primary" data-action="dlAll">⤓ Export</button></div>
         </div>
         <div class="tiles" id="tiles"></div>
         <div class="controls">
@@ -173,7 +189,7 @@ const GROUP_DEFS=[
 ];
 const RESOURCES=[]; let n=1; const clusterCtr={};
 function genRow(o){ RESOURCES.push(o); n++; }
-GROUP_DEFS.forEach(gd=>{ for(let k=0;k<gd.n;k++){ const app=gd.apps[rint(0,gd.apps.length-1)]; const env=pickEnv(); const type=pickType(); const owner=OWNERS[rint(0,OWNERS.length-1)]; const account=gd.accounts[rint(0,gd.accounts.length-1)]; const ck=gd.prefix+app+'|'+env; clusterCtr[ck]=(clusterCtr[ck]||0)+1; genRow({id:'r'+n,name:`${gd.prefix}${app}-${env}-${String(n).padStart(5,'0')}`,app:gd.prefix+app,type,account,vpc:VPCS[rint(0,VPCS.length-1)],owner,team:gd.team,env,cost:costFor(type),cluster:ck+'|'+((clusterCtr[ck]-1)>>2),parent:null,links:[],tags:{Env:env,Team:gd.team,Owner:owner}}); } });
+GROUP_DEFS.forEach(gd=>{ for(let k=0;k<gd.n;k++){ const app=gd.apps[rint(0,gd.apps.length-1)]; const env=pickEnv(); const type=pickType(); const owner=OWNERS[rint(0,OWNERS.length-1)]; const account=gd.accounts[rint(0,gd.accounts.length-1)]; const ck=gd.prefix+app+'|'+env; clusterCtr[ck]=(clusterCtr[ck]||0)+1; const flg=rng(); const isNew=flg>0.955, terminated=!isNew&&flg<0.022; genRow({id:'r'+n,name:`${gd.prefix}${app}-${env}-${String(n).padStart(5,'0')}`,app:gd.prefix+app,type,account,vpc:VPCS[rint(0,VPCS.length-1)],owner,team:gd.team,env,cost:costFor(type),cluster:ck+'|'+((clusterCtr[ck]-1)>>2),parent:null,links:[],tags:{Env:env,Team:gd.team,Owner:owner},isNew,terminated,addedDays:isNew?rint(1,7):0}); } });
 // unassigned (real metadata, no rule match) — search-/ml-/ops-/sandbox-
 const UNAPP=[['search-',['index','api','cache','ranking','ingest','autocomplete']],['ml-',['training','inference','feature','pipeline','registry']],['ops-',['runner','agent','backup','monitor','patch']],['sandbox-',['test','poc','scratch','demo']]];
 for(let k=0;k<1200;k++){ const grp=UNAPP[rint(0,UNAPP.length-1)]; const app=grp[1][rint(0,grp[1].length-1)]; const env=pickEnv(); const type=pickType(); genRow({id:'r'+n,name:`${grp[0]}${app}-${env}-${String(n).padStart(5,'0')}`,app:grp[0]+app,type,account:ACCOUNTS[rint(0,ACCOUNTS.length-1)],vpc:VPCS[rint(0,VPCS.length-1)],owner:OWNERS[rint(0,OWNERS.length-1)],team:'—',env,cost:costFor(type),cluster:grp[0]+app+'|'+env+'|'+(k>>2),parent:null,links:[],tags:{Env:env}}); }
@@ -210,6 +226,18 @@ const resInGroup=gid=>assignAll().groups[gid]||[];
 const bucket=st=>assignAll()[st]||[];
 const gCost=gid=>resInGroup(gid).reduce((s,r)=>s+r.cost,0);
 const bCost=list=>list.reduce((s,r)=>s+r.cost,0);
+const newInGroup=gid=>resInGroup(gid).filter(r=>r.isNew);
+const termInGroup=gid=>resInGroup(gid).filter(r=>r.terminated);
+// duration-aware monthly trend (n months, ending at `total`)
+function trendSeriesN(total,seed,n){const r=mulberry32(seed);const arr=[];let base=total*(n>=12?0.62:n>=6?0.78:0.9);for(let i=0;i<n;i++){base=base*(0.93+r()*0.17);arr.push(Math.max(base,total*0.2));}arr[n-1]=total;return arr;}
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function trendChart(series,color){ const max=Math.max(...series),min=Math.min(...series); const n=series.length; const now=7; // pretend "current" month index
+  const x=i=>n<=1?0:i/(n-1)*100; const y=v=>3+(1-(v-min)/Math.max(max-min,1))*32;
+  const pts=series.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
+  const grid=[0,0.5,1].map(f=>`<line x1="0" x2="100" y1="${3+f*32}" y2="${3+f*32}" stroke="var(--line)" stroke-width="0.4"/>`).join('');
+  const labs=series.map((v,i)=>{ if(n>7&&i%2!==0&&i!==n-1)return ''; return `<text x="${x(i)}" y="46" font-size="3.2" fill="var(--faint)" text-anchor="${i===0?'start':i===n-1?'end':'middle'}">${MONTHS[(now-(n-1)+i+24)%12]}</text>`;}).join('');
+  return `<svg viewBox="0 0 100 50" preserveAspectRatio="none" style="width:100%;height:150px"><polygon points="0,38 ${pts} 100,38" fill="${color}" opacity="0.10" stroke="none"/>${grid}<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.2"/>${series.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="0.9" fill="${color}"/>`).join('')}${labs}</svg>`;
+}
 
 /* ---------- format + state ---------- */
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -272,15 +300,17 @@ function renderTreemap(){
 function renderLanding(){ renderTiles(); if(iteration==='cards'){renderCards();document.getElementById('iter-cards').style.display='';document.getElementById('iter-treemap').style.display='none';} else {renderTreemap();document.getElementById('iter-treemap').style.display='';document.getElementById('iter-cards').style.display='none';} }
 
 /* ---------- group details ---------- */
-let groupTab='overview', gFilt={q:'',type:'',account:'',env:''}, gSel=new Set();
+let groupTab='overview', gFilt={q:'',type:'',account:'',env:'',flag:''}, gSel=new Set(), gDur=6;
 function bulkBarHtml(count){ return `<div class="bulkbar"><b>${count} selected</b><span class="lbl">Map to group:</span>${GROUPS.map(g=>`<span class="grouppill" data-movesel="${g.id}">${esc(g.name)}</span>`).join('')}<span class="grouppill" data-movesel="__new">+ New group</span><button class="btn sm" data-action="clearSel" style="margin-left:auto;color:var(--indigo-d)">Clear</button></div>`; }
-function groupResFiltered(gid){ return resInGroup(gid).filter(r=>{ if(gFilt.type&&r.type!==gFilt.type)return false; if(gFilt.account&&r.account!==gFilt.account)return false; if(gFilt.env&&(r.env==='prod'?'prod':r.env==='unknown'?'other':'non-prod')!==gFilt.env)return false; if(gFilt.q){const h=[r.name,r.type,r.account,r.owner].join(' ').toLowerCase();if(!h.includes(gFilt.q.toLowerCase()))return false;} return true;}); }
+function groupResFiltered(gid){ return resInGroup(gid).filter(r=>{ if(gFilt.flag==='new'&&!r.isNew)return false; if(gFilt.flag==='terminated'&&!r.terminated)return false; if(gFilt.type&&r.type!==gFilt.type)return false; if(gFilt.account&&r.account!==gFilt.account)return false; if(gFilt.env&&(r.env==='prod'?'prod':r.env==='unknown'?'other':'non-prod')!==gFilt.env)return false; if(gFilt.q){const h=[r.name,r.type,r.account,r.owner].join(' ').toLowerCase();if(!h.includes(gFilt.q.toLowerCase()))return false;} return true;}); }
 function groupResPaneHtml(gid){
   const list=groupResFiltered(gid);
   const CAP=250; const shown=list.slice(0,CAP);
   const capNote=list.length>CAP?`<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:12px;font-size:12px">Showing first ${CAP} of ${list.length.toLocaleString()} — refine filters or search to narrow.</td></tr>`:'';
-  const rows=(shown.map(r=>`<tr><td><input type="checkbox" class="gsel" value="${r.id}" ${gSel.has(r.id)?'checked':''}></td><td><span class="rowlink" data-res="${r.id}">${esc(r.name)}</span></td><td><span class="type-chip">${r.type}</span></td><td>${esc(r.account)}</td><td>${r.env}</td><td class="num">${money(r.cost)}</td><td><button class="btn sm" data-move="${r.id}">Move</button></td></tr>`).join('')+capNote)||'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:16px">No resources match.</td></tr>';
-  return `<div class="filters"><input class="search" id="gd-q" placeholder="Search resources…" value="${esc(gFilt.q)}" data-gf="q"><select data-gf="type"><option value="">all types</option>${TYPE_VALUES.map(t=>`<option ${gFilt.type===t?'selected':''}>${t}</option>`).join('')}</select><select data-gf="account"><option value="">all accounts</option>${ACCOUNTS.map(a=>`<option ${gFilt.account===a?'selected':''}>${a}</option>`).join('')}</select><select data-gf="env"><option value="">all envs</option>${['prod','non-prod','other'].map(e=>`<option ${gFilt.env===e?'selected':''}>${e}</option>`).join('')}</select><span style="font-size:12px;color:var(--muted)">${list.length.toLocaleString()} of ${resInGroup(gid).length.toLocaleString()}</span></div>${gSel.size?bulkBarHtml(gSel.size):''}<div class="card" style="padding:0"><table><thead><tr><th style="width:34px"></th><th>Resource</th><th>Type</th><th>Account</th><th>Env</th><th class="num">Cost/mo</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  const rows=(shown.map(r=>`<tr class="${r.terminated?'row-term':r.isNew?'row-new':''}"><td><input type="checkbox" class="gsel" value="${r.id}" ${gSel.has(r.id)?'checked':''}></td><td><span class="rowlink" data-res="${r.id}">${esc(r.name)}</span>${r.isNew?'<span class="badge-new">NEW</span>':''}${r.terminated?'<span class="badge-term">TERMINATED</span>':''}</td><td><span class="type-chip">${r.type}</span></td><td>${esc(r.account)}</td><td>${r.env}</td><td class="num">${money(r.cost)}</td><td><button class="btn sm" data-move="${r.id}">Move</button></td></tr>`).join('')+capNote)||'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:16px">No resources match.</td></tr>';
+  const nN=newInGroup(gid).length, nT=termInGroup(gid).length;
+  const chips=`<div class="filters" style="margin-bottom:10px"><span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px">Quick view</span><span class="chipf ${gFilt.flag===''?'on':''}" data-gflag="">All</span><span class="chipf ${gFilt.flag==='new'?'on':''}" data-gflag="new">🟢 New ${nN}</span><span class="chipf ${gFilt.flag==='terminated'?'on':''}" data-gflag="terminated">🔴 Terminated ${nT}</span></div>`;
+  return chips+`<div class="filters"><input class="search" id="gd-q" placeholder="Search resources…" value="${esc(gFilt.q)}" data-gf="q"><select data-gf="type"><option value="">all types</option>${TYPE_VALUES.map(t=>`<option ${gFilt.type===t?'selected':''}>${t}</option>`).join('')}</select><select data-gf="account"><option value="">all accounts</option>${ACCOUNTS.map(a=>`<option ${gFilt.account===a?'selected':''}>${a}</option>`).join('')}</select><select data-gf="env"><option value="">all envs</option>${['prod','non-prod','other'].map(e=>`<option ${gFilt.env===e?'selected':''}>${e}</option>`).join('')}</select><span style="font-size:12px;color:var(--muted)">${list.length.toLocaleString()} of ${resInGroup(gid).length.toLocaleString()}</span></div>${gSel.size?bulkBarHtml(gSel.size):''}<div class="card" style="padding:0"><table><thead><tr><th style="width:34px"></th><th>Resource</th><th>Type</th><th>Account</th><th>Env</th><th class="num">Cost/mo</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 function renderGroup(gid){
   const g=gById(gid); if(!g){show('landing');return;} curGroup=gid;
@@ -294,7 +324,11 @@ function renderGroup(gid){
   const acctBars=Object.entries(byAcct).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="barrow"><span class="bn">${esc(k)}</span><span class="bt"><i style="width:${v/maxAcct*100}%;background:var(--indigo)"></i></span><span class="bc">${money(v)}</span></div>`).join('');
   const maxEnv=Math.max(...Object.values(byEnv),1);
   const envBars=Object.entries(byEnv).map(([k,v])=>`<div class="barrow"><span class="bn">${k}</span><span class="bt"><i style="width:${v/maxEnv*100}%;background:${k==='prod'?'var(--red)':'var(--blue)'}"></i></span><span class="bc">${money(v)}</span></div>`).join('');
-  const series=trendSeries(total,gid.length+5); const maxS=Math.max(...series); const pts=series.map((v,i)=>`${i/(series.length-1)*100},${40-v/maxS*36}`).join(' ');
+  const series=trendSeriesN(total,gid.length+5,gDur); const trendPct=Math.round((series[series.length-1]/series[0]-1)*100);
+  const newList=newInGroup(gid), termList=termInGroup(gid);
+  const highlights=(newList.length||termList.length)?`
+    ${newList.length?`<div class="hl-card">🟢 <b>${newList.length} new resource${newList.length>1?'s':''}</b> added recently — <b>${money(bCost(newList))}/mo</b> added. e.g. ${newList.slice(0,3).map(r=>esc(r.name)).join(', ')}<span class="hl-cta" data-gflagtab="new">View in Resources →</span></div>`:''}
+    ${termList.length?`<div class="hl-card term">🔴 <b>${termList.length} terminated resource${termList.length>1?'s':''}</b> still on the bill (${money(bCost(termList))}) — decommission to stop drift.<span class="hl-cta" data-gflagtab="terminated">View in Resources →</span></div>`:''}`:'';
   const topRes=list.slice().sort((a,b)=>b.cost-a.cost).slice(0,8).map(r=>`<tr><td><span class="rowlink" data-res="${r.id}">${esc(r.name)}</span></td><td><span class="type-chip">${r.type}</span></td><td>${esc(r.account)}</td><td class="num">${money(r.cost)}</td><td><button class="btn sm" data-move="${r.id}">Move</button></td></tr>`).join('');
   const subgs=g.subgroups.length?g.subgroups.map(s=>`<div class="subg"><div style="flex:1"><div class="sn">${esc(s.name)}</div><div class="sm2">${esc(s.rule)} · ${s.count} resources</div></div><div style="font-weight:700">${money(s.cost)}</div></div>`).join(''):'<div style="font-size:12.5px;color:var(--muted)">No sub-groups yet.</div>';
   const tok={}; list.forEach(r=>{const p=r.name.split('-');if(p.length>1)tok[p[1]]=(tok[p[1]]||0)+1;});
@@ -306,7 +340,8 @@ function renderGroup(gid){
   ].map(t=>`<div class="ai-item">✦ ${t}</div>`).join('');
   const overview=`<div class="gd-grid">
       <div>
-        <div class="card"><div class="card-h">Cost trend · 6 months</div><svg viewBox="0 0 100 42" preserveAspectRatio="none" style="width:100%;height:120px"><polyline points="${pts}" fill="none" stroke="var(--indigo)" stroke-width="1.5"/><polyline points="0,42 ${pts} 100,42" fill="rgba(13,94,186,.12)" stroke="none"/></svg></div>
+        ${highlights}
+        <div class="card"><div class="cardh-row"><div class="card-h" style="margin:0">Cost trend</div><div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:${trendPct>=0?'var(--red)':'var(--green)'}">${trendPct>=0?'▲':'▼'} ${Math.abs(trendPct)}% over ${gDur}mo</span><div class="durseg">${[3,6,12].map(d=>`<button class="${gDur===d?'on':''}" data-gdur="${d}">${d}M</button>`).join('')}</div></div></div>${trendChart(series,'var(--indigo)')}</div>
         <div class="viz2">
           <div class="card"><div class="card-h">Cost by service</div><div class="donut-wrap"><div class="donut" style="background:conic-gradient(${stops.join(',')})"><div class="donut-hole"><div><div style="font-weight:800">${moneyK(total)}</div><div style="font-size:10px;color:var(--muted)">total</div></div></div></div><div class="legend">${legend}</div></div></div>
           <div class="card"><div class="card-h">Cost by account</div><div class="bars">${acctBars}</div><div class="card-h" style="margin-top:14px">Cost by environment</div><div class="bars">${envBars}</div></div>
@@ -323,7 +358,7 @@ function renderGroup(gid){
   document.getElementById('v-group').innerHTML=`
     <span class="back" data-action="toLanding">← all groups</span>
     <div class="gd-head"><div><h1>${esc(g.name)} <span class="kindbadge k-${g.kind}" style="vertical-align:middle">${g.kind}</span></h1><div class="envrow" style="margin-top:6px">${envHtml(list)}</div></div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-action="openAI">✦ AI insights</button><button class="btn">⤓ Download report</button><button class="btn" data-editrules="${gid}">✎ Edit rules</button></div></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-action="openAI">✦ AI insights</button><button class="btn" data-dlgroup="${gid}">⤓ Download report</button><button class="btn" data-editrules="${gid}">✎ Edit rules</button></div></div>
     <div class="kpis" style="margin-bottom:16px">
       <div class="kpi"><div class="k">Total cost / mo</div><div class="v">${money(total)}</div></div>
       <div class="kpi"><div class="k">Resources</div><div class="v">${list.length}</div></div>
@@ -336,7 +371,25 @@ function renderGroup(gid){
   show('group');
 }
 
+/* ---------- reports (client-side CSV, consumption/cost standpoint) ---------- */
+const csvEsc=v=>{v=String(v??'');return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+function downloadCSV(name,text){ const blob=new Blob([text],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500); }
+const today=()=>new Date().toISOString().slice(0,10);
+function reportGroup(gid){ const g=gById(gid); const list=resInGroup(gid); const nN=newInGroup(gid).length, nT=termInGroup(gid).length;
+  const head=[`Compass — consumption report`,`Group,${g.name}`,`Kind,${g.kind}`,`Monthly cost (USD),${Math.round(gCost(gid))}`,`Annualised (USD),${Math.round(gCost(gid)*12)}`,`Resources,${list.length}`,`New this period,${nN}`,`Terminated,${nT}`,`Generated,${today()}`,``,`Resource,Type,Account,Environment,Owner,Team,Monthly cost (USD),Status`];
+  const rows=list.map(r=>[r.name,r.type,r.account,r.env,r.owner,r.team,Math.round(r.cost),r.terminated?'terminated':r.isNew?'new':'active'].map(csvEsc).join(','));
+  downloadCSV(`compass-${g.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}-consumption.csv`,head.join('\n')+'\n'+rows.join('\n')); toast(`Report downloaded · ${list.length.toLocaleString()} rows`); }
+function reportResource(rid){ const r=byId(rid); const a=assignFor(r); const g=a.status==='assigned'?gById(a.g):null;
+  const lines=[`Compass — resource consumption report`,`Resource,${r.name}`,`Type,${r.type}`,`Account,${r.account}`,`VPC,${r.vpc}`,`Group,${g?g.name:a.status}`,`Owner,${r.owner}`,`Team,${r.team}`,`Environment,${r.env}`,`Status,${r.terminated?'terminated':r.isNew?'new':'active'}`,`Generated,${today()}`,``,`Line item,Monthly cost (USD)`,`Compute,${Math.round(r.cost*0.8)}`,`Storage,${Math.round(r.cost*0.15)}`,`Data transfer,${Math.round(r.cost*0.05)}`,`Total monthly,${Math.round(r.cost)}`,`Annualised,${Math.round(r.cost*12)}`,`Forecast next month,${Math.round(r.cost*1.08)}`,``,`Linked resources,${(r.links||[]).length}`];
+  downloadCSV(`compass-${r.name.replace(/[^a-z0-9]+/gi,'-')}-consumption.csv`,lines.join('\n')); toast('Resource report downloaded'); }
+function reportAll(){ const A=assignAll();
+  const head=[`Compass — consumption summary (all groups)`,`Generated,${today()}`,`Total monthly cost (USD),${Math.round(RESOURCES.reduce((s,r)=>s+r.cost,0))}`,`Total resources,${RESOURCES.length}`,``,`Group,Kind,Resources,New,Terminated,Monthly cost (USD)`];
+  const rows=GROUPS.map(g=>[g.name,g.kind,resInGroup(g.id).length,newInGroup(g.id).length,termInGroup(g.id).length,Math.round(gCost(g.id))].map(csvEsc).join(','));
+  ['unassigned','unnamed','orphaned'].forEach(st=>rows.push([st,'bucket',bucket(st).length,0,0,Math.round(bCost(bucket(st)))].join(',')));
+  downloadCSV(`compass-consumption-summary.csv`,head.join('\n')+'\n'+rows.join('\n')); toast('Summary report downloaded'); }
+
 /* ---------- resource 360 ---------- */
+let rDur=6;
 function renderResource(rid){
   const r=byId(rid); if(!r){show('landing');return;} curRes=rid;
   const a=assignFor(r); const g=a.status==='assigned'?gById(a.g):null; const gname=g?g.name:a.status;
@@ -344,39 +397,64 @@ function renderResource(rid){
   const children=RESOURCES.filter(x=>x.parent===r.id);
   const links=(r.links||[]).map(byId).filter(Boolean);
   const shared=links.filter(x=>{const xa=assignFor(x);return xa.status==='assigned'&&(!g||xa.g!==a.g);});
-  let tree=chain.map((p,i)=>`<div class="tree-row" style="margin-left:${i*16}px"><span class="dot"></span><span class="rowlink" data-res="${p.id}">${esc(p.name)}</span> <span class="type-chip">${p.type}</span> <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">parent</span></div>`).join('');
-  tree+=`<div class="tree-row" style="margin-left:${chain.length*16}px"><span class="dot" style="background:var(--amber)"></span><b>${esc(r.name)}</b> <span class="type-chip">${r.type}</span> <span style="font-family:var(--mono);font-size:10px;color:var(--amber)">this</span></div>`;
-  tree+=children.map(c=>`<div class="tree-row" style="margin-left:${(chain.length+1)*16}px"><span class="dot child"></span><span class="rowlink" data-res="${c.id}">${esc(c.name)}</span> <span class="type-chip">${c.type}</span> <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">child</span></div>`).join('');
-  if(!chain.length&&!children.length)tree+='<div style="font-size:12px;color:var(--muted);margin-top:6px">Standalone — no parent or children.</div>';
-  const ladder=[['Account',r.account==='—'?'—':r.account,'billing',''],['Group',g?g.name:gname,g?('kind: '+g.kind):'unsorted',''],['Application',r.app==='(none)'?'—':r.app,'name prefix',''],['Service',r.type,'resource type',''],['Resource',r.name,'this','cur']];
-  const ladderHtml=ladder.map((l,i)=>`${i?'<span class="sep">›</span>':''}<div class="lk ${l[3]==='cur'?'cur':''}"><small>${l[0]}</small><b>${esc(l[1])}</b><span class="src">${esc(l[2])}</span></div>`).join('');
+  const statusBadge=r.terminated?'<span class="badge-term">TERMINATED</span>':r.isNew?'<span class="badge-new">NEW</span>':'';
+  // (1a) COST ROLL-UP PATH — vertical, from this resource up to the account it's billed under
+  const rollup=[
+    ['Resource', r.name, 'this object', true],
+    ['Application', r.app==='(none)'?'—':r.app, 'grouped by name prefix'],
+    ['Service type', r.type, 'AWS resource type'],
+    ['Group / owner', g?g.name:gname, g?(g.kind+' — where cost is attributed'):'not yet attributed'],
+    ['Account', r.account==='—'?'—':r.account, 'where it is billed'],
+  ];
+  const rollupHtml=rollup.map((l,i)=>`<div class="roll-step ${l[3]?'cur':''}"><div class="rs-l"><small>${l[0]}</small><b>${esc(l[1])}</b></div><div class="rs-src">${esc(l[2])}</div></div>${i<rollup.length-1?'<div class="roll-arrow">↑ rolls up into</div>':''}`).join('');
+  // (1b) DEPENDENCY TREE — physical parent/children
+  let tree=chain.map((p,i)=>`<div class="tree-row" style="padding-left:${i*18}px"><span class="tw">${i?'└ ':''}</span><span class="dot"></span><span class="rowlink" data-res="${p.id}">${esc(p.name)}</span> <span class="type-chip">${p.type}</span> <span class="tw-role">parent</span></div>`).join('');
+  tree+=`<div class="tree-row cur" style="padding-left:${chain.length*18}px"><span class="tw">${chain.length?'└ ':''}</span><span class="dot" style="background:var(--indigo)"></span><b>${esc(r.name)}</b> <span class="type-chip">${r.type}</span> <span class="tw-role" style="color:var(--indigo-d)">this resource</span></div>`;
+  tree+=children.slice(0,20).map(c=>`<div class="tree-row" style="padding-left:${(chain.length+1)*18}px"><span class="tw">└ </span><span class="dot child"></span><span class="rowlink" data-res="${c.id}">${esc(c.name)}</span> <span class="type-chip">${c.type}</span> <span class="tw-role">child</span></div>`).join('');
+  if(children.length>20)tree+=`<div class="tree-row" style="padding-left:${(chain.length+1)*18}px;color:var(--muted);font-size:12px">+ ${children.length-20} more children</div>`;
+  const treeEmpty=!chain.length&&!children.length;
   const tagRows=Object.keys(r.tags).length?Object.entries(r.tags).map(([k,v])=>`<span class="k">${k}</span><span><span class="tag">${v}</span></span>`).join(''):`<span class="k">tags</span><span style="color:var(--amber)">none</span>`;
+  const series=trendSeriesN(r.cost,r.id.length+6,rDur); const rPct=Math.round((series[series.length-1]/series[0]-1)*100);
+  // (7) AI insights for the resource
+  const aiRes=[
+    `<b>${r.type}</b> compute is ~80% of this resource's <b>${money(r.cost)}/mo</b>; storage & transfer make up the rest.`,
+    `Forecast <b>${money(r.cost*1.08)}</b> next month (▲8%). ${g?`It is ${Math.round(r.cost/Math.max(gCost(a.g),1)*100)}% of ${esc(gname)}'s spend.`:''}`,
+    shared.length?`⚠ Shares infrastructure with <b>${[...new Set(shared.map(x=>gById(assignFor(x).g).name))].map(esc).join(', ')}</b> — its cost may be split across groups.`:`No cross-group sharing — clean single-owner attribution.`,
+    r.terminated?`🔴 Marked <b>terminated</b> — expect cost to fall to $0 next cycle; confirm it's fully decommissioned.`:(r.isNew?`🟢 Added <b>${r.addedDays} day${r.addedDays>1?'s':''} ago</b> — trend is still stabilising.`:`Spend has been steady over the last ${rDur} months.`),
+  ].map(t=>`<div class="ai-item">✦ ${t}</div>`).join('');
   document.getElementById('v-resource').innerHTML=`
     <span class="back" data-action="toGroupOrLanding">← back</span>
-    <div class="gd-head"><div><h1>${esc(r.name)}</h1><div style="font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:4px">${r.type} · ${esc(r.account)} · ${esc(r.vpc)} · in <b>${esc(gname)}</b> · ${money(r.cost)}/mo</div></div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-move="${r.id}">Move to group</button><button class="btn">Pin</button><button class="btn">⤓ Download report</button></div></div>
+    <div class="gd-head"><div><h1>${esc(r.name)} ${statusBadge}</h1><div style="font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:4px">${r.type} · ${esc(r.account)} · ${esc(r.vpc)} · in <b>${esc(gname)}</b> · ${money(r.cost)}/mo</div></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-move="${r.id}">Move to group</button><button class="btn" data-dlres="${r.id}">⤓ Download report</button></div></div>
 
-    <div class="card"><div class="card-h">Hierarchy — how this rolls up</div>
-      <div class="ladder">${ladderHtml}</div>
-      <div class="card-h" style="margin:18px 0 8px">Resource tree</div>${tree}</div>
+    <div class="gd-grid" style="margin-bottom:2px">
+      <div class="card"><div class="card-h">Cost roll-up path</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Every dollar this resource costs rolls up through these levels — from the object itself to the account it's billed under.</div>
+        <div class="rollup">${rollupHtml}</div></div>
+      <div class="card"><div class="card-h">Dependency tree</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Infrastructure this resource is physically attached to — its parent stack and anything running under it.</div>
+        ${treeEmpty?'<div style="font-size:12.5px;color:var(--muted);border:1px dashed var(--line);border-radius:9px;padding:16px;text-align:center">Standalone — no parent or child resources.</div>':`<div class="deptree">${tree}</div>`}</div>
+    </div>
 
     <div class="gd-grid">
       <div>
-        <div class="card"><div class="card-h">Cost insights</div>
-          <div class="bigmetric" style="margin-bottom:10px"><span class="n">${money(r.cost)}</span><span class="u">/ month · ${money(r.cost*12)}/yr &nbsp;<span class="mom up">▲ 12% MoM</span></span></div>
-          <div class="spark">${sparkline(r.id.length+6)}</div>
-          <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><span class="tag">compute ${money(r.cost*0.8)}</span><span class="tag">storage ${money(r.cost*0.15)}</span><span class="tag">transfer ${money(r.cost*0.05)}</span></div>
+        <div class="card"><div class="cardh-row"><div class="card-h" style="margin:0">Cost trend</div><div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:${rPct>=0?'var(--red)':'var(--green)'}">${rPct>=0?'▲':'▼'} ${Math.abs(rPct)}% over ${rDur}mo</span><div class="durseg">${[3,6,12].map(d=>`<button class="${rDur===d?'on':''}" data-rdur="${d}">${d}M</button>`).join('')}</div></div></div>
+          <div class="bigmetric" style="margin:4px 0 6px"><span class="n">${money(r.cost)}</span><span class="u">/ month · ${money(r.cost*12)}/yr</span></div>
+          ${trendChart(series,'var(--indigo)')}
+          <div style="display:flex;gap:8px;margin:8px 0 2px;flex-wrap:wrap"><span class="tag">compute ${money(r.cost*0.8)}</span><span class="tag">storage ${money(r.cost*0.15)}</span><span class="tag">transfer ${money(r.cost*0.05)}</span></div></div>
+        <div class="card"><div class="card-h">Cost detail</div>
           <div class="kv"><span class="k">forecast</span><span>~${money(r.cost*1.08)} next mo</span><span class="k">share of group</span><span>${g?Math.round(r.cost/Math.max(gCost(a.g),1)*100)+'% of '+esc(gname):'—'}</span><span class="k">since inception</span><span>${money(r.cost*7)} (7 mo)</span></div>
           <div style="font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:10px">From CUR line items joined on the attribution.</div></div>
         <div class="card"><div class="card-h">Tags &amp; metadata</div><div class="kv"><span class="k">Owner</span><span>${esc(r.owner)}</span><span class="k">Team</span><span>${esc(r.team)}</span><span class="k">Environment</span><span>${esc(r.env)}</span>${tagRows}</div></div>
       </div>
       <div>
+        <div class="card"><div class="card-h">✦ AI insights</div>${aiRes}</div>
         <div class="card"><div class="card-h">Linked &amp; shared</div>
           <div style="font-size:12.5px;color:var(--muted);margin-bottom:8px"><b style="color:var(--ink)">${links.length}</b> linked · <b style="color:${shared.length?'var(--red)':'var(--ink)'}">${shared.length}</b> shared with other groups</div>
           ${shared.length?`<div class="rec" style="border-color:#f2c0c0;background:var(--red-soft);color:var(--red)">⚠ Shares infrastructure with ${[...new Set(shared.map(x=>gById(assignFor(x).g).name))].map(esc).join(', ')} — cost may be split.</div>`:''}
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn primary sm" data-linked="${r.id}" data-mode="list">Open linked &amp; shared →</button><button class="btn sm" data-linked="${r.id}" data-mode="graph">View in graph ⤢</button></div>
         </div>
-        <div class="card"><div class="card-h">History</div><ul style="margin:0;padding-left:16px;font-size:12.5px;color:var(--muted);line-height:2"><li><span style="font-family:var(--mono)">Jul 12</span> — tag written by rule</li><li><span style="font-family:var(--mono)">Jul 03</span> — assigned to ${esc(gname)}</li><li><span style="font-family:var(--mono)">Jun 28</span> — first seen · by ${esc(r.owner)}</li></ul></div>
+        <div class="card"><div class="card-h">History</div><ul style="margin:0;padding-left:16px;font-size:12.5px;color:var(--muted);line-height:2">${r.terminated?'<li><span style="font-family:var(--mono)">recent</span> — <b style="color:var(--red)">terminated</b></li>':''}${r.isNew?`<li><span style="font-family:var(--mono)">${r.addedDays}d ago</span> — <b style="color:var(--green)">added to ${esc(gname)}</b></li>`:''}<li><span style="font-family:var(--mono)">Jul 12</span> — tag written by rule</li><li><span style="font-family:var(--mono)">Jul 03</span> — assigned to ${esc(gname)}</li><li><span style="font-family:var(--mono)">Jun 28</span> — first seen · by ${esc(r.owner)}</li></ul></div>
       </div>
     </div>`;
   show('resource');
@@ -566,6 +644,12 @@ document.addEventListener('click',e=>{
   const rrm=e.target.closest('[data-rrm]'); if(rrm){const g=gById(ruleGid);g.cond.splice(+rrm.dataset.rrm,1);renderRuleEditor();return;}
   const sub=e.target.closest('[data-sub]'); if(sub){makeSub(sub.dataset.sub,sub.dataset.tok);return;}
   const subo=e.target.closest('[data-sub-open]'); if(subo){toast('Pick a suggested split, or use AI to define one');return;}
+  const dg=e.target.closest('[data-dlgroup]'); if(dg){reportGroup(dg.dataset.dlgroup);return;}
+  const dr=e.target.closest('[data-dlres]'); if(dr){reportResource(dr.dataset.dlres);return;}
+  const gd=e.target.closest('[data-gdur]'); if(gd){gDur=+gd.dataset.gdur;renderGroup(curGroup);return;}
+  const rd=e.target.closest('[data-rdur]'); if(rd){rDur=+rd.dataset.rdur;renderResource(curRes);return;}
+  const gf=e.target.closest('[data-gflag]'); if(gf){gFilt.flag=gf.dataset.gflag;document.getElementById('gd-resources').innerHTML=groupResPaneHtml(curGroup);return;}
+  const gft=e.target.closest('[data-gflagtab]'); if(gft){gFilt.flag=gft.dataset.gflagtab;groupTab='resources';renderGroup(curGroup);return;}
   const t=e.target.closest('[data-action]'); if(!t)return;
   switch(t.dataset.action){
     case 'toLanding': show('landing'); renderLanding(); break;
@@ -578,6 +662,7 @@ document.addEventListener('click',e=>{
     case 'clearSel': if(view==='group'){gSel.clear(); document.getElementById('gd-resources').innerHTML=groupResPaneHtml(curGroup);} else {xSel.clear(); updateExplorerBody();} break;
     case 'ruleSave': ruleSave(); break;
     case 'ruleCancel': ruleCancel(); break;
+    case 'dlAll': reportAll(); break;
   }
 });
 // filters + selections (input + change)
